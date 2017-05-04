@@ -1,5 +1,5 @@
 import numpy as np
-
+from Variables import *
 print 'Loading BC..'
 
 def Wall(rho, momentum, energy, args):
@@ -24,14 +24,19 @@ def FixedRho(rho, momentum,energy,args):
 
    rho[i] = args[1] 
    momentum[i] = momentum[i_one]
-   energy[i] = energy[i_one]
+   energy[i] = 1./(gamma-1.) #energy[i_one]
 
-"""
-def SoundWave(side, rho, momentum, energy, args):  #args=[t]
-   rho[0] = rho[1]
-   rho[-1] = rho[-2]
-   momentum[-1] = 0.2*np.sin(2*np.pi*t/0.1)
-   momentum[0] = 0.
-   energy[0] = energy[1]
-   energy[-1] = energy[-2]
-"""
+def Periodic(rho, momentum, energy, args):
+   rho[0] = rho[-2]
+   rho[-1] = rho[1]
+
+   momentum[0] = momentum[-2]
+   momentum[-1] = momentum[1]
+
+   energy[0] = energy[-2]
+   energy[-1] = energy[1]
+
+
+
+
+
