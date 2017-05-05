@@ -1,17 +1,17 @@
 import numpy as np
-import Flux
+import Advance
 import BoundaryConditions
 import InitialConditions
 import ChangeOfVar
-from Variables import * 
+import Variables as var
 
 print 'Loading Settings..'
 
-#rho, momentum, energy = InitialConditions.IsothermalEq(z, rho, momentum, energy, 1.)
-rho, momentum, energy = InitialConditions.SoundWaves(z, rho, momentum, energy, 1.0, 0.01, 1.0, 3.)
+InitialConditions.IsothermalEq(1.)
+InitialConditions.SoundWaves(1.0, 0.001, 1.0, 4.)
 
 
-v,T,P = ChangeOfVar.ConvertToPrim(rho, momentum, energy)
+ChangeOfVar.ConvertToPrim()
 
 
 BoundaryConditionL = BoundaryConditions.Periodic
@@ -21,14 +21,14 @@ argsR = []
 
 
 """
-BoundaryConditionL = BoundaryConditions.FixedRho
-argsL = ['L',1.]
+BoundaryConditionL = BoundaryConditions.FixedRhoP
+argsL = ['L',1.,1.]
 BoundaryConditionR = BoundaryConditions.Wall
 argsR = ['R']
 """
 
 
-FluxScheme = Flux.FirstGen
+Scheme = Advance.LaxFriedichs
 
 
 

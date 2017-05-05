@@ -1,5 +1,6 @@
 import numpy as np
 
+print "Loading Variables.."
 
 # ------------------ MESH ---------------------
 N = 256
@@ -9,13 +10,16 @@ zf = 1.
 dz = (zf-z0)/N   #np.ones(z.shape)*(zf-z0)/N
 z = np.linspace(z0-dz/2., zf+dz/2., N+2)
 
+
 rho = np.ones(z.shape)
 momentum = np.ones(z.shape)
 energy = np.ones(z.shape)
 
+"""
 massFlux = np.zeros(z.shape)
 momentumFlux = np.zeros(z.shape)
 energyFlux = np.zeros(z.shape)
+"""
 
 momentumSource = np.zeros(z.shape)
 energySource = np.zeros(z.shape)
@@ -34,17 +38,18 @@ Cv = 1.
 gamma = 5./3.
 R = 1.
 
-cfl_set = 0.001
+cfl_set = 0.005
+cfl = cfl_set
 
 SoundSpeedLine = True
 
 dt_max = 0.01
 dt = 1e-9
 tt = 0.
-tf = .75
+tf = 5.
 it = 0
-max_it = 2 #50000
-save_rate = 5
+max_it = 800
+save_rate = 10
 
 
 

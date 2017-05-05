@@ -1,13 +1,13 @@
 import numpy as np
+import Variables as var
 
-def ComputeDT(dt, dt_max, dz, rho, momentum, cfl_set):
-   cfl = dt*np.max(abs(momentum/rho))/dz
-   if np.max(abs(momentum))!=0:
-     dt = cfl_set*dz/np.max(abs(momentum/rho))
+print "Loading TimeStep.."
+
+def ComputeDT():
+   var.cfl = var.dt*np.max(abs(var.v))/var.dz
+   if np.max(abs(var.v))!=0:
+     var.dt = var.cfl_set*var.dz/np.max(abs(var.v))
  
-   if dt>=dt_max:
-      dt = dt_max
-
-   return cfl, dt
-
+   if var.dt>=var.dt_max:
+      var.dt = var.dt_max
 
