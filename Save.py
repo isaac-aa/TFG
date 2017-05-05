@@ -30,7 +30,7 @@ if var.SoundSpeedLine:
 axs[0].set_ylim(0.995,1.005)
 axs[1].set_ylim(-.005, .005)
 axs[2].set_ylim(0.995, 1.005)
-axs[0].set_xlim(var.z0,var.zf)
+axs[0].set_xlim(var.z[0],var.z[-1])
 
 def Plot():
    rho_line.set_ydata(var.rho)
