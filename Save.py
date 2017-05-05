@@ -27,7 +27,7 @@ if var.IsThereGravity:
    FreeFall_line.set_xdata([var.z[0], var.z[-1]])
 if var.SoundSpeedLine:
    SoundSpeed_line.set_ydata([0.,2.])
-   MaxAmp_line.set_xdata([0.,.1])
+   MaxAmp_line.set_xdata([0.,1.])
 
 axs[0].set_ylim(0.995,1.005)
 axs[1].set_ylim(-.005, .005)
