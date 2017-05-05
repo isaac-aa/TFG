@@ -2,6 +2,7 @@ import numpy as np
 import Flux
 import BoundaryConditions
 import InitialConditions
+import ChangeOfVar
 from Variables import * 
 
 print 'Loading Settings..'
@@ -10,13 +11,7 @@ print 'Loading Settings..'
 rho, momentum, energy = InitialConditions.SoundWaves(z, rho, momentum, energy, 1.0, 0.01, 1.0, 3.)
 
 
-# Compute change of variables
-v = momentum/rho
- 
-e = energy/rho - 0.5*v*v              #rho*e = E - 0.5*rho*v*v
-   
-T = e/Cv          
-P = rho*(gamma-1.)*e
+v,T,P = ChangeOfVar.ConvertToPrim(rho, momentum, energy)
 
 
 BoundaryConditionL = BoundaryConditions.Periodic
@@ -33,7 +28,7 @@ argsR = ['R']
 """
 
 
-FluxScheme = Flux.LaxFriedichs
+FluxScheme = Flux.FirstGen
 
 
 

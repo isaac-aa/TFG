@@ -2,12 +2,12 @@ import numpy as np
 
 
 # ------------------ MESH ---------------------
-N = 20000
+N = 256
 z0 = 0.
 zf = 1.
 
-z = np.linspace(z0, zf, N)
-dz = np.ones(z.shape)*(zf-z0)/N
+dz = (zf-z0)/N   #np.ones(z.shape)*(zf-z0)/N
+z = np.linspace(z0-dz/2., zf+dz/2., N+2)
 
 rho = np.ones(z.shape)
 momentum = np.ones(z.shape)
@@ -34,16 +34,17 @@ Cv = 1.
 gamma = 5./3.
 R = 1.
 
-cfl_set = 0.05
+cfl_set = 0.001
 
+SoundSpeedLine = True
 
-
-dt_max = 0.00001
+dt_max = 0.01
 dt = 1e-9
 tt = 0.
-tf = 1.
+tf = .75
 it = 0
-max_it = 50000
+max_it = 2 #50000
+save_rate = 5
 
 
 
