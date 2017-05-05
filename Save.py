@@ -21,11 +21,13 @@ P_line, = axs[2].plot(var.z, var.P)
 
 FreeFall_line, = axs[1].plot([],[], "r--")
 SoundSpeed_line, = axs[1].plot([],[], "r--")
+MaxAmp_line, = axs[1].plot([],[], "k--")
 
 if var.IsThereGravity:
    FreeFall_line.set_xdata([var.z[0], var.z[-1]])
 if var.SoundSpeedLine:
    SoundSpeed_line.set_ydata([0.,2.])
+   MaxAmp_line.set_xdata([0.,.1])
 
 axs[0].set_ylim(0.995,1.005)
 axs[1].set_ylim(-.005, .005)
@@ -45,7 +47,10 @@ def Plot():
       c_s = np.sqrt(var.gamma)   #rho=p0=1
       x = c_s*var.tt 
       SoundSpeed_line.set_xdata([x, x])
-
+      MaxAmp = np.max(var.v)
+      MaxAmp_line.set_ydata([MaxAmp, MaxAmp])
+    
+   
    plt.savefig('RESULTS/%.5f.png'%var.tt, bbox_inches='tight')
 
 

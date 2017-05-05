@@ -3,7 +3,7 @@ import numpy as np
 print "Loading Variables.."
 
 # ------------------ MESH ---------------------
-N = 200
+N = 100
 z0 = 0.
 zf = 1.
 dz = (zf-z0)/N
@@ -41,7 +41,7 @@ Cv = 1.
 gamma = 5./3.
 R = 1.
 
-cfl_set = 0.95
+cfl_set = 0.97
 cfl = cfl_set
 
 SoundSpeedLine = True
@@ -49,10 +49,10 @@ SoundSpeedLine = True
 dt_max = 0.1
 dt = dt_max
 tt = 0.
-tf = 50.
+tf = 0.8
 it = 0
 max_it = 800
-save_rate = 10
+save_rate = 1
 
 
 

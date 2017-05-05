@@ -1,4 +1,5 @@
 import Variables as var
+import numpy as np
 import Flux
 
 def LaxFriedichs():
@@ -19,9 +20,9 @@ def LaxFriedichs():
 def FirstGen():
    lamda = var.dt/var.dz
 
-   rhoHalf = var.rho
-   momentumHalf = var.momentum
-   energyHalf = var.energy
+   rhoHalf = np.ones(var.z.shape)
+   momentumHalf = np.ones(var.z.shape)
+   energyHalf = np.ones(var.z.shape)
 
 
    # --------------------- LaxFriedichs Half Step

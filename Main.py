@@ -31,6 +31,7 @@ while (var.it<=var.max_it and var.tt<=var.tf):
 
    TimeStep.ComputeDT()
 
+
    if var.it%var.save_rate == 0.:
      Save.Plot()
      print var.it, var.tt, var.dt, var.cfl
