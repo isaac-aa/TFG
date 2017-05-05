@@ -11,6 +11,8 @@ import Save
 
 # ------------------ TIME STEP -----------------
 
+TimeStep.ComputeDT()
+
 while (var.it<=var.max_it and var.tt<=var.tf):
 
    # Boundary conditions

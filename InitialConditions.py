@@ -17,7 +17,7 @@ def IsothermalEq(p0):
 def SoundWaves(rho0, A, p0, N):
   K = N*2*np.pi/(var.zf-var.z0)
   var.rho = rho0*(1. + A*np.cos(K*var.z) )
-  print var.rho[1]- var.rho[2]
+  print var.rho[1]- var.rho[-2]
   print var.rho[0]- var.rho[-1]
   
   print var.rho[100]- var.rho[-101] 

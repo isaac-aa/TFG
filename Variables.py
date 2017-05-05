@@ -3,13 +3,16 @@ import numpy as np
 print "Loading Variables.."
 
 # ------------------ MESH ---------------------
-N = 256
+N = 200
 z0 = 0.
 zf = 1.
+dz = (zf-z0)/N
 
-dz = (zf-z0)/N   #np.ones(z.shape)*(zf-z0)/N
-z = np.linspace(z0-dz/2., zf+dz/2., N+2)
-
+dz_p = (zf-z0)/(N+2)   #np.ones(z.shape)*(zf-z0)/N
+z = np.linspace(z0, zf, N+1)
+z = np.append([z0-dz], z)   #Todo esto no es que sea muy optimo...
+z = np.append(z, [zf+dz])
+print z, dz
 
 rho = np.ones(z.shape)
 momentum = np.ones(z.shape)
@@ -38,15 +41,15 @@ Cv = 1.
 gamma = 5./3.
 R = 1.
 
-cfl_set = 0.005
+cfl_set = 0.95
 cfl = cfl_set
 
 SoundSpeedLine = True
 
-dt_max = 0.01
-dt = 1e-9
+dt_max = 0.1
+dt = dt_max
 tt = 0.
-tf = 5.
+tf = 50.
 it = 0
 max_it = 800
 save_rate = 10

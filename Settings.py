@@ -28,7 +28,7 @@ argsR = ['R']
 """
 
 
-Scheme = Advance.LaxFriedichs
+Scheme = Advance.FirstGen
 
 
 

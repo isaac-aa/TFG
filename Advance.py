@@ -43,9 +43,6 @@ def FirstGen():
    massFluxHalf, momentumFluxHalf, energyFluxHalf = Flux.ComputeFlux(rhoHalf, momentumHalf, energyHalf, vHalf, PHalf)
 
 
-   #rho[1:-1] = rho[1:-1] - lamda*( massFluxHalf[1:-1] - massFluxHalf[:-2] )
-   #momentum[1:-1] = momentum[1:-1] - lamda*( momentumFluxHalf[1:-1] - momentumFluxHalf[:-2] ) + dt*momentumSource[1:-1]
-   #energy[1:-1] = energy[1:-1] - lamda*( energyFluxHalf[1:-1] - energyFluxHalf[:-2] ) + dt*energySource[1:-1]
    var.rho[1:-1] = var.rho[1:-1] - lamda*( massFluxHalf[1:-1] - massFluxHalf[:-2] )
    var.momentum[1:-1] = var.momentum[1:-1] - lamda*( momentumFluxHalf[1:-1] - momentumFluxHalf[:-2] ) + var.dt*var.momentumSource[1:-1]
    var.energy[1:-1] = var.energy[1:-1] - lamda*( energyFluxHalf[1:-1] - energyFluxHalf[:-2] ) + var.dt*var.energySource[1:-1]
