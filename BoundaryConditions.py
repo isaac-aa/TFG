@@ -4,11 +4,11 @@ import Settings as sets
 
 print 'Loading BC..'
 
-def Wall():
-   if sets.args[0]=="L":
+def Wall(args):
+   if args[0]=="L":
      i = 0
      i_one = 1
-   if sets.args[0]=="R":
+   if args[0]=="R":
      i = -1
      i_one = -2
 
@@ -16,17 +16,17 @@ def Wall():
    var.momentum[i] = var.momentum[i_one]
    var.energy[i] = var.energy[i_one]
 
-def FixedRhoP():
-   if sets.args[0]=="L":
+def FixedRhoP(args):
+   if args[0]=="L":
      i = 0
      i_one = 1
-   if sets.args[0]=="R":
+   if args[0]=="R":
      i = -1
      i_one = -2
 
-   var.rho[i] = sets.args[1] 
+   var.rho[i] = args[1] 
    var.momentum[i] = var.momentum[i_one]
-   var.energy[i] = sets.args[2]/(sets.args[1]*(var.gamma-1.) ) #energy[i_one]
+   var.energy[i] = args[2]/(args[1]*(var.gamma-1.) ) #energy[i_one]
 
 def Periodic():
    var.rho[0] = var.rho[-2]

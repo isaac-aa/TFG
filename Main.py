@@ -16,8 +16,8 @@ TimeStep.ComputeDT()
 while (var.it<=var.max_it and var.tt<=var.tf):
 
    # Boundary conditions
-   sets.BoundaryConditionL()
-   sets.BoundaryConditionR()
+   sets.BoundaryConditionL(sets.argsL)
+   sets.BoundaryConditionR(sets.argsR)
 
    # Source computation
    if var.IsComputingSource:
