@@ -1,5 +1,7 @@
 import numpy as np
 
+import Grid
+import Parameters as par
 import Variables as var
 import matplotlib.pyplot as plt
 
@@ -13,44 +15,44 @@ import matplotlib.pyplot as plt
 f, axs = plt.subplots(3,1, sharex=True)
 f.set_size_inches(18.5, 10.5)
 axs[0].set_title(r"$\rho$")
-rho_line, = axs[0].plot(var.z, var.rho)
+rho_line, = axs[0].plot(Grid.z, var.rho)
 axs[1].set_title("v")
-v_line, = axs[1].plot(var.z, var.v)
+v_line, = axs[1].plot(Grid.z, var.v)
 axs[2].set_title("P")
-P_line, = axs[2].plot(var.z, var.P)
+P_line, = axs[2].plot(Grid.z, var.P)
 
 FreeFall_line, = axs[1].plot([],[], "r--")
 SoundSpeed_line, = axs[1].plot([],[], "r--")
 MaxAmp_line, = axs[1].plot([],[], "k--")
 
-if var.IsThereGravity:
-   FreeFall_line.set_xdata([var.z[0], var.z[-1]])
-if var.SoundSpeedLine:
+if par.IsThereGravity:
+   FreeFall_line.set_xdata([Grid.z[0], Grid.z[-1]])
+if par.SoundSpeedLine:
    SoundSpeed_line.set_ydata([0.,2.])
    MaxAmp_line.set_xdata([0.,1.])
 
 axs[0].set_ylim(0.995,1.005)
 axs[1].set_ylim(-.005, .005)
 axs[2].set_ylim(0.995, 1.005)
-axs[0].set_xlim(var.z[0],var.z[-1])
+axs[0].set_xlim(Grid.z[0],Grid.z[-1])
 
 def Plot():
    rho_line.set_ydata(var.rho)
    v_line.set_ydata(var.v)
    P_line.set_ydata(var.P)
 
-   if var.IsThereGravity:
-      vff = var.g*var.tt
+   if par.IsThereGravity:
+      vff = par.g*par.tt
       FreeFall_line.set_ydata([vff, vff])
 
-   if var.SoundSpeedLine:
-      c_s = np.sqrt(var.gamma)   #rho=p0=1
-      x = c_s*var.tt 
+   if par.SoundSpeedLine:
+      c_s = np.sqrt(par.gamma)   #rho=p0=1
+      x = c_s*par.tt 
       SoundSpeed_line.set_xdata([x, x])
       MaxAmp = np.max(var.v)
       MaxAmp_line.set_ydata([MaxAmp, MaxAmp])
     
    
-   plt.savefig('RESULTS/%.5f.png'%var.tt, bbox_inches='tight')
+   plt.savefig('RESULTS/%.5f.png'%par.tt, bbox_inches='tight')
 
 

@@ -1,4 +1,5 @@
 import numpy as np
+import Parameters as par
 import Variables as var
 import Settings as sets
 
@@ -26,7 +27,7 @@ def FixedRhoP(args):
 
    var.rho[i] = args[1] 
    var.momentum[i] = var.momentum[i_one]
-   var.energy[i] = args[2]/(args[1]*(var.gamma-1.) ) #energy[i_one]
+   var.energy[i] = args[2]/(args[1]*(par.gamma-1.) ) #energy[i_one]
 
 def Periodic(args):
    var.rho[0] = var.rho[-2]

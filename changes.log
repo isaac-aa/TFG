@@ -1,0 +1,7 @@
+CHANGELOG
+
+# ----- 08/05
+	- Order of calls inside Main loop changed in order to make it more readable and logic
+	- Created Parameters.py for input values from user. "Variables" changed to "Parameters" and "var" to "par"
+	- Re-used Variables.py for primitive and conservative variables
+	- Created Grid.py, which is on charge of building the grid

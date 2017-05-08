@@ -1,16 +1,16 @@
 import numpy as np
-import Variables as var
+import Parameters as par
 
 print 'Loading SourceTerm..'
 
 def computeGravSource():
-   momentumGravSource = var.rho*var.g
-   energyGravSource = var.momentum*var.g
+   momentumGravSource = var.rho*par.g
+   energyGravSource = var.momentum*par.g
  
    return momentumGravSource, energyGravSource
 
 def ComputeSource():
-  if var.IsThereGravity:
+  if par.IsThereGravity:
      momentumG, energyG = computeGravSource()
      var.momentumSource = momentumG
      var.energySource = energyG

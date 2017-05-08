@@ -3,13 +3,15 @@ import Advance
 import BoundaryConditions
 import InitialConditions
 import ChangeOfVar
-import Variables as var
+import Parameters as par
 
 print 'Loading Settings..'
 
-InitialConditions.IsothermalEq(1.)
-InitialConditions.SoundWaves(1.0, 0.001, 1.0, 4.)
 
+#InitialConditions.IsothermalEq(1.)
+#args = [1.]
+InitialCondition = InitialConditions.SoundWaves
+argsIC = [1.0, 0.001, 1.0, 4.]
 
 ChangeOfVar.ConvertToPrim()
 
@@ -29,6 +31,6 @@ argsR = ['R']
 
 
 Scheme = Advance.FirstGen
-
+#Advance.AllocateFirstGen() #Ponerlo en el main, despues de crear la malla
 
 
