@@ -28,7 +28,7 @@ def FixedRhoP(args):
    var.momentum[i] = var.momentum[i_one]
    var.energy[i] = args[2]/(args[1]*(var.gamma-1.) ) #energy[i_one]
 
-def Periodic():
+def Periodic(args):
    var.rho[0] = var.rho[-2]
    var.rho[-1] = var.rho[1]
 
