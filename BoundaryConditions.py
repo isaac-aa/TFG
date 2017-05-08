@@ -1,3 +1,14 @@
+#--------------------------------------------
+#		BoundaryConditions.py
+# This module defines the different Boundary
+# conditions that can be applied to the ghost
+# cells. The common argument "args" is a list
+# of user defined values. Its lenght can depend
+# on the BC
+#
+#--------------------------------------------
+
+
 import numpy as np
 import Parameters as par
 import Variables as var

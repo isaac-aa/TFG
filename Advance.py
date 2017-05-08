@@ -1,3 +1,13 @@
+#--------------------------------------------
+#		Advance.py
+# This module defines the different numerical
+# schemes that can be used in this code. The
+# scheme should be set at Settings.py
+#
+#--------------------------------------------
+
+
+
 import Parameters as par
 import Grid
 import Variables as var

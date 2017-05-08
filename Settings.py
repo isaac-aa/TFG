@@ -1,3 +1,10 @@
+#--------------------------------------------
+#		Settings.py
+# This module defines the different functions
+# and numerical schemes used for the simulation
+#
+#--------------------------------------------
+
 import numpy as np
 import Advance
 import BoundaryConditions

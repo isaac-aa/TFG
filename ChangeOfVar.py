@@ -1,3 +1,13 @@
+#--------------------------------------------
+#		ChangeOfVar.py
+# This module changes from Conservative (rho,
+# momentum, energy) to Primitives variables
+# (rho, velocity, pressure, temperature) and
+# viceversa (TODO)
+#
+#--------------------------------------------
+
+
 import Parameters as par
 import Variables as var
 

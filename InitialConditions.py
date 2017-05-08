@@ -1,3 +1,14 @@
+#--------------------------------------------
+#		InitialConditions.py
+# This module defines the Initial Conditions 
+# for the simulation. They are selected at
+# Settings.py, and a "args" argument is passed,
+# which is a list of the neccesary user defined
+# parameters.
+#
+#--------------------------------------------
+
+
 import numpy as np
 import Grid
 import Parameters as par
@@ -33,3 +44,6 @@ def SoundWaves(args):
 
   pIn = p0*(1. + par.gamma*A*np.cos(phas) )
   var.energy = pIn/(par.gamma-1.) + 0.5*var.rho*vIn*vIn
+  
+  
+  

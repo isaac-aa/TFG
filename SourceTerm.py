@@ -1,3 +1,12 @@
+#--------------------------------------------
+#		Source.py
+# This module computes the momentum and energy
+# source term that should be added to the 
+# conservative part of the equations. This can be
+# further improve using Operator Splitting (TODO)
+#
+#--------------------------------------------
+
 import numpy as np
 import Parameters as par
 

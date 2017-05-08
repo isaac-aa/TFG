@@ -1,3 +1,10 @@
+#--------------------------------------------
+#		TimeStep.py
+# This module in on charge of computing the 
+# time step each iteration
+#
+#--------------------------------------------
+
 import numpy as np
 import Parameters as par
 import Grid

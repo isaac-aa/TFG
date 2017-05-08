@@ -1,3 +1,12 @@
+#--------------------------------------------
+#		Main.py
+# This module is the core of the simulation.
+# Firstly it imports all the neccesary modules,
+# creates the mesh, set the initial state and
+# starts the main loop
+#
+#--------------------------------------------
+
 import numpy as np
 import time
 

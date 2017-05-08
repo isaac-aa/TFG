@@ -1,8 +1,19 @@
+#--------------------------------------------
+#		Save.py
+# This module saves the current state as a plot,
+# or a ASCII file (TODO). It can add different
+# plots, that can be set at Parameters.py (eg.
+# an analytic solution)
+#
+#--------------------------------------------
+
 import numpy as np
 
 import Grid
 import Parameters as par
 import Variables as var
+import Settings as sets
+import Analytic
 import matplotlib.pyplot as plt
 
 # ------------------ PLOT ----------------------
@@ -22,14 +33,23 @@ axs[2].set_title("P")
 P_line, = axs[2].plot(Grid.z, var.P)
 
 FreeFall_line, = axs[1].plot([],[], "r--")
+
 SoundSpeed_line, = axs[1].plot([],[], "r--")
 MaxAmp_line, = axs[1].plot([],[], "k--")
+
+rhoAna_line, = axs[0].plot([],[], "r--")
+vAna_line, = axs[1].plot([],[], "r--")
+PAna_line, = axs[2].plot([],[], "r--")
 
 if par.IsThereGravity:
    FreeFall_line.set_xdata([Grid.z[0], Grid.z[-1]])
 if par.SoundSpeedLine:
    SoundSpeed_line.set_ydata([0.,2.])
    MaxAmp_line.set_xdata([0.,1.])
+if par.SoundSpeedAnalytic:
+   rhoAna_line.set_xdata(Grid.z)
+   vAna_line.set_xdata(Grid.z)
+   PAna_line.set_xdata(Grid.z)
 
 axs[0].set_ylim(0.995,1.005)
 axs[1].set_ylim(-.005, .005)
@@ -51,6 +71,12 @@ def Plot():
       SoundSpeed_line.set_xdata([x, x])
       MaxAmp = np.max(var.v)
       MaxAmp_line.set_ydata([MaxAmp, MaxAmp])
+      
+   if par.SoundSpeedAnalytic:
+      rhoAna, vAna, PAna = Analytic.SoundWaves(sets.argsIC, par.tt)
+      rhoAna_line.set_ydata(rhoAna)
+      vAna_line.set_ydata(vAna)
+      PAna_line.set_ydata(PAna)
     
    
    plt.savefig('RESULTS/%.5f.png'%par.tt, bbox_inches='tight')
