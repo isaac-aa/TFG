@@ -1,5 +1,8 @@
 CHANGELOG
 
+TODOs:
+
+
 # ----- 08/05
 	- Order of calls inside Main loop changed in order to make it more readable and logic
 	- Created Parameters.py for input values from user. "Variables" changed to "Parameters" and "var" to "par"
@@ -8,3 +11,8 @@ CHANGELOG
 	************ COMMITED ********************
 	- Added comments to every file at the beggining
 	- Added Analytic.py module, which computes analytic solution for some given problems
+	************ COMMITED ********************
+# ----- 09/05
+	- Added Operator Splitting for the Source Term (only gravity)
+	- Added options to modify the axis scale on Parameters.py
+	- Added analytic solution for the isothermal equilibrium

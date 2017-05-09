@@ -9,6 +9,7 @@
 
 import numpy as np
 import Parameters as par
+import Variables as var
 
 print 'Loading SourceTerm..'
 
@@ -21,6 +22,6 @@ def computeGravSource():
 def ComputeSource():
   if par.IsThereGravity:
      momentumG, energyG = computeGravSource()
-     var.momentumSource = momentumG
-     var.energySource = energyG
+     var.momentum += par.dt*momentumG
+     var.energySource += par.dt*energyG
 

@@ -37,13 +37,13 @@ while (par.it<=par.max_it and par.tt<=par.tf):
    par.tt += par.dt  
    par.it += 1
    
+   # Time step
+   sets.Scheme()   #Sacar flujo al main
+   
    # Source computation
    # NOTE: This should be done after the Scheme if doing Operator Splitting (TODO)
    if par.IsComputingSource:
       SourceTerm.ComputeSource()
-
-   # Time step
-   sets.Scheme()   #Sacar flujo al main
 
    # Boundary conditions     
    sets.BoundaryConditionL(sets.argsL)

@@ -21,8 +21,10 @@ print 'Loading InitialConditions..'
 
 def IsothermalEq(args):
   p0 = args[0]
+  rho0 = args[1]
+  
   P0 = p0*np.exp(-Grid.z/1.)
-  var.rho = 1.*np.exp(-Grid.z/1.)
+  var.rho = rho0*np.exp(-Grid.z/1.)
   var.momentum = var.momentum*0.
   var.energy = P0/(par.gamma-1.)
 

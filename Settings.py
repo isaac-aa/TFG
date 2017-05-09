@@ -15,26 +15,23 @@ import Parameters as par
 print 'Loading Settings..'
 
 
-#InitialConditions.IsothermalEq(1.)
-#args = [1.]
-InitialCondition = InitialConditions.SoundWaves
-argsIC = [1.0, 0.001, 1.0, 4.]
+InitialCondition = InitialConditions.IsothermalEq
+argsIC = [1., 1.]
+#InitialCondition = InitialConditions.SoundWaves
+#argsIC = [1.0, 0.001, 1.0, 4.]
 
 ChangeOfVar.ConvertToPrim()
 
 
-BoundaryConditionL = BoundaryConditions.Periodic
-argsL = []
-BoundaryConditionR = BoundaryConditions.Periodic
-argsR = []
+#BoundaryConditionL = BoundaryConditions.Periodic
+#argsL = []
+#BoundaryConditionR = BoundaryConditions.Periodic
+#argsR = []
 
-
-"""
 BoundaryConditionL = BoundaryConditions.FixedRhoP
 argsL = ['L',1.,1.]
 BoundaryConditionR = BoundaryConditions.Wall
 argsR = ['R']
-"""
 
 
 Scheme = Advance.FirstGen

@@ -43,8 +43,8 @@ def FirstGen():
    massFlux, momentumFlux, energyFlux = Flux.ComputeFlux(var.rho, var.momentum, var.energy, var.v, var.P)
 
    rhoHalf[:-1] = 0.5*(var.rho[1:]+var.rho[:-1]) - 0.5*lamda*(massFlux[1:] - massFlux[:-1]) 
-   momentumHalf[:-1] = 0.5*(var.momentum[1:]+var.momentum[:-1]) - 0.5*lamda*(momentumFlux[1:] - momentumFlux[:-1]) + 0.5*par.dt*var.momentumSource[:-1]
-   energyHalf[:-1] = 0.5*(var.energy[1:]+var.energy[:-1]) - 0.5*lamda*(energyFlux[1:] - energyFlux[:-1]) + 0.5*par.dt*var.energySource[:-1]
+   momentumHalf[:-1] = 0.5*(var.momentum[1:]+var.momentum[:-1]) - 0.5*lamda*(momentumFlux[1:] - momentumFlux[:-1]) #+ 0.5*par.dt*0.5*(var.momentumSource[1:]+var.momentumSource[:-1])
+   energyHalf[:-1] = 0.5*(var.energy[1:]+var.energy[:-1]) - 0.5*lamda*(energyFlux[1:] - energyFlux[:-1]) #+ 0.5*par.dt*0.5*(var.energySource[1:]+var.energySource[:-1])
 
 
    # Compute change of variables
@@ -57,7 +57,7 @@ def FirstGen():
 
 
    var.rho[1:-1] = var.rho[1:-1] - lamda*( massFluxHalf[1:-1] - massFluxHalf[:-2] )
-   var.momentum[1:-1] = var.momentum[1:-1] - lamda*( momentumFluxHalf[1:-1] - momentumFluxHalf[:-2] ) + par.dt*var.momentumSource[1:-1]
-   var.energy[1:-1] = var.energy[1:-1] - lamda*( energyFluxHalf[1:-1] - energyFluxHalf[:-2] ) + par.dt*var.energySource[1:-1]
+   var.momentum[1:-1] = var.momentum[1:-1] - lamda*( momentumFluxHalf[1:-1] - momentumFluxHalf[:-2] ) #+ par.dt*var.momentumSource[1:-1]
+   var.energy[1:-1] = var.energy[1:-1] - lamda*( energyFluxHalf[1:-1] - energyFluxHalf[:-2] ) #+ par.dt*var.energySource[1:-1]
 
    

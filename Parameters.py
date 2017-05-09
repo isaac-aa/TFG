@@ -19,22 +19,35 @@ zf = 1.
 dt_max = 0.1
 dt = dt_max
 tt = 0.
-tf = 0.8
+tf = 10.
 it = 0
-max_it = 800
+max_it = 150
 cfl_set = 0.8
 cfl = cfl_set
 
 # ------------------ PLOT SETUP ---------------
 
-save_rate = 1
+# Soundwaves
 SoundSpeedLine = False
-SoundSpeedAnalytic = True
+SoundSpeedAnalytic = False
+#rhoAxis = [0.995,1.005]
+#vAxis = [-.005, .005]
+#PAxis = [0.995, 1.005]
+
+# Isothermal eq
+IsothermalAnalytic = True
+rhoAxis = [0., 1.1]
+vAxis = [-1., 0.1]
+PAxis = [0., 1.1]
+
+
+save_rate = 1
+
 
 # ------------------ SOURCE TERMS -------------
 
-IsComputingSource = False
-IsThereGravity = False
+IsComputingSource = True
+IsThereGravity = True
 g = -1.
 
 # ------------------ EQUATION OF STATE --------

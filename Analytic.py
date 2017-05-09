@@ -31,3 +31,15 @@ def SoundWaves(args, t):
   PAna = p0*(1. + par.gamma*A*np.cos(phas - w*t) )
 
   return rhoAna, vAna, PAna
+  
+
+def Isothermal(args, t):
+  p0 = args[0]
+  rho0 = args[1]
+  PAna = p0*np.exp(-Grid.z/1.)
+  rhoAna = rho0*np.exp(-Grid.z/1.)
+  vAna = Grid.z*0.
+  
+  return rhoAna, vAna, PAna  
+  
+  

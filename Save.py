@@ -37,23 +37,23 @@ FreeFall_line, = axs[1].plot([],[], "r--")
 SoundSpeed_line, = axs[1].plot([],[], "r--")
 MaxAmp_line, = axs[1].plot([],[], "k--")
 
-rhoAna_line, = axs[0].plot([],[], "r--")
-vAna_line, = axs[1].plot([],[], "r--")
-PAna_line, = axs[2].plot([],[], "r--")
+rhoAna_line, = axs[0].plot([],[], "k--")
+vAna_line, = axs[1].plot([],[], "k--")
+PAna_line, = axs[2].plot([],[], "k--")
 
 if par.IsThereGravity:
    FreeFall_line.set_xdata([Grid.z[0], Grid.z[-1]])
 if par.SoundSpeedLine:
    SoundSpeed_line.set_ydata([0.,2.])
    MaxAmp_line.set_xdata([0.,1.])
-if par.SoundSpeedAnalytic:
+if par.SoundSpeedAnalytic or par.IsothermalAnalytic:
    rhoAna_line.set_xdata(Grid.z)
    vAna_line.set_xdata(Grid.z)
    PAna_line.set_xdata(Grid.z)
 
-axs[0].set_ylim(0.995,1.005)
-axs[1].set_ylim(-.005, .005)
-axs[2].set_ylim(0.995, 1.005)
+axs[0].set_ylim(par.rhoAxis)
+axs[1].set_ylim(par.vAxis)
+axs[2].set_ylim(par.PAxis)
 axs[0].set_xlim(Grid.z[0],Grid.z[-1])
 
 def Plot():
@@ -72,12 +72,20 @@ def Plot():
       MaxAmp = np.max(var.v)
       MaxAmp_line.set_ydata([MaxAmp, MaxAmp])
       
+      
+   # This can be further improved...
    if par.SoundSpeedAnalytic:
       rhoAna, vAna, PAna = Analytic.SoundWaves(sets.argsIC, par.tt)
       rhoAna_line.set_ydata(rhoAna)
       vAna_line.set_ydata(vAna)
       PAna_line.set_ydata(PAna)
-    
+   
+   if par.IsothermalAnalytic:
+      rhoAna, vAna, PAna = Analytic.Isothermal(sets.argsIC, par.tt)
+      rhoAna_line.set_ydata(rhoAna)
+      vAna_line.set_ydata(vAna)
+      PAna_line.set_ydata(PAna)
+   
    
    plt.savefig('RESULTS/%.5f.png'%par.tt, bbox_inches='tight')
 

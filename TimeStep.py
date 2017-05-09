@@ -21,9 +21,5 @@ def ComputeDT():
    
    par.cfl = par.dt*np.max( [vchar1, vchar2] )/Grid.dz
 
-   if np.max(abs(var.v))!=0:
-     par.dt = par.cfl_set*Grid.dz/np.max( [vchar1, vchar2] )
+   par.dt = par.cfl_set*Grid.dz/np.max( [vchar1, vchar2] )
  
-   if par.dt>=par.dt_max:
-      par.dt = par.dt_max
-
