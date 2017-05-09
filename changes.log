@@ -16,3 +16,5 @@ TODOs:
 	- Added Operator Splitting for the Source Term (only gravity)
 	- Added options to modify the axis scale on Parameters.py
 	- Added analytic solution for the isothermal equilibrium
+	************ COMMITED ********************
+	- Added arrays for the last step variables to compute the mean of the variables at operator splitting step

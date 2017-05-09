@@ -14,9 +14,8 @@ import Variables as var
 print 'Loading SourceTerm..'
 
 def computeGravSource():
-   momentumGravSource = var.rho*par.g
-   energyGravSource = var.momentum*par.g
- 
+   momentumGravSource = 0.5*(var.rho+var.lastrho)*par.g
+   energyGravSource = 0.5*(var.momentum+var.lastmomentum)*par.g
    return momentumGravSource, energyGravSource
 
 def ComputeSource():

@@ -15,6 +15,11 @@ rho = np.ones(Grid.z.shape)
 momentum = np.ones(Grid.z.shape)
 energy = np.ones(Grid.z.shape)
 
+# Conservative variables at last time step
+lastrho = np.ones(Grid.z.shape)
+lastmomentum = np.ones(Grid.z.shape)
+lastenergy = np.ones(Grid.z.shape)
+
 # Source arrays
 momentumSource = np.zeros(Grid.z.shape)
 energySource = np.zeros(Grid.z.shape)
@@ -23,3 +28,4 @@ energySource = np.zeros(Grid.z.shape)
 T = np.ones(Grid.z.shape)
 P = np.ones(Grid.z.shape)
 v = np.ones(Grid.z.shape)
+

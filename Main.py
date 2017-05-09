@@ -16,7 +16,7 @@ import Grid
 
 # ------------------ MESH CREATION -------------
 Grid.Uniform1DGrid(par.N, par.z0, par.zf)
-print Grid.z
+
 import Variables as var
 import Settings as sets
 import SourceTerm
@@ -31,14 +31,19 @@ ChangeOfVar.ConvertToPrim()
 
 # ------------------ MAIN LOOP -----------------
 
+   
 while (par.it<=par.max_it and par.tt<=par.tf):
    TimeStep.ComputeDT()  
 
    par.tt += par.dt  
    par.it += 1
+   var.lastrho[:] = var.rho[:]
+   var.lastmomentum[:] = var.momentum[:]
+   var.lastenergy[:] = var.energy[:]
+
    
    # Time step
-   sets.Scheme()   #Sacar flujo al main
+   sets.Scheme() 
    
    # Source computation
    # NOTE: This should be done after the Scheme if doing Operator Splitting (TODO)
