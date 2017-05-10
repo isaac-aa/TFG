@@ -12,7 +12,7 @@ import Grid
 
 # Conservative variables
 rho = np.ones(Grid.z.shape)
-momentum = np.ones(Grid.z.shape)
+momentum = np.zeros(Grid.z.shape)
 energy = np.ones(Grid.z.shape)
 
 # Conservative variables at last time step

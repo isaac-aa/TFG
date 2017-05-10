@@ -15,8 +15,10 @@ import Parameters as par
 print 'Loading Settings..'
 
 
-InitialCondition = InitialConditions.IsothermalEq
-argsIC = [1., 1.]
+InitialCondition = InitialConditions.ReadICFromFile
+argsIC = ['hydrostatic_equilibrium.dat']
+#InitialCondition = InitialConditions.IsothermalEq
+#argsIC = [1., 1.]
 #InitialCondition = InitialConditions.SoundWaves
 #argsIC = [1.0, 0.001, 1.0, 4.]
 
@@ -28,10 +30,17 @@ ChangeOfVar.ConvertToPrim()
 #BoundaryConditionR = BoundaryConditions.Periodic
 #argsR = []
 
+#BoundaryConditionL = BoundaryConditions.FixedRhoP
+#argsL = ['L',1.,1.]
+#BoundaryConditionR = BoundaryConditions.Wall
+#argsR = ['R']
+
 BoundaryConditionL = BoundaryConditions.FixedRhoP
-argsL = ['L',1.,1.]
-BoundaryConditionR = BoundaryConditions.Wall
-argsR = ['R']
+#5.7181381e-13
+#0.431114473861
+argsL = ['L', 5.7181381e-13, 0.431114473861]
+BoundaryConditionR = BoundaryConditions.FixedT
+argsR = ['R', 1e6]
 
 
 Scheme = Advance.FirstGen

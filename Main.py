@@ -15,7 +15,8 @@ import Parameters as par
 import Grid
 
 # ------------------ MESH CREATION -------------
-Grid.Uniform1DGrid(par.N, par.z0, par.zf)
+#Grid.Uniform1DGrid(par.N, par.z0, par.zf)
+Grid.ReadGridFromFile('hydrostatic_equilibrium.dat')
 
 import Variables as var
 import Settings as sets
@@ -41,7 +42,6 @@ while (par.it<=par.max_it and par.tt<=par.tf):
    var.lastmomentum[:] = var.momentum[:]
    var.lastenergy[:] = var.energy[:]
 
-   
    # Time step
    sets.Scheme() 
    

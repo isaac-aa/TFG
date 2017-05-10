@@ -38,7 +38,20 @@ def FixedRhoP(args):
 
    var.rho[i] = args[1] 
    var.momentum[i] = var.momentum[i_one]
-   var.energy[i] = args[2]/(args[1]*(par.gamma-1.) ) #energy[i_one]
+   var.energy[i] = args[2]/(par.gamma-1.) + 0.5*var.rho[i]*var.v[i_one]*var.v[i_one] #energy[i_one]
+   
+def FixedT(args):
+   if args[0]=="L":
+     i = 0
+     i_one = 1
+   if args[0]=="R":
+     i = -1
+     i_one = -2
+   
+   var.rho[i] = var.rho[i_one]
+   var.momentum[i] = var.momentum[i_one]
+   E_k = 0.5*var.v[i_one]*var.v[i_one]*var.rho[i]
+   var.energy[i] = var.rho[i]*par.cv*args[1] + E_k
 
 def Periodic(args):
    var.rho[0] = var.rho[-2]

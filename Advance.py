@@ -20,8 +20,8 @@ def LaxFriedichs():
    massFlux, momentumFlux, energyFlux = Flux.ComputeFlux(var.rho, var.momentum, var.energy, var.v, var.P)
 
    var.rho[1:-1] = 0.5*(var.rho[2:]+var.rho[:-2]) - 0.5*lamda*(massFlux[2:] - massFlux[:-2]) 
-   var.momentum[1:-1] = 0.5*(var.momentum[2:]+var.momentum[:-2]) - 0.5*lamda*(momentumFlux[2:] - momentumFlux[:-2]) + par.dt*var.momentumSource[1:-1]
-   var.energy[1:-1] = 0.5*(var.energy[2:]+var.energy[:-2]) - 0.5*lamda*(energyFlux[2:] - energyFlux[:-2]) + par.dt*var.energySource[1:-1]
+   var.momentum[1:-1] = 0.5*(var.momentum[2:]+var.momentum[:-2]) - 0.5*lamda*(momentumFlux[2:] - momentumFlux[:-2]) 
+   var.energy[1:-1] = 0.5*(var.energy[2:]+var.energy[:-2]) - 0.5*lamda*(energyFlux[2:] - energyFlux[:-2]) 
 
 
 

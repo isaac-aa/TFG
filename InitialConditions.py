@@ -48,4 +48,32 @@ def SoundWaves(args):
   var.energy = pIn/(par.gamma-1.) + 0.5*var.rho*vIn*vIn
   
   
+def ReadICFromFile(args):
+   print "Loading IC from " + args[0]
+   FileName = args[0]
+   f = open(FileName)
+   f.readline()     #Line containing number of elements
+   refs = f.readline().split()
+   T_ref = float(refs[1])
+   rho_ref = float(refs[2])
+   mu = float(refs[3])
+   g = float(refs[4])
+   R = float(refs[5])
+   f.close()
+   
+   par.R = R
+   par.mu = mu
+   par.g = -g
+   par.Computecv()
+   #print par.R, par.mu, par.g, par.cv
+   
+   T_data, rho_data = np.loadtxt(FileName, skiprows=2, usecols=(1,2), unpack=True)
+
+   var.rho = rho_data*rho_ref
+   var.energy = var.rho*T_data*T_ref*par.cv
+   var.momentum = var.momentum*0.
+
+
+
+  
   

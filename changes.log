@@ -18,3 +18,13 @@ TODOs:
 	- Added analytic solution for the isothermal equilibrium
 	************ COMMITED ********************
 	- Added arrays for the last step variables to compute the mean of the variables at operator splitting step
+# ----- 10/05
+        - Fixed BCFixedRhoP() energy equation
+        - Added FixedT() as a BC
+        - Added option to load a grid from a file
+        - Added option to load IC from a file
+        - Added option for logarithm scale at plot
+        - Added temperature plot
+        - Changed EOS parameters to allow the use of dimensional variables
+        - Added Momentum Damping
+        - Default case is the equilibrium given by a file
