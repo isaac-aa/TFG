@@ -101,7 +101,7 @@ def Plot():
       vAna_line.set_ydata(vAna)
       PAna_line.set_ydata(PAna)
    
-   
-   plt.savefig('RESULTS/%.5f.png'%par.tt, bbox_inches='tight')
+   print 'Last T %.3e and %.3e '%(var.T[-2],var.T[-1])
+   plt.savefig('RESULTS/%.10f.png'%par.tt, bbox_inches='tight')
 
 

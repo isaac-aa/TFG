@@ -28,3 +28,9 @@ TODOs:
         - Changed EOS parameters to allow the use of dimensional variables
         - Added Momentum Damping
         - Default case is the equilibrium given by a file
+        ************ COMMITED ********************
+        - Added thermal diffusion #WIP#
+        - Added radiative losses #WIP#
+# ----- 13/05
+        - Changed computeDT to take into account the timestep given by the diffusion
+        - Added thermal diffusion test case, with an initial gaussian distribution

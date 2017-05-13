@@ -29,3 +29,5 @@ T = np.ones(Grid.z.shape)
 P = np.ones(Grid.z.shape)
 v = np.ones(Grid.z.shape)
 
+# Kappa of thermal diffusion
+kappa = np.zeros(Grid.z.shape)

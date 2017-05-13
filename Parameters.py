@@ -19,9 +19,9 @@ zf = 1.
 dt_max = 0.1
 dt = dt_max
 tt = 0.
-tf = 250.
+tf = 400.
 it = 0
-max_it = np.inf
+max_it = 200 #np.inf
 cfl_set = 0.8
 cfl = cfl_set
 
@@ -47,34 +47,51 @@ IsothermalAnalytic = False
 #vAxis = [-1., 0.1]
 #PAxis = [0., 1.1]
 
-# Transition region
-rhoAxis = [1e-15, 5.7181381e-13]
-vAxis = [-5e3, 5e3]
-PAxis = [0., .5]
-TAxis = [9000., 1100000.]
-logScale = [True, False, False, True]
+# Thermal Diffusion
+rhoAxis = [0., 2.]
+vAxis = [-1., 1.]
+PAxis = [0., 2.]
+TAxis = [0., 3.]
 
-save_rate = 100
+# Transition region
+#rhoAxis = [1e-15, 5.7181381e-13]
+#vAxis = [-5e5, 5e5]
+#PAxis = [0., .5]
+#TAxis = [9000., 1.8e6]
+#logScale = [True, False, False, False]
+
+save_rate = 10
 
 
 # ------------------ SOURCE TERMS -------------
 
-# Gravity
+
 IsComputingSource = True
-IsThereGravity = True
+
+# Gravity
+IsThereGravity = False
 g = -1.
 
 # Momentum Damping
 MomentumDamping = True
-DampingPercent = 0.05
+DampingPercent = 1.
+
+# Thermal Diffusion
+ThermalDiffusion = True
+SpitzerDiffusion = False
+ct = 1. #9e-12 * 1e5 # Value at E.Priest "Solar Magnetohydrodynamics" * mks to cgs factor
+f_cfl = 1.    #1.1 seems to be the maximun for the gaussian case, 1. is stable
+
+# Radiative losses
+RadiativeLoss = False
 
 # ------------------ EQUATION OF STATE --------
 
 
 gamma = 5./3.
 R = 1.
-Na = 6.022e23
-molarMass = 1.6605e-24 #grams
+Na = 1. #6.022e23
+molarMass = 1. #1.6605e-24 #grams
 mu = 1.
 cv = 1.
 

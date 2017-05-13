@@ -51,7 +51,8 @@ def FixedT(args):
    var.rho[i] = var.rho[i_one]
    var.momentum[i] = var.momentum[i_one]
    E_k = 0.5*var.v[i_one]*var.v[i_one]*var.rho[i]
-   var.energy[i] = var.rho[i]*par.cv*args[1] + E_k
+   boundaryE = var.rho[i]*par.cv*args[1] + E_k
+   var.energy[i] = 2*boundaryE-var.energy[i_one]
 
 def Periodic(args):
    var.rho[0] = var.rho[-2]

@@ -46,6 +46,20 @@ def SoundWaves(args):
 
   pIn = p0*(1. + par.gamma*A*np.cos(phas) )
   var.energy = pIn/(par.gamma-1.) + 0.5*var.rho*vIn*vIn
+
+
+def GaussianTemperature(args):
+  T0 = args[0]
+  z0 = args[1]
+  sigma = args[2]
+  rho0 = args[3]
+  
+  
+  exp = np.exp(-(Grid.z-z0)*(Grid.z-z0)/(2*sigma*sigma))
+  var.rho = rho0*np.ones(Grid.z.shape)
+  var.momentum = var.momentum*0.
+  var.energy = (1.+T0*exp)*var.rho*par.cv
+  var.kappa = par.ct*np.ones(Grid.z.shape)
   
   
 def ReadICFromFile(args):
@@ -72,6 +86,7 @@ def ReadICFromFile(args):
    var.rho = rho_data*rho_ref
    var.energy = var.rho*T_data*T_ref*par.cv
    var.momentum = var.momentum*0.
+   var.kappa = par.ct*(T_data*T_ref)**5./2.
 
 
 
