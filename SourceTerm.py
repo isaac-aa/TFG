@@ -35,10 +35,10 @@ def computeTemperatureDiffusion():
    #tau = Grid.dz*Grid.dz*var.rho[-2]*par.cv/var.kappa
    #print 'tau: %3.e'%np.min(tau)
    
-   Dkappa = -0.5*(var.kappa[2:]-var.kappa[:-2])
-   energyDiff = 0.5*(var.kappa[1:-1]+Dkappa)*var.T[2:] - var.kappa[1:-1]*var.T[1:-1] + 0.5*(var.kappa[1:-1]-Dkappa)*var.T[:-2]
+   Dkappa = 0.5*(var.kappa[2:]-var.kappa[:-2])
+   EnergyDiff = (var.kappa[1:-1]+Dkappa)*var.T[2:] - 2.*var.kappa[1:-1]*var.T[1:-1] + (var.kappa[1:-1]-Dkappa)*var.T[:-2]
 
-   return energyDiff/(Grid.dz*Grid.dz)
+   return EnergyDiff/(Grid.dz*Grid.dz)
 
 
 
@@ -59,7 +59,7 @@ def computeRadiativeLosses():
      else:
        Q[i] = 5.49e-16/var.T[i]
    
-   return var.rho * Q * Grid.dz *5e26 # "Random" parameter to make it noticeable
+   return var.rho * Q 
 
 
 def ComputeSource():

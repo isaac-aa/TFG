@@ -43,6 +43,7 @@ MaxAmp_line, = axs[1].plot([],[], "k--")
 rhoAna_line, = axs[0].plot([],[], "k--")
 vAna_line, = axs[1].plot([],[], "k--")
 PAna_line, = axs[2].plot([],[], "k--")
+TAna_line, = axs[3].plot([],[], "k--")
 
 
 if par.IsThereGravity:
@@ -50,10 +51,11 @@ if par.IsThereGravity:
 if par.SoundSpeedLine:
    SoundSpeed_line.set_ydata([0.,2.])
    MaxAmp_line.set_xdata([0.,1.])
-if par.SoundSpeedAnalytic or par.IsothermalAnalytic:
+if par.SoundSpeedAnalytic or par.IsothermalAnalytic or par.ThermalAnalytic:
    rhoAna_line.set_xdata(Grid.z)
    vAna_line.set_xdata(Grid.z)
    PAna_line.set_xdata(Grid.z)
+   TAna_line.set_xdata(Grid.z)
 
 if par.rhoAxis != []:
   axs[0].set_ylim(par.rhoAxis)
@@ -100,8 +102,16 @@ def Plot():
       rhoAna_line.set_ydata(rhoAna)
       vAna_line.set_ydata(vAna)
       PAna_line.set_ydata(PAna)
-   
+      
+   if par.ThermalAnalytic:
+      rhoAna, vAna, PAna, TAna = Analytic.GaussianThermal(sets.argsIC, par.tt)
+      rhoAna_line.set_ydata(rhoAna)
+      vAna_line.set_ydata(vAna)
+      PAna_line.set_ydata(PAna)
+      TAna_line.set_ydata(TAna)
+      
+         
    print 'Last T %.3e and %.3e '%(var.T[-2],var.T[-1])
-   plt.savefig('RESULTS/%.10f.png'%par.tt, bbox_inches='tight')
+   plt.savefig('RESULTS/%.20f.png'%par.tt, bbox_inches='tight')
 
 

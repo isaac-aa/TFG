@@ -18,7 +18,7 @@ print 'Loading Settings..'
 #InitialCondition = InitialConditions.ReadICFromFile
 #argsIC = ['hydrostatic_equilibrium.dat']
 InitialCondition = InitialConditions.GaussianTemperature
-argsIC = [2., 0.5, 0.05, 1.]
+argsIC = [2., 0.5, 0.0005, 1.]
 #InitialCondition = InitialConditions.IsothermalEq
 #argsIC = [1., 1.]
 #InitialCondition = InitialConditions.SoundWaves

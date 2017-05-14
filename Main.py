@@ -29,7 +29,7 @@ import Save
 
 sets.InitialCondition(sets.argsIC)
 ChangeOfVar.ConvertToPrim()
-
+Save.Plot()
 # ------------------ MAIN LOOP -----------------
 
    

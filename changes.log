@@ -34,3 +34,15 @@ TODOs:
 # ----- 13/05
         - Changed computeDT to take into account the timestep given by the diffusion
         - Added thermal diffusion test case, with an initial gaussian distribution
+        ************ COMMITED ********************
+# ----- 14/05
+        - Added analytical solution for the simple thermal diffusion case
+        - Corrected thermal diffusion
+        - The initial condition is now saved on an image
+        
+        
+        
+        
+        
+        
+        

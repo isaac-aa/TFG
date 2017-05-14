@@ -12,6 +12,7 @@ import numpy as np
 import Grid
 import Parameters as par
 import Settings as sets
+import Variables as var
 
 def SoundWaves(args, t):
   rho0 = args[0]
@@ -42,4 +43,32 @@ def Isothermal(args, t):
   
   return rhoAna, vAna, PAna  
   
+def GaussianThermal(args, t):
+  T0 = args[0]
+  z0 = args[1]
+  width = args[2]
+  rho0 = args[3]
+  
+  t_new = t + width/par.ct
+  exp = np.sqrt(width/(par.ct*t_new))*np.exp(-(Grid.z-z0)*(Grid.z-z0)/( 4*par.ct*t_new) ) 
+  
+  rhoAna = rho0*np.ones(Grid.z.shape)
+  e = (1.+T0*exp)*par.cv
+  
+  vAna = Grid.z*0.
+  PAna = rhoAna*(par.gamma-1.)*e
+  TAna = (1.+T0*exp) 
+
+  return rhoAna, vAna, PAna, TAna
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
   

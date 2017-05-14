@@ -19,9 +19,9 @@ zf = 1.
 dt_max = 0.1
 dt = dt_max
 tt = 0.
-tf = 400.
+tf = 0.003
 it = 0
-max_it = 200 #np.inf
+max_it = np.inf
 cfl_set = 0.8
 cfl = cfl_set
 
@@ -48,6 +48,7 @@ IsothermalAnalytic = False
 #PAxis = [0., 1.1]
 
 # Thermal Diffusion
+ThermalAnalytic = True
 rhoAxis = [0., 2.]
 vAxis = [-1., 1.]
 PAxis = [0., 2.]
@@ -60,7 +61,7 @@ TAxis = [0., 3.]
 #TAxis = [9000., 1.8e6]
 #logScale = [True, False, False, False]
 
-save_rate = 10
+save_rate = 1
 
 
 # ------------------ SOURCE TERMS -------------
@@ -73,14 +74,14 @@ IsThereGravity = False
 g = -1.
 
 # Momentum Damping
-MomentumDamping = True
+MomentumDamping = False
 DampingPercent = 1.
 
 # Thermal Diffusion
 ThermalDiffusion = True
 SpitzerDiffusion = False
 ct = 1. #9e-12 * 1e5 # Value at E.Priest "Solar Magnetohydrodynamics" * mks to cgs factor
-f_cfl = 1.    #1.1 seems to be the maximun for the gaussian case, 1. is stable
+f_cfl = 0.5  #0.5 Largest stable number
 
 # Radiative losses
 RadiativeLoss = False

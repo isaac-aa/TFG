@@ -51,15 +51,18 @@ def SoundWaves(args):
 def GaussianTemperature(args):
   T0 = args[0]
   z0 = args[1]
-  sigma = args[2]
+  width = args[2]
   rho0 = args[3]
   
   
-  exp = np.exp(-(Grid.z-z0)*(Grid.z-z0)/(2*sigma*sigma))
+  exp = np.exp(-(Grid.z-z0)*(Grid.z-z0)/(4*width))
   var.rho = rho0*np.ones(Grid.z.shape)
   var.momentum = var.momentum*0.
   var.energy = (1.+T0*exp)*var.rho*par.cv
-  var.kappa = par.ct*np.ones(Grid.z.shape)
+  if par.SpitzerDiffusion:
+    var.kappa = par.ct*np.ones(Grid.z.shape)*(1.+T0*exp)**(5./2.)
+  else: 
+    var.kappa = par.ct*np.ones(Grid.z.shape)
   
   
 def ReadICFromFile(args):
