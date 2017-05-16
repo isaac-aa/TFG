@@ -15,10 +15,10 @@ import Parameters as par
 print 'Loading Settings..'
 
 
-#InitialCondition = InitialConditions.ReadICFromFile
-#argsIC = ['hydrostatic_equilibrium.dat']
-InitialCondition = InitialConditions.GaussianTemperature
-argsIC = [2., 0.5, 0.0005, 1.]
+InitialCondition = InitialConditions.ReadICFromFile
+argsIC = ['hydrostatic_equilibrium.dat']
+#InitialCondition = InitialConditions.GaussianTemperature
+#argsIC = [2., 0.5, 0.0005, 1.]
 #InitialCondition = InitialConditions.IsothermalEq
 #argsIC = [1., 1.]
 #InitialCondition = InitialConditions.SoundWaves
@@ -38,17 +38,17 @@ ChangeOfVar.ConvertToPrim()
 #argsR = ['R']
 
 # Thermal diffusion
-BoundaryConditionR = BoundaryConditions.Wall
-argsR = ['R']
-BoundaryConditionL = BoundaryConditions.Wall
-argsL = ['L']
+#BoundaryConditionR = BoundaryConditions.Wall
+#argsR = ['R']
+#BoundaryConditionL = BoundaryConditions.Wall
+#argsL = ['L']
 
 
 # Solar transition region
-  #BoundaryConditionL = BoundaryConditions.FixedRhoP
-  #argsL = ['L', 5.7181381e-13, 0.431114473861]
-  #BoundaryConditionR = BoundaryConditions.FixedT
-  #argsR = ['R', 1e6]
+BoundaryConditionL = BoundaryConditions.FixedRhoP
+argsL = ['L', 5.7181381e-13, 0.431114473861]
+BoundaryConditionR = BoundaryConditions.FixedT
+argsR = ['R', 1e6]
 
 
 Scheme = Advance.FirstGen

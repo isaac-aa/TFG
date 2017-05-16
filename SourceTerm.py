@@ -32,9 +32,6 @@ def computeTemperatureDiffusion():
    if par.SpitzerDiffusion:
       var.kappa = par.ct*var.T**5./2.
    
-   #tau = Grid.dz*Grid.dz*var.rho[-2]*par.cv/var.kappa
-   #print 'tau: %3.e'%np.min(tau)
-   
    Dkappa = 0.5*(var.kappa[2:]-var.kappa[:-2])
    EnergyDiff = (var.kappa[1:-1]+Dkappa)*var.T[2:] - 2.*var.kappa[1:-1]*var.T[1:-1] + (var.kappa[1:-1]-Dkappa)*var.T[:-2]
 
@@ -59,7 +56,8 @@ def computeRadiativeLosses():
      else:
        Q[i] = 5.49e-16/var.T[i]
    
-   return var.rho * Q 
+   numericalDensity = var.rho/(par.mu*par.molarMass)
+   return numericalDensity * numericalDensity * Q 
 
 
 def ComputeSource():

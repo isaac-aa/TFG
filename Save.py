@@ -15,15 +15,18 @@ import Variables as var
 import Settings as sets
 import Analytic
 import matplotlib.pyplot as plt
+import Characteristics
 
 # ------------------ PLOT ----------------------
 
 #fig = plt.figure()
 #ax = fig.add_subplot(111)
 #line1, = ax.plot(z, rho)
+print 'Loading Save..'
 
+plotCounter = 0
 
-f, axs = plt.subplots(4,1, sharex=True)
+f, axs = plt.subplots(4+par.PlotCharacteristics,1, sharex=True)
 f.set_size_inches(18.5, 10.5)
 axs[0].set_title(r"$\rho$")
 rho_line, = axs[0].plot(Grid.z, var.rho)
@@ -34,6 +37,21 @@ P_line, = axs[2].plot(Grid.z, var.P)
 axs[3].set_title("T")
 T_line, = axs[3].plot(Grid.z, var.T)
 
+if par.PlotCharacteristics:
+  axs[4].set_title('Characteristic lenght/time')
+  ax2 = axs[4].twinx()
+  if par.ThermalDiffusion:
+    Thermal_tau, = axs[4].plot([],[], 'k')
+    Thermal_tau.set_xdata(Grid.z[:-1])
+    Thermal_L, = ax2.plot([],[], 'k--')
+    Thermal_L.set_xdata(Grid.z[:-1]) 
+  if par.RadiativeLoss:
+    Losses_tau, = axs[4].plot([],[], 'g')
+    Losses_tau.set_xdata(Grid.z)
+  Dynamic_tau, = axs[4].plot([],[], 'b')
+  Dynamic_tau.set_xdata(Grid.z)
+  axs[4].semilogy()
+  ax2.semilogy()
 
 FreeFall_line, = axs[1].plot([],[], "r--")
 
@@ -72,7 +90,12 @@ for i in range(4):
 
 axs[0].set_xlim(Grid.z[0],Grid.z[-1])
 
+
+
+
 def Plot():
+   global plotCounter
+
    rho_line.set_ydata(var.rho)
    v_line.set_ydata(var.v)
    P_line.set_ydata(var.P)
@@ -110,8 +133,37 @@ def Plot():
       PAna_line.set_ydata(PAna)
       TAna_line.set_ydata(TAna)
       
-         
-   print 'Last T %.3e and %.3e '%(var.T[-2],var.T[-1])
-   plt.savefig('RESULTS/%.20f.png'%par.tt, bbox_inches='tight')
+   if par.PlotCharacteristics:
+     if par.ThermalDiffusion:
+       tau, L = Characteristics.Thermal()
+       Thermal_tau.set_ydata(tau)
+       Thermal_L.set_ydata(L) 
+     if par.RadiativeLoss:
+       tau = Characteristics.Radiative()
+       Losses_tau.set_ydata(tau)
+    
+     tau = Characteristics.Dynamic()
+     Dynamic_tau.set_ydata(tau) 
+     #Re-scale axis
+     axs[4].relim()
+     axs[4].autoscale_view()  
+     ax2.relim()
+     ax2.autoscale_view()  
 
+   if par.SaveToFile and plotCounter%par.SaveToFileRatio==0 :
+      dataToSave = np.array([Grid.z[:-1], var.rho[:-1], var.v[:-1], var.T[:-1]])
+      if par.PlotCharacteristics:  
+        if par.ThermalDiffusion:
+           tau_T = Thermal_tau.get_ydata()
+           L_T = Thermal_L.get_ydata()
+           dataToSave = np.append(dataToSave, [tau_T, L_T], axis=0)
+        if par.RadiativeLoss:
+           tau_R = Losses_tau.get_ydata()
+           dataToSave = np.append(dataToSave, [tau_R[:-1]], axis=0)
+        print 'Saving to file..'
+        np.savetxt('RESULTS_DAT/%.20f.dat'%par.tt, dataToSave.T, header='it = %d \t dt = %.3e'%(par.it,par.dt))
+           
+         
+   plt.savefig('RESULTS/%.20f.png'%par.tt, bbox_inches='tight')
+   plotCounter +=1
 

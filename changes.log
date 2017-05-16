@@ -39,7 +39,10 @@ TODOs:
         - Added analytical solution for the simple thermal diffusion case
         - Corrected thermal diffusion
         - The initial condition is now saved on an image
-        
+        ************ COMMITED ********************
+# ----- 15/05
+        - Added Characteritics, to compute characteristics times and lengths. Also Save have been modified to plot these.
+        - Added option to save file with the data each time (or sometimes) Plot() is called
         
         
         

@@ -19,13 +19,20 @@ zf = 1.
 dt_max = 0.1
 dt = dt_max
 tt = 0.
-tf = 0.003
+tf = 300.
 it = 0
 max_it = np.inf
 cfl_set = 0.8
 cfl = cfl_set
 
 # ------------------ PLOT SETUP ---------------
+
+save_rate = 1
+
+SaveToFile = True
+SaveToFileRatio = 10
+
+PlotCharacteristics = True
 
 # Default configuration
 rhoAxis = []
@@ -48,20 +55,20 @@ IsothermalAnalytic = False
 #PAxis = [0., 1.1]
 
 # Thermal Diffusion
-ThermalAnalytic = True
-rhoAxis = [0., 2.]
-vAxis = [-1., 1.]
-PAxis = [0., 2.]
-TAxis = [0., 3.]
+ThermalAnalytic = False
+#rhoAxis = [0., 2.]
+#vAxis = [-1., 1.]
+#PAxis = [0., 2.]
+#TAxis = [0., 3.]
 
 # Transition region
-#rhoAxis = [1e-15, 5.7181381e-13]
-#vAxis = [-5e5, 5e5]
-#PAxis = [0., .5]
-#TAxis = [9000., 1.8e6]
-#logScale = [True, False, False, False]
+rhoAxis = [1e-15, 5.7181381e-13]
+vAxis = [-5e5, 5e5]
+PAxis = [0., .5]
+TAxis = [9000., 1.8e6]
+logScale = [True, False, False, False]
 
-save_rate = 1
+
 
 
 # ------------------ SOURCE TERMS -------------
@@ -70,7 +77,7 @@ save_rate = 1
 IsComputingSource = True
 
 # Gravity
-IsThereGravity = False
+IsThereGravity = True
 g = -1.
 
 # Momentum Damping
@@ -79,20 +86,20 @@ DampingPercent = 1.
 
 # Thermal Diffusion
 ThermalDiffusion = True
-SpitzerDiffusion = False
-ct = 1. #9e-12 * 1e5 # Value at E.Priest "Solar Magnetohydrodynamics" * mks to cgs factor
-f_cfl = 0.5  #0.5 Largest stable number
+SpitzerDiffusion = True
+ct = 9e-12 * 1e5 # Value at E.Priest "Solar Magnetohydrodynamics" * mks to cgs factor
+f_cfl = .5  #0.5 Largest stable number
 
 # Radiative losses
-RadiativeLoss = False
+RadiativeLoss = True
 
 # ------------------ EQUATION OF STATE --------
 
 
 gamma = 5./3.
 R = 1.
-Na = 1. #6.022e23
-molarMass = 1. #1.6605e-24 #grams
+Na = 6.022e23
+molarMass = 1.6605e-24 #grams
 mu = 1.
 cv = 1.
 

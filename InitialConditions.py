@@ -62,7 +62,7 @@ def GaussianTemperature(args):
   if par.SpitzerDiffusion:
     var.kappa = par.ct*np.ones(Grid.z.shape)*(1.+T0*exp)**(5./2.)
   else: 
-    var.kappa = par.ct*np.ones(Grid.z.shape)
+    var.kappa = par.ct*np.ones(Grid.z.shape) #*exp #np.ones(Grid.z.shape)
   
   
 def ReadICFromFile(args):
