@@ -27,7 +27,7 @@ cfl = cfl_set
 
 # ------------------ PLOT SETUP ---------------
 
-save_rate = 1
+save_rate = 100000
 
 SaveToFile = True
 SaveToFileRatio = 10
@@ -62,11 +62,11 @@ ThermalAnalytic = False
 #TAxis = [0., 3.]
 
 # Transition region
-rhoAxis = [1e-15, 5.7181381e-13]
+rhoAxis = [1e-15, 1e-12]
 vAxis = [-5e5, 5e5]
 PAxis = [0., .5]
-TAxis = [9000., 1.8e6]
-logScale = [True, False, False, False]
+TAxis = [1e3, 1.8e6]
+logScale = [True, False, False, True]
 
 
 
@@ -81,17 +81,21 @@ IsThereGravity = True
 g = -1.
 
 # Momentum Damping
-MomentumDamping = False
-DampingPercent = 1.
+MomentumDamping = True
+DampingMultiplier = 1e-1
 
 # Thermal Diffusion
 ThermalDiffusion = True
 SpitzerDiffusion = True
 ct = 9e-12 * 1e5 # Value at E.Priest "Solar Magnetohydrodynamics" * mks to cgs factor
 f_cfl = .5  #0.5 Largest stable number
+DiffusionPercent = 1e-2 #1e-2
+
+
 
 # Radiative losses
 RadiativeLoss = True
+RadiationPercent = 1e-2 #1e-2
 
 # ------------------ EQUATION OF STATE --------
 

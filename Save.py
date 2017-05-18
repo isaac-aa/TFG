@@ -42,9 +42,9 @@ if par.PlotCharacteristics:
   ax2 = axs[4].twinx()
   if par.ThermalDiffusion:
     Thermal_tau, = axs[4].plot([],[], 'k')
-    Thermal_tau.set_xdata(Grid.z[:-1])
+    Thermal_tau.set_xdata(Grid.z)
     Thermal_L, = ax2.plot([],[], 'k--')
-    Thermal_L.set_xdata(Grid.z[:-1]) 
+    Thermal_L.set_xdata(Grid.z) 
   if par.RadiativeLoss:
     Losses_tau, = axs[4].plot([],[], 'g')
     Losses_tau.set_xdata(Grid.z)
@@ -149,9 +149,12 @@ def Plot():
      axs[4].autoscale_view()  
      ax2.relim()
      ax2.autoscale_view()  
-
+   print '----' 
+   print var.T[0], var.T[1], (var.T[0]+var.T[1])/2.
+   print var.T[-2], var.T[-1], (var.T[-1]+var.T[-2])/2.
+   print '----' 
    if par.SaveToFile and plotCounter%par.SaveToFileRatio==0 :
-      dataToSave = np.array([Grid.z[:-1], var.rho[:-1], var.v[:-1], var.T[:-1]])
+      dataToSave = np.array([Grid.z, var.rho, var.v, var.T])
       if par.PlotCharacteristics:  
         if par.ThermalDiffusion:
            tau_T = Thermal_tau.get_ydata()
@@ -159,9 +162,9 @@ def Plot():
            dataToSave = np.append(dataToSave, [tau_T, L_T], axis=0)
         if par.RadiativeLoss:
            tau_R = Losses_tau.get_ydata()
-           dataToSave = np.append(dataToSave, [tau_R[:-1]], axis=0)
+           dataToSave = np.append(dataToSave, [tau_R], axis=0)
         print 'Saving to file..'
-        np.savetxt('RESULTS_DAT/%.20f.dat'%par.tt, dataToSave.T, header='it = %d \t dt = %.3e'%(par.it,par.dt))
+        np.savetxt('RESULTS_DAT/%.20f.dat'%par.tt, dataToSave.T, header='%.7e %.7e %.7e'%(par.mu,par.g,par.R))
            
          
    plt.savefig('RESULTS/%.20f.png'%par.tt, bbox_inches='tight')

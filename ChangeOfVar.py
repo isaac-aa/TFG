@@ -19,3 +19,4 @@ def ConvertToPrim():
 
    var.T = e/par.cv          
    var.P = var.rho*(par.gamma-1.)*e
+   

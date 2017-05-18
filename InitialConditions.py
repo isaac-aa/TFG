@@ -13,6 +13,7 @@ import numpy as np
 import Grid
 import Parameters as par
 import Variables as var
+import glob
 
 # ------------------ INITIAL CONDITIONS --------
 
@@ -89,9 +90,31 @@ def ReadICFromFile(args):
    var.rho = rho_data*rho_ref
    var.energy = var.rho*T_data*T_ref*par.cv
    var.momentum = var.momentum*0.
-   var.kappa = par.ct*(T_data*T_ref)**5./2.
+   var.kappa = par.ct*(T_data*T_ref)**(5./2.)
+   
+   
+def RestartFromFile(args):
+   print "Restarting simulation..."
+   files = glob.glob('RESULTS_DAT/*.dat')
+   files.sort()
+   
+   last_it = files[-1]
 
-
-
+   f = open(last_it)
+   refs = f.readline().split()
+   mu = float(refs[1])
+   g = abs(float(refs[2]))
+   R = float(refs[3])
+   f.close()   
+   print mu, R, g
+   par.R = R
+   par.mu = mu
+   par.g = -g
+   par.Computecv()
+   
+   rho_data, v_data, T_data = np.loadtxt(last_it, skiprows=1, usecols=(1,2,3), unpack=True)
   
-  
+   var.rho = rho_data
+   var.energy = var.rho*T_data*par.cv + 0.5*var.rho*var.v*var.v
+   var.momentum = var.v*var.rho
+   var.kappa = par.ct*(T_data)**(5./2.)

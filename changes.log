@@ -43,7 +43,14 @@ TODOs:
 # ----- 15/05
         - Added Characteritics, to compute characteristics times and lengths. Also Save have been modified to plot these.
         - Added option to save file with the data each time (or sometimes) Plot() is called
-        
+        ************ COMMITED ********************
+# ----- 16/05
+        - Added option to restart simulation from previous files
+        - Fixed Spitzer conductivity
+        - The radiative cooling is now computed interpolating a table
+        - Added parameters to control Radiation Losses and Spitzer diffusion
+# ----- 17/05
+        - Added BC for density zero second derivative, fixed T and zero velocity for the chromosphere
         
         
         
