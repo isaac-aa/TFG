@@ -22,6 +22,6 @@ def ComputeDT():
    if par.ThermalDiffusion:
       dt_thermal = par.f_cfl*np.min(par.cv*var.rho*Grid.dz*Grid.dz/var.kappa) 
       #print 'Thermal: %.3e \t Sound: %.3e'%(dt_thermal, par.dt)
-      par.dt = np.min([par.dt, dt_thermal])
+      #par.dt = np.min([par.dt, dt_thermal])
       
    par.cfl = par.dt*np.max( [vchar1, vchar2] )/Grid.dz

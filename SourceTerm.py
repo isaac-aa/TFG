@@ -11,6 +11,7 @@ import numpy as np
 import Parameters as par
 import Variables as var
 import Grid
+from scipy import linalg
 
 print 'Loading SourceTerm..'
 
@@ -21,7 +22,7 @@ def computeGravSource():
 
 
 def computeMomentumDamping():
-   #DampingVel = par.DampingPercent*var.v
+   
    
    H_p = var.P[:-1]/np.abs(var.P[1:]-var.P[:-1]) * Grid.dz  #pressure scale-height
    H_p = np.append(H_p, H_p[-1]) #Extent the array to avoid different sizes (this point is at the boundary)
@@ -29,14 +30,17 @@ def computeMomentumDamping():
    tau_ff = np.sqrt(2*H_p/np.abs(par.g))    #Time taken to fall 4Mm
    tau_damp = tau_ff/100.
    
-   n_iter = tau_damp/par.dt
+   n_iter = tau_damp[1:-1]/par.dt
    
-   DampingPercent = 1./n_iter * par.DampingMultiplier  
+   DampingPercent = 1./n_iter 
    
    # I think that the cause of the oscillation is due to the non-homogeneous damping, thus:
-   DampingPercent_scalar = np.max(DampingPercent)
-   
+   DampingPercent_scalar = np.max(DampingPercent)* par.DampingMultiplier  
+   #print DampingPercent_scalar
    DampingVel = DampingPercent_scalar*var.v
+   
+   #print np.argmax(DampingPercent)
+   #DampingVel = par.DampingMultiplier*var.v   #Old method
    
    momentumDampingSource = -DampingVel*var.rho
    energyDampingSource = -0.5*DampingVel*DampingVel*var.rho
@@ -53,6 +57,63 @@ def computeTemperatureDiffusion():
 
    return par.DiffusionPercent*EnergyDiff/(Grid.dz*Grid.dz)
 
+
+
+def computeImplicitConduction():
+   if par.SpitzerDiffusion:
+      var.kappa = par.ct*var.T**(5./2.)
+      
+   #Hard-coded boundaries
+   var.rho[0] = 2.*var.rho[1]-var.rho[2]
+   boundaryRho = 0.5*(var.rho[0]+var.rho[1])
+   var.momentum[0] = -var.momentum[1]
+   
+   
+   var.rho[-1] = var.rho[-2]
+   var.momentum[-1] = var.momentum[-2]
+   
+    
+      
+   e = par.cv*var.T   #Internal energy
+   
+   Dkappa = 0.5*(var.kappa[2:]-var.kappa[:-2])
+   
+   dz2 = Grid.dz*Grid.dz
+   A = par.DiffusionPercent * (var.kappa[1:-1]+Dkappa)/dz2
+   B = -2.*par.DiffusionPercent * var.kappa[1:-1]/dz2
+   C = par.DiffusionPercent * (var.kappa[1:-1]-Dkappa)/dz2
+   
+   diag = par.dt*B/(var.rho[1:-1]*par.cv) - 1.  # Lenght is N-2, need to be N
+   lower = par.dt*C/(var.rho[:-2]*par.cv)   # Lenght is N-2, need to be N-1
+   upper = par.dt*A/(var.rho[2:]*par.cv)
+   
+   rhs = -e*var.rho
+   
+   # Hard-coded fixed temperature boundaries
+   #Lower boundary
+   diag = np.insert(diag, 0, 1.)   
+   upper = np.insert(upper, 0, 1.)
+   meanrho = 0.5*(var.rho[0] + var.rho[1])
+   rhs[0] = 2.*meanrho*par.cv*1e4
+   
+   #Upper boundary
+   diag = np.append(diag, 1.)
+   lower = np.append(lower, 1.)
+   meanrho = 0.5*(var.rho[-2] + var.rho[-1])
+   rhs[-1] = 2.*meanrho*par.cv*1e6
+   
+   #Fill of the lower and upper diagonals https://docs.scipy.org/doc/scipy/reference/generated/scipy.linalg.solve_banded.html#scipy.linalg.solve_banded
+   upper = np.insert(upper, 0 , 0.)
+   lower = np.append(lower, 0.)
+   
+   
+   
+   sol_e = linalg.solve_banded( (1,1), [upper, diag, lower], rhs )
+   #print var.T-sol_e/(par.cv*var.rho)
+   
+   E_k = 0.5*var.rho*var.v*var.v
+   var.energy = sol_e + E_k
+   
 
 
 def computeRadiativeLosses():
@@ -91,8 +152,11 @@ def ComputeSource():
      var.momentum += momentumDamping
      var.energy += energyDamping
   if par.ThermalDiffusion:
-     ThermalDiff = computeTemperatureDiffusion()
-     var.energy[1:-1] += par.dt*ThermalDiff
+     if par.ImplicitConduction:
+        computeImplicitConduction()
+     else:
+       ThermalDiff = computeTemperatureDiffusion()
+       var.energy[1:-1] += par.dt*ThermalDiff
   if par.RadiativeLoss:
      RadLoss = computeRadiativeLosses()
      var.energy -= par.dt*RadLoss

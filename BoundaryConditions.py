@@ -75,6 +75,24 @@ def WallSecondRhoFixedT(args):
    boundaryE = boundaryRho*par.cv*args[1] 
    var.energy[i] = 2*boundaryE-var.energy[i_one]   
    
+
+def WallFixedRhoFixedT(args):
+   if args[0]=="L":
+     i = 0
+     i_one = 1
+   if args[0]=="R":
+     i = -1
+     i_one = -2
+   
+   
+   var.rho[i] = 2.*args[2]-var.rho[i_one]
+   
+   var.momentum[i] = -var.momentum[i_one]    #v = 0
+   
+   boundaryE = args[2]*par.cv*args[1] 
+   var.energy[i] = 2*boundaryE-var.energy[i_one]   
+      
+   
    
 def Periodic(args):
    var.rho[0] = var.rho[-2]

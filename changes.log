@@ -51,6 +51,11 @@ TODOs:
         - Added parameters to control Radiation Losses and Spitzer diffusion
 # ----- 17/05
         - Added BC for density zero second derivative, fixed T and zero velocity for the chromosphere
+        ************ COMMITED ********************
+# ----- 19/05
+        - Added implicit diffusion  #WIP#
+        - Added BC for fixed rho and temperature
+        - Fixed damping to reduce oscillations
         
         
         
