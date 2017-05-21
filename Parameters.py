@@ -19,7 +19,7 @@ zf = 1.
 dt_max = 0.1
 dt = dt_max
 tt = 0.
-tf = 300.
+tf = 500.
 it = 0
 max_it = np.inf
 cfl_set = 0.8
@@ -27,9 +27,9 @@ cfl = cfl_set
 
 # ------------------ PLOT SETUP ---------------
 
-save_rate = 100
+save_rate = 1000
 
-SaveToFile = True
+SaveToFile = False
 SaveToFileRatio = 10
 
 PlotCharacteristics = True
@@ -82,7 +82,7 @@ g = -1.
 
 # Momentum Damping
 MomentumDamping = True
-DampingMultiplier = 1e-1
+DampingMultiplier = 1e-3
 
 # Thermal Diffusion
 ThermalDiffusion = True
@@ -90,13 +90,13 @@ SpitzerDiffusion = True
 ImplicitConduction = True
 ct = 9e-12 * 1e5 # Value at E.Priest "Solar Magnetohydrodynamics" * mks to cgs factor
 f_cfl = .5  #0.5 Largest stable number
-DiffusionPercent = 1e-2 #1e-2
+DiffusionPercent = 1e-3 #1e-2
 
 
 
 # Radiative losses
 RadiativeLoss = True
-RadiationPercent = 1e-2 #1e-2
+RadiationPercent = 1e-3 #1e-2
 
 # ------------------ EQUATION OF STATE --------
 

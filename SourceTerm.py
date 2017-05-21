@@ -11,6 +11,7 @@ import numpy as np
 import Parameters as par
 import Variables as var
 import Grid
+import ChangeOfVar
 from scipy import linalg
 
 print 'Loading SourceTerm..'
@@ -71,7 +72,7 @@ def computeImplicitConduction():
    
    var.rho[-1] = var.rho[-2]
    var.momentum[-1] = var.momentum[-2]
-   
+   var.v = var.momentum/var.rho
     
       
    e = par.cv*var.T   #Internal energy
@@ -107,12 +108,12 @@ def computeImplicitConduction():
    lower = np.append(lower, 0.)
    
    
-   
    sol_e = linalg.solve_banded( (1,1), [upper, diag, lower], rhs )
    #print var.T-sol_e/(par.cv*var.rho)
    
    E_k = 0.5*var.rho*var.v*var.v
    var.energy = sol_e + E_k
+   var.T = sol_e/(var.rho*par.cv)
    
 
 
@@ -134,6 +135,7 @@ def computeRadiativeLosses():
        Lamda[i] = 3.56e-25*var.T[i]**(1./3.)
      else:
        Lamda[i] = 5.49e-16/var.T[i]
+   logLamda = np.log10(Lamda)
    """
    
    logLamda = np.interp(logT, var.logT_table, var.logLamda_table)
@@ -147,20 +149,26 @@ def ComputeSource():
      momentumG, energyG = computeGravSource()
      var.momentum += par.dt*momentumG
      var.energy += par.dt*energyG
-  if par.MomentumDamping:
-     momentumDamping, energyDamping = computeMomentumDamping()
-     var.momentum += momentumDamping
-     var.energy += energyDamping
+     ChangeOfVar.ConvertToPrim()
+  
+  if par.RadiativeLoss:
+     RadLoss = computeRadiativeLosses()
+     var.energy[1:-1] -= par.dt*RadLoss[1:-1]
+     ChangeOfVar.ConvertToPrim()
+
   if par.ThermalDiffusion:
      if par.ImplicitConduction:
         computeImplicitConduction()
      else:
        ThermalDiff = computeTemperatureDiffusion()
        var.energy[1:-1] += par.dt*ThermalDiff
-  if par.RadiativeLoss:
-     RadLoss = computeRadiativeLosses()
-     var.energy -= par.dt*RadLoss
-     
+     ChangeOfVar.ConvertToPrim()
+       
+  if par.MomentumDamping:
+     momentumDamping, energyDamping = computeMomentumDamping()
+     var.momentum += momentumDamping
+     var.energy += energyDamping
+     ChangeOfVar.ConvertToPrim()
      
      
      

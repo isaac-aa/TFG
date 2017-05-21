@@ -56,6 +56,9 @@ TODOs:
         - Added implicit diffusion  #WIP#
         - Added BC for fixed rho and temperature
         - Fixed damping to reduce oscillations
+        ************ COMMITED ********************
+        - Parameters changed
+        - Small BC and Source term modifications
         
         
         
