@@ -59,7 +59,9 @@ TODOs:
         ************ COMMITED ********************
         - Parameters changed
         - Small BC and Source term modifications
-        
+        ************ COMMITED ********************
+# ----- 24/05
+        - Added hydrostatic eq boundary condition
         
         
         

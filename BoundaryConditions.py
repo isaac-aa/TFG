@@ -73,8 +73,26 @@ def WallSecondRhoFixedT(args):
    var.momentum[i] = -var.momentum[i_one]    #v = 0
    
    boundaryE = boundaryRho*par.cv*args[1] 
-   var.energy[i] = 2*boundaryE- par.cv*var.rho[i_one]*var.T[i_one] #var.energy[i_one]   
-   #Me falta la energia cinetica de [0]!!!
+   internalE = 2*boundaryE- par.cv*var.rho[i_one]*var.T[i_one] #var.energy[i_one]   
+   var.energy[i] = internalE + 0.5*var.momentum[i]*var.momentum[i]/var.rho[i]
+
+def WallSecondRhoHydrostaticP(args):
+   if args[0]=="L":
+     i = 0
+     i_one = 1
+     i_two = 2
+   if args[0]=="R":
+     i = -1
+     i_one = -2
+     i_two = -3
+
+   var.rho[i] = 2.*var.rho[i_one]-var.rho[i_two]
+   boundaryRho = 0.5*(var.rho[i]+var.rho[i_one])
+
+   var.momentum[i] = -var.momentum[i_one]    #v = 0
+
+   var.P[i] = var.P[i_one] + 0.5*Grid.dz*boundaryRho*np.abs(par.g)
+   var.energy[i] = var.P[i]/(par.gamma-1.) + 0.5*var.momentum[i]*var.momentum[i]/var.rho[i]
 
 def WallFixedRhoFixedT(args):
    if args[0]=="L":
