@@ -25,9 +25,9 @@ def Radiative():
   return RadiationTime
 
 
-def Dynamic():
-  c_s = np.sqrt(par.gamma*var.P/var.rho)
-  SoundTime = Grid.dz/c_s
-  
-  return SoundTime
+def DensityChanges():
+  Dv = (var.v[1:]-var.v[:-1])/Grid.dz
+  Dv = np.append(Dv, Dv[-1])
+  print 
+  return 1./np.abs(Dv)
 

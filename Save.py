@@ -88,7 +88,7 @@ for i in range(4):
    if par.logScale[i]==True:
       axs[i].semilogy()
 
-axs[0].set_xlim(Grid.z[0],Grid.z[-1])
+axs[0].set_xlim(Grid.z[0],Grid.z[400])
 
 
 
@@ -142,7 +142,7 @@ def Plot():
        tau = Characteristics.Radiative()
        Losses_tau.set_ydata(tau)
     
-     tau = Characteristics.Dynamic()
+     tau = Characteristics.DensityChanges()
      Dynamic_tau.set_ydata(tau) 
      #Re-scale axis
      axs[4].relim()
