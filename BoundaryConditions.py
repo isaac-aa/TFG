@@ -123,8 +123,7 @@ def WallSecondRhoHydrostaticP(args):
    var.momentum[i] = -var.momentum[i_one]    #v = 0
 
    if par.ImplicitConduction:
-      #Pressure jump to temperature jump:
-      PJump = 0.5*Grid.dz*boundaryRho*np.abs(par.g)
+      PJump = Grid.dz*boundaryRho*np.abs(par.g)
       if args[0]=="L":
          var.diag[i] = 1. 
          var.upper[1] = -1.

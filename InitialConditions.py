@@ -95,7 +95,7 @@ def ReadICFromFile(args):
    
 def RestartFromFile(args):
    print "Restarting simulation..."
-   files = glob.glob('RESULTS_DAT/*.dat')
+   files = glob.glob(args[0]+'/*.dat')
    files.sort()
    
    last_it = files[-1]
@@ -115,6 +115,6 @@ def RestartFromFile(args):
    rho_data, v_data, T_data = np.loadtxt(last_it, skiprows=1, usecols=(1,2,3), unpack=True)
   
    var.rho = rho_data
-   var.energy = var.rho*T_data*par.cv + 0.5*var.rho*var.v*var.v
-   var.momentum = var.v*var.rho
+   var.energy = var.rho*T_data*par.cv + 0.5*var.rho*v_data*v_data
+   var.momentum = v_data*var.rho
    var.kappa = par.ct*(T_data)**(5./2.)

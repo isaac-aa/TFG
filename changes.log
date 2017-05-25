@@ -68,6 +68,8 @@ TODOs:
         - Wall, WallSecondRhoFixedT, FixedT BCs adapted to be used on implicit scheme
         - Modified data shown per iteration. Added time measures
         - Added plot of sound speed
+        - Fixed WallSecondRhoHydrostaticP on implicit scheme
+        - First equilibrium with 1e-3 and 1e-1 damping
         
         
         

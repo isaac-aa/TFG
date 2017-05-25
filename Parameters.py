@@ -19,7 +19,7 @@ zf = 1.
 dt_max = 0.1
 dt = dt_max
 tt = 0.
-tf = 500.
+tf = np.inf #500.
 it = 0
 max_it = np.inf
 cfl_set = 0.8
@@ -27,7 +27,7 @@ cfl = cfl_set
 
 # ------------------ PLOT SETUP ---------------
 
-save_rate = 100
+save_rate = 10000
 
 SaveToFile = True
 SaveToFileRatio = 10
@@ -62,7 +62,7 @@ ThermalAnalytic = False
 #TAxis = [0., 3.]
 
 # Transition region
-SoundSpeedProfile = False
+SoundSpeedProfile = True
 rhoAxis = [1e-15, 5e-12]
 vAxis = [-1e5, 1e5]
 PAxis = [0., 1.]
@@ -83,7 +83,7 @@ g = -1.
 
 # Momentum Damping
 MomentumDamping = True
-DampingMultiplier = 1.
+DampingMultiplier = 1e-1
 
 # Thermal Diffusion
 ThermalDiffusion = True

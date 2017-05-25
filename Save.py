@@ -154,6 +154,7 @@ def Plot():
     
      tau = Characteristics.DensityChanges()
      Dynamic_tau.set_ydata(tau) 
+     print 'Min characteristic time: %.2f'%np.min(np.abs(tau))
      #Re-scale axis
      axs[4].relim()
      axs[4].autoscale_view()  

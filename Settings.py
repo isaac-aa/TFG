@@ -16,7 +16,7 @@ print 'Loading Settings..'
 
 
 #InitialCondition = InitialConditions.RestartFromFile
-#argsIC = []
+#argsIC = ['../1e-3Equilibrium/RESULTS_DAT']
 InitialCondition = InitialConditions.ReadICFromFile
 argsIC = ['hydrostatic_equilibrium_2.dat']
 #InitialCondition = InitialConditions.GaussianTemperature
@@ -48,7 +48,7 @@ ChangeOfVar.ConvertToPrim()
 
 # Solar transition region
 BoundaryConditionL = BoundaryConditions.WallSecondRhoHydrostaticP #WallSecondRhoFixedT
-argsL = ['L', 1e4]
+argsL = ['L']
 BoundaryConditionR = BoundaryConditions.FixedT
 argsR = ['R', 1e6]
 

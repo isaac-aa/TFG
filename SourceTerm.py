@@ -3,7 +3,7 @@
 # This module computes the momentum and energy
 # source term that should be added to the 
 # conservative part of the equations. This can be
-# further improve using Operator Splitting (TODO)
+# further improved using Operator Splitting
 #
 #--------------------------------------------
 
@@ -36,11 +36,11 @@ def computeMomentumDamping():
    
    DampingPercent = 1./n_iter 
    
-   # I think that the cause of the oscillation is due to the non-homogeneous damping, thus:
    DampingPercent_scalar = np.max(DampingPercent)* par.DampingMultiplier  
-   #print DampingPercent_scalar
+   
    if DampingPercent_scalar >1.:
       print 'Too much Damping!!'
+   
    DampingVel = DampingPercent_scalar*var.v
    
    #print np.argmax(DampingPercent)
@@ -122,8 +122,7 @@ def computeImplicitConduction():
    
    E_k = 0.5*var.momentum*var.momentum/var.rho
    var.energy = sol_e + E_k
-   #var.T = sol_e/(var.rho*par.cv)
-   
+   var.T = sol_e/(var.rho*par.cv)
 
 
 def computeRadiativeLosses():
@@ -148,8 +147,9 @@ def computeRadiativeLosses():
    """
    
    logLamda = np.interp(logT, var.logT_table, var.logLamda_table)
-   logLamda[logT<4] = -50.
-   
+   lowTmask = logT<4
+   logLamda[lowTmask] = var.logLamda_table[0] + 6*(logT[lowTmask]- 4)
+
    numericalDensity = var.rho/(par.mu*par.molarMass)
    return par.RadiationPercent * numericalDensity * numericalDensity * 10**logLamda
 
