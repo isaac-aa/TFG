@@ -32,6 +32,15 @@ v = np.ones(Grid.z.shape)
 # Kappa of thermal diffusion
 kappa = np.zeros(Grid.z.shape)
 
+# Arrays for tridiagonal matrix
+diag = np.zeros(Grid.z.shape)
+lower = np.zeros(Grid.z.shape)
+upper = np.zeros(Grid.z.shape)
+rhs = np.zeros(Grid.z.shape)
 
 logT_table, Lamda_table = np.loadtxt('dere_etal_table.dat', usecols=(0,1), unpack=True)
 logLamda_table = np.log10(Lamda_table)
+
+
+
+

@@ -10,6 +10,7 @@
 import numpy as np
 import Parameters as par
 import Variables as var
+import Settings as sets
 import Grid
 import ChangeOfVar
 from scipy import linalg
@@ -29,7 +30,7 @@ def computeMomentumDamping():
    H_p = np.append(H_p, H_p[-1]) #Extent the array to avoid different sizes (this point is at the boundary)
 
    tau_ff = np.sqrt(2*H_p/np.abs(par.g))    #Time taken to fall 4Mm
-   tau_damp = tau_ff/100.
+   tau_damp = tau_ff
    
    n_iter = tau_damp[1:-1]/par.dt
    
@@ -38,6 +39,8 @@ def computeMomentumDamping():
    # I think that the cause of the oscillation is due to the non-homogeneous damping, thus:
    DampingPercent_scalar = np.max(DampingPercent)* par.DampingMultiplier  
    #print DampingPercent_scalar
+   if DampingPercent_scalar >1.:
+      print 'Too much Damping!!'
    DampingVel = DampingPercent_scalar*var.v
    
    #print np.argmax(DampingPercent)
@@ -64,6 +67,7 @@ def computeImplicitConduction():
    if par.SpitzerDiffusion:
       var.kappa = par.ct*var.T**(5./2.)
       
+   """   
    #Hard-coded boundaries
    var.rho[0] = 2.*var.rho[1]-var.rho[2]
    boundaryRho = 0.5*(var.rho[0]+var.rho[1])
@@ -73,7 +77,7 @@ def computeImplicitConduction():
    var.rho[-1] = var.rho[-2]
    var.momentum[-1] = var.momentum[-2]
    var.v = var.momentum/var.rho
-    
+   """ 
       
    e = par.cv*var.T   #Internal energy
    
@@ -84,12 +88,17 @@ def computeImplicitConduction():
    B = -2.*par.DiffusionPercent * var.kappa[1:-1]/dz2
    C = par.DiffusionPercent * (var.kappa[1:-1]-Dkappa)/dz2
    
-   diag = par.dt*B/(var.rho[1:-1]*par.cv) - 1.  # Lenght is N-2, need to be N
-   lower = par.dt*C/(var.rho[:-2]*par.cv)   # Lenght is N-2, need to be N-1
-   upper = par.dt*A/(var.rho[2:]*par.cv)
+   var.diag[1:-1] = par.dt*B/(var.rho[1:-1]*par.cv) - 1.  
+   var.lower[:-2] = par.dt*C/(var.rho[:-2]*par.cv)   
+   var.upper[2:] = par.dt*A/(var.rho[2:]*par.cv)
    
-   rhs = -e*var.rho
+   var.rhs[1:-1] = -e[1:-1]*var.rho[1:-1]
    
+   
+   sets.BoundaryConditionL(sets.argsL)
+   sets.BoundaryConditionR(sets.argsR)
+   
+   """
    # Hard-coded fixed temperature boundaries
    #Lower boundary
    diag = np.insert(diag, 0, 1.)   
@@ -104,16 +113,16 @@ def computeImplicitConduction():
    rhs[-1] = 2.*meanrho*par.cv*1e6
    
    #Fill of the lower and upper diagonals https://docs.scipy.org/doc/scipy/reference/generated/scipy.linalg.solve_banded.html#scipy.linalg.solve_banded
-   upper = np.insert(upper, 0 , 0.)
-   lower = np.append(lower, 0.)
+   #upper = np.insert(upper, 0 , 0.)
+   #lower = np.append(lower, 0.)
+   """
    
-   
-   sol_e = linalg.solve_banded( (1,1), [upper, diag, lower], rhs )
+   sol_e = linalg.solve_banded( (1,1), [var.upper, var.diag, var.lower], var.rhs )
    #print var.T-sol_e/(par.cv*var.rho)
    
-   E_k = 0.5*var.rho*var.v*var.v
+   E_k = 0.5*var.momentum*var.momentum/var.rho
    var.energy = sol_e + E_k
-   var.T = sol_e/(var.rho*par.cv)
+   #var.T = sol_e/(var.rho*par.cv)
    
 
 
@@ -139,6 +148,7 @@ def computeRadiativeLosses():
    """
    
    logLamda = np.interp(logT, var.logT_table, var.logLamda_table)
+   logLamda[logT<4] = -50.
    
    numericalDensity = var.rho/(par.mu*par.molarMass)
    return par.RadiationPercent * numericalDensity * numericalDensity * 10**logLamda

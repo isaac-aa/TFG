@@ -63,17 +63,24 @@ vAna_line, = axs[1].plot([],[], "k--")
 PAna_line, = axs[2].plot([],[], "k--")
 TAna_line, = axs[3].plot([],[], "k--")
 
+SoundSpeedProf_line, = axs[1].plot([],[], 'g--')
 
 if par.IsThereGravity:
    FreeFall_line.set_xdata([Grid.z[0], Grid.z[-1]])
+
 if par.SoundSpeedLine:
    SoundSpeed_line.set_ydata([0.,2.])
    MaxAmp_line.set_xdata([0.,1.])
+
+if par.SoundSpeedProfile:
+   SoundSpeedProf_line.set_xdata(Grid.z)
+   
 if par.SoundSpeedAnalytic or par.IsothermalAnalytic or par.ThermalAnalytic:
    rhoAna_line.set_xdata(Grid.z)
    vAna_line.set_xdata(Grid.z)
    PAna_line.set_xdata(Grid.z)
    TAna_line.set_xdata(Grid.z)
+
 
 if par.rhoAxis != []:
   axs[0].set_ylim(par.rhoAxis)
@@ -88,7 +95,7 @@ for i in range(4):
    if par.logScale[i]==True:
       axs[i].semilogy()
 
-axs[0].set_xlim(Grid.z[0],Grid.z[400])
+axs[0].set_xlim(Grid.z[0],Grid.z[-1])
 
 
 
@@ -112,6 +119,9 @@ def Plot():
       MaxAmp = np.max(var.v)
       MaxAmp_line.set_ydata([MaxAmp, MaxAmp])
       
+   if par.SoundSpeedProfile:
+      c_s = np.sqrt(par.gamma*var.P/var.rho)
+      SoundSpeedProf_line.set_ydata(c_s)
       
    # This can be further improved...
    if par.SoundSpeedAnalytic:
@@ -149,10 +159,10 @@ def Plot():
      axs[4].autoscale_view()  
      ax2.relim()
      ax2.autoscale_view()  
-   print '----' 
-   print var.T[0], var.T[1], (var.T[0]+var.T[1])/2.
-   print var.T[-2], var.T[-1], (var.T[-1]+var.T[-2])/2.
-   print '----' 
+   #print '----' 
+   #print var.T[0], var.T[1], (var.T[0]+var.T[1])/2.
+   #print var.T[-2], var.T[-1], (var.T[-1]+var.T[-2])/2.
+   #print '----' 
    if par.SaveToFile and plotCounter%par.SaveToFileRatio==0 :
       dataToSave = np.array([Grid.z, var.rho, var.v, var.T])
       if par.PlotCharacteristics:  

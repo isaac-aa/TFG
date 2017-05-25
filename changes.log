@@ -62,7 +62,12 @@ TODOs:
         ************ COMMITED ********************
 # ----- 24/05
         - Added hydrostatic eq boundary condition
-        
+        ************ COMMITED ********************
+# ----- 25/05
+        - Checked the thermal conduction in the gaussian case
+        - Wall, WallSecondRhoFixedT, FixedT BCs adapted to be used on implicit scheme
+        - Modified data shown per iteration. Added time measures
+        - Added plot of sound speed
         
         
         

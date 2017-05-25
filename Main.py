@@ -10,13 +10,14 @@
 import numpy as np
 import time
 
+CPUTime0 = time.clock()
 
 import Parameters as par
 import Grid
 
 # ------------------ MESH CREATION -------------
 #Grid.Uniform1DGrid(par.N, par.z0, par.zf)
-Grid.ReadGridFromFile('hydrostatic_equilibrium.dat')
+Grid.ReadGridFromFile('hydrostatic_equilibrium_2.dat')
 
 import Variables as var
 import Settings as sets
@@ -32,7 +33,13 @@ ChangeOfVar.ConvertToPrim()
 Save.Plot()
 # ------------------ MAIN LOOP -----------------
 
-   
+CPUTimeConf = time.clock()
+print '################ \n'
+print 'Configuration took %.4f s'%(CPUTimeConf-CPUTime0)
+print '################ \t SIMULATION START \n'
+
+WallTime0 = time.time()
+
 while (par.it<=par.max_it and par.tt<=par.tf):
    TimeStep.ComputeDT()  
 
@@ -46,7 +53,6 @@ while (par.it<=par.max_it and par.tt<=par.tf):
    sets.Scheme() 
    
    # Source computation
-   # NOTE: This should be done after the Scheme if doing Operator Splitting (TODO)
    if par.IsComputingSource:
       SourceTerm.ComputeSource()
 
@@ -58,8 +64,10 @@ while (par.it<=par.max_it and par.tt<=par.tf):
    ChangeOfVar.ConvertToPrim()
 
    if par.it%par.save_rate == 0.:
+     ItTime = time.clock()
+     print ' ## IT: %d \t CPU-Time: %.2f s \t Wall-time: %.2f'%(par.it, ItTime-CPUTimeConf, time.time()-WallTime0)
+     print 'DT: %.3e \t t: %.3e \t CFL: %.3e s \n'%(par.dt, par.tt, par.cfl)
      Save.Plot()
-     print par.it, par.tt, par.dt, par.cfl
 
 
 
