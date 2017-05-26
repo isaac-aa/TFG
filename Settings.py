@@ -15,10 +15,12 @@ import Parameters as par
 print 'Loading Settings..'
 
 
+InitialCondition = InitialConditions.LogTProfile
+argsIC = [1e5, 1e6, 2.814100984033537367e-01]
 #InitialCondition = InitialConditions.RestartFromFile
-#argsIC = ['../1e-3Equilibrium/RESULTS_DAT']
-InitialCondition = InitialConditions.ReadICFromFile
-argsIC = ['hydrostatic_equilibrium_2.dat']
+#argsIC = ['../1e-3EquibriumLambda15/RESULTS_DAT']
+#InitialCondition = InitialConditions.ReadICFromFile
+#argsIC = ['hydrostatic_equilibrium_2.dat']
 #InitialCondition = InitialConditions.GaussianTemperature
 #argsIC = [2., 0.5, 0.0005, 1.]
 #InitialCondition = InitialConditions.IsothermalEq
@@ -47,8 +49,8 @@ ChangeOfVar.ConvertToPrim()
 
 
 # Solar transition region
-BoundaryConditionL = BoundaryConditions.WallSecondRhoHydrostaticP #WallSecondRhoFixedT
-argsL = ['L']
+BoundaryConditionL = BoundaryConditions.FixedT #WallSecondRhoFixedT
+argsL = ['L', 1e5]
 BoundaryConditionR = BoundaryConditions.FixedT
 argsR = ['R', 1e6]
 

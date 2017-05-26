@@ -98,6 +98,11 @@ for i in range(4):
 axs[0].set_xlim(Grid.z[0],Grid.z[-1])
 
 
+if par.PlotFile:
+   z_dat, rho_dat, p_dat, T_dat = np.loadtxt(par.FileToPlot, unpack=True)
+   axs[0].plot(z_dat, rho_dat, 'k--')
+   axs[2].plot(z_dat, p_dat, 'k--')
+   axs[3].plot(z_dat, T_dat, 'k--')
 
 
 def Plot():

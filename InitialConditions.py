@@ -49,6 +49,47 @@ def SoundWaves(args):
   var.energy = pIn/(par.gamma-1.) + 0.5*var.rho*vIn*vIn
 
 
+def LogTProfile(args):
+  logTA = np.log(args[0])
+  logTB = np.log(args[1])
+  logpA = np.log(args[2])
+
+  par.g = 27360.00
+  par.R = 8.3144598e+07
+  par.mu = 1.113202
+
+  logT = logTA + (logTB-logTA)/(Grid.z[-1]-Grid.z[0]) * (Grid.z-Grid.z[0])
+  var.T = np.exp(logT)
+
+  logp = np.zeros(var.P.shape)
+  logp[0] = logpA
+ 
+  logp1 = np.zeros(var.P.shape)
+  logp1[0] = logpA
+ 
+  T_num = np.zeros(Grid.z.shape)
+  T_num[0] = args[0]
+
+  B = -par.mu*par.g/par.R
+  A = par.ct
+  Lambda = 0.
+
+  i=1
+  while i<len(Grid.z):
+    T7_2 = Grid.dz* Grid.dz * 7*Lambda/(2.*A) - T_num[i-2]**(7./2.) + 2*T_num[i-1]**(7./2.)
+    T_num[i] = T7_2**(2./7.)
+
+    logp[i] = logp[i-1] + Grid.dz*B/var.T[i]   
+    logp1[i] = logp1[i-1] + Grid.dz*B/T_num[i]
+
+    i+=1  
+
+  par.Computecv()
+  var.momentum = var.momentum*0.
+  var.rho = np.exp(logp1)*par.mu/(par.R*T_num)
+  var.energy = var.rho*par.cv*var.T
+
+
 def GaussianTemperature(args):
   T0 = args[0]
   z0 = args[1]

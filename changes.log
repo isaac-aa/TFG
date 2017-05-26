@@ -70,6 +70,9 @@ TODOs:
         - Added plot of sound speed
         - Fixed WallSecondRhoHydrostaticP on implicit scheme
         - First equilibrium with 1e-3 and 1e-1 damping
-        
-        
+        ************ COMMITED ********************
+# ----- 26/05
+        - Added extra files
+        - Added IC for thermal equilibrium
+        - Implemented plot of analytical solutions from file        
         

@@ -44,7 +44,7 @@ def computeMomentumDamping():
    DampingVel = DampingPercent_scalar*var.v
    
    #print np.argmax(DampingPercent)
-   #DampingVel = par.DampingMultiplier*var.v   #Old method
+   DampingVel = par.DampingMultiplier*var.v   #Old method
    
    momentumDampingSource = -DampingVel*var.rho
    energyDampingSource = -0.5*DampingVel*DampingVel*var.rho
