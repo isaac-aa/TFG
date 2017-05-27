@@ -27,7 +27,7 @@ cfl = cfl_set
 
 # ------------------ PLOT SETUP ---------------
 
-save_rate = 1000
+save_rate = 100000
 
 SaveToFile = True
 SaveToFileRatio = 10
@@ -96,7 +96,7 @@ DampingMultiplier = 1.
 # Thermal Diffusion
 ThermalDiffusion = True
 SpitzerDiffusion = True
-ImplicitConduction = True
+ImplicitConduction = False
 ct = 9e-12 * 1e5 # Value at E.Priest "Solar Magnetohydrodynamics" * mks to cgs factor
 f_cfl = .5  #0.5 Largest stable number
 DiffusionPercent = 1. #1e-2

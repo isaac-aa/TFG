@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
 
 R = 8.3144598e+07
 mu = 1.113202
@@ -60,24 +61,26 @@ def EulerPerturb(T0, dT):
    T_num[0] = T0
    T_num[1] = T0 + dT*dz_num
 
-   logp = np.zeros(z.shape)
+   logp = np.zeros(z_num.shape)
    logp[0] = np.log(pA)
-   logp[1] = logp[0] + dz*B/T[1]
+   logp[1] = logp[0] + dz*B/T_num[1]
 
 
    i = 2
-   while i<len(T):
+   while i<len(z_num):
       rho = np.exp(logp[i-1])*mu / (R*T_num[i-1]) 
       numericalDensity = rho/(mu*molarMass)
       
       logLamda = np.interp(np.log10(T_num[i-1]), logT_table, logLamda_table)
+      
       L_r = numericalDensity*numericalDensity*10**logLamda
-      print dz_num*dz_num * 7.*L_r/(2.*A), T[i-1]**(7./2.)
-     
-      T7_2 = dz_num*dz_num * 7.*L_r/(2.*A) - T_num[i-2]**(7./2.) + 2*T[i-1]**(7./2.)
-      T_num[i] = T7_2**(2./7.)
+      #print L_r
+      #print (dz_num*dz_num * 7.*L_r/(2.*A) )**(2./7.), T[i-1]
+      #L_r = 0.
+      T7_2 = dz_num*dz_num*7.*L_r/(2.*A) - T_num[i-2]**(7./2.) + 2*T_num[i-1]**(7./2.)
+      T_num[i] = T7_2**(2./7.) 
 
-      logp[i] = logp[i-1] + dz*B/T[i]    
+      logp[i] = logp[i-1] + dz*B/T_num[i]    
 
       i+=1
    
@@ -85,13 +88,40 @@ def EulerPerturb(T0, dT):
    
 
 
+dT2 = (T[-2]-T[-1])/dz  #Buen valor 0.00025
+def EulerPerturbInvert(T0, dT):
+   z_num = np.linspace(z[0], z[-1], 5000.)
+   dz_num = np.abs(z_num[1]-z_num[0])
+   
+   T_num = np.zeros(z_num.shape)
+   T_num[-1] = T0
+   T_num[-2] = T0 + dT*dz_num
+
+   logp = np.zeros(z_num.shape)
+   logp[-1] = np.log(pA)   #CHANGE
+   logp[-2] = logp[-1] + dz*B/T_num[-2]
 
 
+   i = -3
+   while abs(i)<=len(z_num):
+      rho = np.exp(logp[i+1])*mu / (R*T_num[i+1]) 
+      numericalDensity = rho/(mu*molarMass)
+      
+      logLamda = np.interp(np.log10(T_num[i+1]), logT_table, logLamda_table)
+      
+      L_r = numericalDensity*numericalDensity*10**logLamda
+      #print L_r
+      #print (dz_num*dz_num * 7.*L_r/(2.*A) )**(2./7.), T[i-1]
+      #L_r = 0.
 
+      T7_2 = -dz_num*dz_num*7.*L_r/(2.*A) - T_num[i+2]**(7./2.) + 2*T_num[i+1]**(7./2.)
+      T_num[i] = T7_2**(2./7.) 
+      #print T_num[i+2], T_num[i+1], T_num[i]
+      logp[i] = logp[i+1] + dz*B/T_num[i]    
 
-
-
-
+      i-=1
+   
+   return z_num, T_num, np.exp(logp)
 
 
 
