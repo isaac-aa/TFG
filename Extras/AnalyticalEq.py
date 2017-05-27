@@ -48,11 +48,14 @@ def Euler():
    return T, np.exp(logp)
 
 dT = (T[1]-T[0])/dz
-Lambda = 0.
+
+logT_table, Lamda_table = np.loadtxt('../dere_etal_table.dat', usecols=(0,1), unpack=True)
+logLamda_table = np.log10(Lamda_table)
 
 def EulerPerturb(T0, dT):
    z_num = np.linspace(z[0], z[-1], 5000.)
    dz_num = z_num[1]-z_num[0]
+   
    T_num = np.zeros(z_num.shape)
    T_num[0] = T0
    T_num[1] = T0 + dT*dz_num
@@ -61,9 +64,17 @@ def EulerPerturb(T0, dT):
    logp[0] = np.log(pA)
    logp[1] = logp[0] + dz*B/T[1]
 
+
    i = 2
    while i<len(T):
-      T7_2 = dz_num*dz_num * 7*Lambda/(2.*A) - T_num[i-2]**(7./2.) + 2*T[i-1]**(7./2.)
+      rho = np.exp(logp[i-1])*mu / (R*T_num[i-1]) 
+      numericalDensity = rho/(mu*molarMass)
+      
+      logLamda = np.interp(np.log10(T_num[i-1]), logT_table, logLamda_table)
+      L_r = numericalDensity*numericalDensity*10**logLamda
+      print dz_num*dz_num * 7.*L_r/(2.*A), T[i-1]**(7./2.)
+     
+      T7_2 = dz_num*dz_num * 7.*L_r/(2.*A) - T_num[i-2]**(7./2.) + 2*T[i-1]**(7./2.)
       T_num[i] = T7_2**(2./7.)
 
       logp[i] = logp[i-1] + dz*B/T[i]    
