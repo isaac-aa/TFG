@@ -165,10 +165,15 @@ def Plot():
      axs[4].autoscale_view()  
      ax2.relim()
      ax2.autoscale_view()  
+   
+   
    print '----' 
    print var.T[0], var.T[1], (var.T[0]+var.T[1])/2.
    print var.T[-2], var.T[-1], (var.T[-1]+var.T[-2])/2.
    print '----' 
+   
+   
+   
    if par.SaveToFile and plotCounter%par.SaveToFileRatio==0 :
       dataToSave = np.array([Grid.z, var.rho, var.v, var.T])
       if par.PlotCharacteristics:  
@@ -180,7 +185,8 @@ def Plot():
            tau_R = Losses_tau.get_ydata()
            dataToSave = np.append(dataToSave, [tau_R], axis=0)
         print 'Saving to file..'
-        np.savetxt('RESULTS_DAT/%.20f.dat'%par.tt, dataToSave.T, header='%.7e %.7e %.7e'%(par.mu,par.g,par.R))
+      
+      np.savetxt('RESULTS_DAT/%.20f.dat'%par.tt, dataToSave.T, header='%.7e %.7e %.7e'%(par.mu,par.g,par.R))
            
          
    plt.savefig('RESULTS/%.20f.png'%par.tt, bbox_inches='tight')

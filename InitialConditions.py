@@ -54,7 +54,7 @@ def LogTProfile(args):
   logTB = np.log(args[1])
   logpA = np.log(args[2])
 
-  par.g = 27360.00
+  par.g = -27360.00
   par.R = 8.3144598e+07
   par.mu = 1.113202
 
@@ -70,7 +70,7 @@ def LogTProfile(args):
   T_num = np.zeros(Grid.z.shape)
   T_num[0] = args[0]
 
-  B = -par.mu*par.g/par.R
+  B = par.mu*par.g/par.R
   A = par.ct
   Lambda = 0.
 
@@ -85,6 +85,7 @@ def LogTProfile(args):
     i+=1  
 
   par.Computecv()
+  print (var.T[1]+var.T[0])/2.
   var.momentum = var.momentum*0.
   var.rho = np.exp(logp1)*par.mu/(par.R*T_num)
   var.energy = var.rho*par.cv*var.T
@@ -107,7 +108,7 @@ def GaussianTemperature(args):
     var.kappa = par.ct*np.ones(Grid.z.shape) #*exp #np.ones(Grid.z.shape)
   
   
-def ReadICFromFile(args):
+def ReadICFromFileTemperature(args):
    print "Loading IC from " + args[0]
    FileName = args[0]
    f = open(FileName)
@@ -129,9 +130,38 @@ def ReadICFromFile(args):
    T_data, rho_data = np.loadtxt(FileName, skiprows=2, usecols=(1,2), unpack=True)
 
    var.rho = rho_data*rho_ref
-   var.energy = var.rho*T_data*T_ref*par.cv
+   var.energy = var.rho*T_data*T_ref*R/mu /(par.gamma-1.)
    var.momentum = var.momentum*0.
    var.kappa = par.ct*(T_data*T_ref)**(5./2.)
+   
+   
+def ReadICFromFilePressure(args):
+   print "Loading IC from " + args[0]
+   FileName = args[0]
+   f = open(FileName)
+   f.readline()     #Line containing number of elements
+   refs = f.readline().split()
+   p_ref = float(refs[1])
+   rho_ref = float(refs[2])
+   mu = float(refs[3])
+   g = float(refs[4])
+   R = float(refs[5])
+   f.close()
+   
+   par.R = R
+   par.mu = mu
+   par.g = -g
+   par.Computecv()
+   #print par.R, par.mu, par.g, par.cv
+   
+   p_data, rho_data = np.loadtxt(FileName, skiprows=2, usecols=(1,2), unpack=True)
+
+   var.rho = rho_data*rho_ref
+   var.energy = p_data /(par.gamma-1.)
+   print var.energy
+   var.momentum = var.momentum*0.
+   var.T = var.energy/(var.rho*par.cv)
+   var.kappa = par.ct*(var.T)**(5./2.)
    
    
 def RestartFromFile(args):

@@ -116,8 +116,10 @@ def computeImplicitConduction():
    #upper = np.insert(upper, 0 , 0.)
    #lower = np.append(lower, 0.)
    """
-   
+   #print e[:6]*var.rho[:6]
    sol_e = linalg.solve_banded( (1,1), [var.upper, var.diag, var.lower], var.rhs )
+   #print sol_e[:6]
+   #print ''
    #print var.T-sol_e/(par.cv*var.rho)
    
    E_k = 0.5*var.momentum*var.momentum/var.rho
@@ -127,7 +129,7 @@ def computeImplicitConduction():
 
 def computeRadiativeLosses():
    logT = np.log10(var.T)
-   
+
    """
    Lamda = np.zeros(Grid.z.shape)  #This can be allocated at settings/variables
    for i in range(len(logT)):   #Not sure if this will be faster than masked arrays...

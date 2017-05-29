@@ -74,5 +74,14 @@ TODOs:
 # ----- 26/05
         - Added extra files
         - Added IC for thermal equilibrium
-        - Implemented plot of analytical solutions from file        
+        - Implemented plot of analytical solutions from file      
+        ************ COMMITED ********************
+# ----- 28/05
+        - WallFixedRhoFixedT BC now is adapted to implicit scheme
+        - WallFixedRhoFixedT does not compute the mean on the boundary for the implicit scheme (to allow equilibrium... long story though)
+        - Can save to .dat without the characteristic times/lenghts
+        - Added function to read pressure and temperature profiles for IC
+# ----- 29/05
+        ************ COMMITED ********************
+          
         

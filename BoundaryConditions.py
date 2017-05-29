@@ -144,15 +144,25 @@ def WallFixedRhoFixedT(args):
      i = -1
      i_one = -2
    
+   FixedT = args[1]
+   FixedRho = args[2]
    
-   var.rho[i] = 2.*args[2]-var.rho[i_one]
+   var.rho[i] = FixedRho #2.*FixedRho-var.rho[i_one]
    
    var.momentum[i] = -var.momentum[i_one]    #v = 0
-   
-   boundaryE = args[2]*par.cv*args[1] 
-   var.energy[i] = 2*boundaryE-var.energy[i_one]   
+
       
-   
+   if par.ImplicitConduction:
+      var.diag[i] = 1.    
+      if args[0]=="L":
+         var.upper[1] = 0. #1.
+      if args[0]=="R":
+         var.lower[-2] = 0. #1. 
+      var.rhs[i] = FixedRho*par.cv*FixedT #2.*FixedRho*par.cv*FixedT
+   else:
+      boundaryE = FixedRho*par.cv*FixedT 
+      internalE = 2*boundaryE - par.cv*var.rho[i_one]*var.T[i_one]   
+      var.energy[i] = internalE + 0.5*var.momentum[i]*var.momentum[i]/var.rho[i]   
    
 def Periodic(args):
    var.rho[0] = var.rho[-2]

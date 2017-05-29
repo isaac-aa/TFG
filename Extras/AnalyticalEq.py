@@ -32,6 +32,8 @@ T = (alpha*(z+D))**(2./7.)
 logp = logp0 + B*alpha**(-2./7.)*(z+D)**(5./7.)*7./5.
 p = np.exp(logp)
 
+rho = p*mu/(R*T)
+
 def Euler():
    T = np.zeros(z.shape)
    T[0] = TA
@@ -53,6 +55,7 @@ dT = (T[1]-T[0])/dz
 logT_table, Lamda_table = np.loadtxt('../dere_etal_table.dat', usecols=(0,1), unpack=True)
 logLamda_table = np.log10(Lamda_table)
 
+#dT = .278 buen valor
 def EulerPerturb(T0, dT):
    z_num = np.linspace(z[0], z[-1], 5000.)
    dz_num = z_num[1]-z_num[0]
@@ -77,10 +80,10 @@ def EulerPerturb(T0, dT):
       #print L_r
       #print (dz_num*dz_num * 7.*L_r/(2.*A) )**(2./7.), T[i-1]
       #L_r = 0.
-      T7_2 = dz_num*dz_num*7.*L_r/(2.*A) - T_num[i-2]**(7./2.) + 2*T_num[i-1]**(7./2.)
+      T7_2 = -dz_num*dz_num*7.*L_r/(2.*A) - T_num[i-2]**(7./2.) + 2*T_num[i-1]**(7./2.)
       T_num[i] = T7_2**(2./7.) 
 
-      logp[i] = logp[i-1] + dz*B/T_num[i]    
+      logp[i] = logp[i-1] + dz_num*B/T_num[i]    
 
       i+=1
    
@@ -88,7 +91,7 @@ def EulerPerturb(T0, dT):
    
 
 
-dT2 = (T[-2]-T[-1])/dz  #Buen valor 0.00025
+dT2 = (T[-2]-T[-1])/dz  #Buen valor 0.00025 o 0.00013
 def EulerPerturbInvert(T0, dT):
    z_num = np.linspace(z[0], z[-1], 5000.)
    dz_num = np.abs(z_num[1]-z_num[0])
@@ -98,8 +101,8 @@ def EulerPerturbInvert(T0, dT):
    T_num[-2] = T0 + dT*dz_num
 
    logp = np.zeros(z_num.shape)
-   logp[-1] = np.log(pA)   #CHANGE
-   logp[-2] = logp[-1] + dz*B/T_num[-2]
+   logp[-1] = np.log(0.20231163238863872) #np.log(p[-1])   
+   logp[-2] = logp[-1] - dz_num*B/T_num[-2]
 
 
    i = -3
@@ -117,11 +120,44 @@ def EulerPerturbInvert(T0, dT):
       T7_2 = -dz_num*dz_num*7.*L_r/(2.*A) - T_num[i+2]**(7./2.) + 2*T_num[i+1]**(7./2.)
       T_num[i] = T7_2**(2./7.) 
       #print T_num[i+2], T_num[i+1], T_num[i]
-      logp[i] = logp[i+1] + dz*B/T_num[i]    
+      logp[i] = logp[i+1] - dz_num*B/T_num[i]    
 
       i-=1
    
    return z_num, T_num, np.exp(logp)
+
+
+#z_num1, T_num1, p_num1 = EulerPerturb(T[0], .278)
+
+z_in = z-dz/2.
+z_in = np.append(z_in, z[-1]+dz/2.)
+
+p_in = np.interp(z_in, z, p)
+
+p_in[0] = 2*p[0] - p_in[1]
+p_in[-1] = 2*p[-1] - p_in[-2]
+
+T_in = np.interp(z_in, z, T)
+
+T_in[0] = 2*T[0] - T_in[1]
+T_in[-1] = 2*T[-1] - T_in[-2]
+
+rho_in = np.interp(z_in, z, rho)
+
+rho_in[0] = 2*rho[0] - rho_in[1]
+rho_in[-1] = 2*rho[-1] - rho_in[-2]
+
+#np.savetxt('ThermalEq_IC.dat', np.array([z_in, p_in, rho_in]).T )
+np.savetxt('ThermalEq_IC_2.dat', np.array([z, p, rho]).T )
+
+
+
+
+
+
+
+
+
 
 
 

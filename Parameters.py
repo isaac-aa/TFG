@@ -35,7 +35,7 @@ SaveToFileRatio = 10
 PlotFile = True
 FileToPlot = 'Extras/ThermalEq.dat'
 
-PlotCharacteristics = True
+PlotCharacteristics = False
 
 # Default configuration
 rhoAxis = []
@@ -90,13 +90,13 @@ IsThereGravity = True
 g = -1.
 
 # Momentum Damping
-MomentumDamping = True
-DampingMultiplier = 1.
+MomentumDamping = False
+DampingMultiplier = 0.01
 
 # Thermal Diffusion
 ThermalDiffusion = True
 SpitzerDiffusion = True
-ImplicitConduction = False
+ImplicitConduction = True
 ct = 9e-12 * 1e5 # Value at E.Priest "Solar Magnetohydrodynamics" * mks to cgs factor
 f_cfl = .5  #0.5 Largest stable number
 DiffusionPercent = 1. #1e-2
@@ -105,7 +105,7 @@ DiffusionPercent = 1. #1e-2
 
 # Radiative losses
 RadiativeLoss = False
-RadiationPercent = 1e-2
+RadiationPercent = 1. #e-2
 
 # ------------------ EQUATION OF STATE --------
 
