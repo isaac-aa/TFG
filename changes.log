@@ -83,5 +83,8 @@ TODOs:
         - Added function to read pressure and temperature profiles for IC
 # ----- 29/05
         ************ COMMITED ********************
-          
+# ----- 30/05
+        - After a few days of hard work. Thermal conduction is now fixed
+        - Implemented LogT-LogRho profile as IC      
+    
         

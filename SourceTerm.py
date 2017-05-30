@@ -56,7 +56,7 @@ def computeTemperatureDiffusion():
    if par.SpitzerDiffusion:
       var.kappa = par.ct*var.T**(5./2.)
    
-   Dkappa = 0.5*(var.kappa[2:]-var.kappa[:-2])
+   Dkappa = (var.kappa[2:]-var.kappa[:-2])/4.
    EnergyDiff = (var.kappa[1:-1]+Dkappa)*var.T[2:] - 2.*var.kappa[1:-1]*var.T[1:-1] + (var.kappa[1:-1]-Dkappa)*var.T[:-2]
 
    return par.DiffusionPercent*EnergyDiff/(Grid.dz*Grid.dz)
@@ -81,7 +81,7 @@ def computeImplicitConduction():
       
    e = par.cv*var.T   #Internal energy
    
-   Dkappa = 0.5*(var.kappa[2:]-var.kappa[:-2])
+   Dkappa = (var.kappa[2:]-var.kappa[:-2])/4.
    
    dz2 = Grid.dz*Grid.dz
    A = par.DiffusionPercent * (var.kappa[1:-1]+Dkappa)/dz2
@@ -93,7 +93,6 @@ def computeImplicitConduction():
    var.upper[2:] = par.dt*A/(var.rho[2:]*par.cv)
    
    var.rhs[1:-1] = -e[1:-1]*var.rho[1:-1]
-   
    
    sets.BoundaryConditionL(sets.argsL)
    sets.BoundaryConditionR(sets.argsR)

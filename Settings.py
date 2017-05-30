@@ -15,10 +15,10 @@ import Parameters as par
 print 'Loading Settings..'
 
 
-#InitialCondition = InitialConditions.LogTProfile
-#argsIC = [1e5, 1e6, 2.814100984033537367e-01]
-InitialCondition = InitialConditions.ReadICFromFilePressure
-argsIC = ['Extras/ThermalEq_IC_2.dat']
+InitialCondition = InitialConditions.LogTLogRhoProfile
+argsIC = [1e5, 1e6, 3.7677286546362324e-14, 2.52373286e-15]
+#InitialCondition = InitialConditions.ReadICFromFilePressure
+#argsIC = ['Extras/ThermalEq_IC_2.dat']
 #InitialCondition = InitialConditions.RestartFromFile
 #argsIC = ['../1e-3EquibriumLambda15/RESULTS_DAT']
 #InitialCondition = InitialConditions.ReadICFromFile
@@ -53,7 +53,7 @@ ChangeOfVar.ConvertToPrim()
 # Solar transition region
 BoundaryConditionL = BoundaryConditions.WallFixedRhoFixedT #FixedT #WallSecondRhoFixedT
 argsL = ['L', 1e5, 3.7677286546362324e-14]
-BoundaryConditionR = BoundaryConditions.WallFixedRhoFixedT
+BoundaryConditionR = BoundaryConditions.FixedT #WallFixedRhoFixedT
 argsR = ['R', 1e6, 2.52373286e-15]
 
 

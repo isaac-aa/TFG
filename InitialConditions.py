@@ -49,21 +49,23 @@ def SoundWaves(args):
   var.energy = pIn/(par.gamma-1.) + 0.5*var.rho*vIn*vIn
 
 
-def LogTProfile(args):
+def LogTLogRhoProfile(args):
   logTA = np.log(args[0])
   logTB = np.log(args[1])
-  logpA = np.log(args[2])
+  rhoA = args[2]
+  rhoB = args[3]
 
   par.g = -27360.00
   par.R = 8.3144598e+07
   par.mu = 1.113202
 
+  logrho = np.log(rhoA) + (np.log(rhoB)-np.log(rhoA))/(Grid.z[-1]-Grid.z[0]) * (Grid.z-Grid.z[0])
+
   logT = logTA + (logTB-logTA)/(Grid.z[-1]-Grid.z[0]) * (Grid.z-Grid.z[0])
   var.T = np.exp(logT)
 
-  logp = np.zeros(var.P.shape)
-  logp[0] = logpA
- 
+  
+  """ 
   logp1 = np.zeros(var.P.shape)
   logp1[0] = logpA
  
@@ -83,11 +85,11 @@ def LogTProfile(args):
     logp1[i] = logp1[i-1] + Grid.dz*B/T_num[i]
 
     i+=1  
+  """
 
   par.Computecv()
-  print (var.T[1]+var.T[0])/2.
   var.momentum = var.momentum*0.
-  var.rho = np.exp(logp1)*par.mu/(par.R*T_num)
+  var.rho = np.exp(logrho)
   var.energy = var.rho*par.cv*var.T
 
 
@@ -158,11 +160,10 @@ def ReadICFromFilePressure(args):
 
    var.rho = rho_data*rho_ref
    var.energy = p_data /(par.gamma-1.)
-   print var.energy
    var.momentum = var.momentum*0.
    var.T = var.energy/(var.rho*par.cv)
    var.kappa = par.ct*(var.T)**(5./2.)
-   
+   #print var.kappa
    
 def RestartFromFile(args):
    print "Restarting simulation..."
