@@ -175,7 +175,7 @@ def Plot():
    
    
    if par.SaveToFile and plotCounter%par.SaveToFileRatio==0 :
-      dataToSave = np.array([Grid.z, var.rho, var.v, var.T, var.kappa])
+      dataToSave = np.array([Grid.z, var.rho, var.v, var.T])
       if par.PlotCharacteristics:  
         if par.ThermalDiffusion:
            tau_T = Thermal_tau.get_ydata()

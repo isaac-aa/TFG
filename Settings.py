@@ -15,12 +15,12 @@ import Parameters as par
 print 'Loading Settings..'
 
 
-InitialCondition = InitialConditions.LogTLogRhoProfile
-argsIC = [1e5, 1e6, 3.7677286546362324e-14, 2.52373286e-15]
-#InitialCondition = InitialConditions.ReadICFromFilePressure
-#argsIC = ['Extras/ThermalEq_IC_2.dat']
+#InitialCondition = InitialConditions.LogTGravityProfile
+#argsIC = [1e5, 1e6, 3.7677286546362324e-14, 2.52373286e-15]
+InitialCondition = InitialConditions.ReadICFromFilePressure
+argsIC = ['Extras/ThermalEq_IC_2.dat']
 #InitialCondition = InitialConditions.RestartFromFile
-#argsIC = ['../1e-3EquibriumLambda15/RESULTS_DAT']
+#argsIC = ['../Radiativ4/Parte1/RESULTS_DAT']
 #InitialCondition = InitialConditions.ReadICFromFile
 #argsIC = ['hydrostatic_equilibrium_2.dat']
 #InitialCondition = InitialConditions.GaussianTemperature

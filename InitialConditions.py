@@ -93,6 +93,40 @@ def LogTLogRhoProfile(args):
   var.energy = var.rho*par.cv*var.T
 
 
+def LogTGravityProfile(args):
+  logTA = np.log(args[0])
+  logTB = np.log(args[1])
+  rhoA = args[2]
+
+  par.g = -27360.00
+  par.R = 8.3144598e+07
+  par.mu = 1.113202
+
+  logT = logTA + (logTB-logTA)/(Grid.z[-1]-Grid.z[0]) * (Grid.z-Grid.z[0])
+  var.T = np.exp(logT)
+ 
+  logp = np.zeros(Grid.z.shape)
+  logp[0] = np.log(rhoA*par.R*args[0]/par.mu)
+
+  B = par.mu*par.g/par.R
+  A = par.ct
+  Lambda = 0.
+
+  i=1
+  # Compute pressure to make it stationary under gravity
+  while i<len(Grid.z):
+
+    logp[i] = logp[i-1] + Grid.dz*B/var.T[i]   
+
+    i+=1  
+
+  print np.exp(logp)
+  par.Computecv()
+  var.rho = np.exp(logp)*par.mu/(par.R * var.T)
+  var.momentum = var.momentum*0.
+  var.energy = var.rho*par.cv*var.T
+
+
 def GaussianTemperature(args):
   T0 = args[0]
   z0 = args[1]

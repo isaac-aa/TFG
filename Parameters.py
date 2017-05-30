@@ -91,7 +91,7 @@ g = -1.
 
 # Momentum Damping
 MomentumDamping = False
-DampingMultiplier = 0.01
+DampingMultiplier = 0.00001
 
 # Thermal Diffusion
 ThermalDiffusion = True
@@ -104,8 +104,8 @@ DiffusionPercent = 1. #1e-2
 
 
 # Radiative losses
-RadiativeLoss = False
-RadiationPercent = 1. #e-2
+RadiativeLoss = True
+RadiationPercent = .1
 
 # ------------------ EQUATION OF STATE --------
 
