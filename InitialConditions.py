@@ -200,11 +200,12 @@ def ReadICFromFilePressure(args):
    #print var.kappa
    
 def RestartFromFile(args):
-   print "Restarting simulation..."
    files = glob.glob(args[0]+'/*.dat')
    files.sort()
    
    last_it = files[-1]
+
+   print "Restarting simulation from " + args[0] + "/" + last_it
 
    f = open(last_it)
    refs = f.readline().split()

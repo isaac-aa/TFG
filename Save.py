@@ -7,6 +7,8 @@
 #
 #--------------------------------------------
 
+import shutil
+import os
 import numpy as np
 
 import Grid
@@ -24,6 +26,27 @@ import Characteristics
 #line1, = ax.plot(z, rho)
 print 'Loading Save..'
 
+# Create results folders
+if not os.path.exists(par.FolderName):
+    os.makedirs(par.FolderName)
+    os.makedirs(par.FolderName + '/RESULTS')
+    os.makedirs(par.FolderName + '/RESULTS_DAT')
+  
+
+ThereIsSettings = os.path.exists(par.FolderName+'/Settings.py')
+ThereIsParameters = os.path.exists(par.FolderName+'/Parameters.py')
+
+if ThereIsSettings or ThereIsParameters:
+   print '###### WARNING ######'
+   print 'There is already a previous simulation stored at ' + par.FolderName
+   des = raw_input('Do you want to overwrite it? ([y]/n)')
+   if des ==  'n':
+      exit()
+
+shutil.copy2('Settings.py', par.FolderName)
+shutil.copy2('Parameters.py', par.FolderName)
+
+ 
 plotCounter = 0
 
 f, axs = plt.subplots(4+par.PlotCharacteristics,1, sharex=True)
@@ -168,8 +191,8 @@ def Plot():
    
    
    print '----' 
-   print var.T[0], var.T[1], (var.T[0]+var.T[1])/2.
-   print var.T[-2], var.T[-1], (var.T[-1]+var.T[-2])/2.
+   print var.momentum[0], var.momentum[1], (var.momentum[0]+var.momentum[1])/2.
+   print var.momentum[-2], var.momentum[-1], (var.momentum[-1]+var.momentum[-2])/2.
    print '----' 
    
    
@@ -186,9 +209,9 @@ def Plot():
            dataToSave = np.append(dataToSave, [tau_R], axis=0)
         print 'Saving to file..'
       
-      np.savetxt('RESULTS_DAT/%.20f.dat'%par.tt, dataToSave.T, header='%.7e %.7e %.7e'%(par.mu,par.g,par.R))
+      np.savetxt(par.FolderName + '/RESULTS_DAT/%.20f.dat'%par.tt, dataToSave.T, header='%.7e %.7e %.7e'%(par.mu,par.g,par.R))
            
          
-   plt.savefig('RESULTS/%.20f.png'%par.tt, bbox_inches='tight')
+   plt.savefig(par.FolderName + '/RESULTS/%.20f.png'%par.tt, bbox_inches='tight')
    plotCounter +=1
 

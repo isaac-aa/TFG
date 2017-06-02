@@ -22,20 +22,21 @@ tt = 0.
 tf = np.inf #500.
 it = 0
 max_it = np.inf
-cfl_set = 0.1
+cfl_set = 0.9
 cfl = cfl_set
 
 # ------------------ PLOT SETUP ---------------
 
-save_rate = 100000
+FolderName = 'RESULTS/AnalyticalLossEq_HydrostaticP_SymV_NoDamping'
+save_rate = 10000
 
 SaveToFile = True
-SaveToFileRatio = 10
+SaveToFileRatio = 1
 
-PlotFile = True
-FileToPlot = 'Extras/ThermalEq.dat'
+PlotFile = False
+FileToPlot = 'Extras/ThermalLossesEq_ana.dat'
 
-PlotCharacteristics = False
+PlotCharacteristics = True
 
 # Default configuration
 rhoAxis = []
@@ -73,10 +74,10 @@ SoundSpeedProfile = False
 #logScale = [True, False, False, True]
 
 # Thermal Equilibrium
-rhoAxis = [1e-15, 5e-12]
-vAxis = [-1e5, 1e5]
+rhoAxis = [6e-16, 5e-12]
+vAxis = [-10e5, 10e5]
 PAxis = [0., .5]
-TAxis = [8e4, 1.5e6]
+TAxis = [2e3, 1.1e6]
 logScale = [True, False, False, True]
 
 
@@ -91,7 +92,9 @@ g = -1.
 
 # Momentum Damping
 MomentumDamping = False
-DampingMultiplier = 0.00001
+DampingMode = 'MaximumVelocity'
+DampingMultiplier = 0.01
+DampingMaxVel = 1000000
 
 # Thermal Diffusion
 ThermalDiffusion = True
@@ -105,7 +108,7 @@ DiffusionPercent = 1. #1e-2
 
 # Radiative losses
 RadiativeLoss = True
-RadiationPercent = .1
+RadiationPercent = 1.
 
 # ------------------ EQUATION OF STATE --------
 

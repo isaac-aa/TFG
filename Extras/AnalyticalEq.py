@@ -8,7 +8,7 @@ g = 27360.00
 molarMass = 1.6605e-24
 
 z_ref = 2.7555075e+07
-z0 = 4.89736713*z_ref
+z0 = 144352725.54647857 #4.89736713*z_ref
 zf = 33.33594543*z_ref
 z = np.linspace(z0, zf, 5000)
 
@@ -55,14 +55,16 @@ dT = (T[1]-T[0])/dz
 logT_table, Lamda_table = np.loadtxt('../dere_etal_table.dat', usecols=(0,1), unpack=True)
 logLamda_table = np.log10(Lamda_table)
 
-#dT = .278 buen valor
-def EulerPerturb(T0, dT):
-   z_num = np.linspace(z[0], z[-1], 5000.)
+#dT = .279 buen valor
+def EulerPerturb(rhoA, T0, dT):
+   z_num = np.linspace(z[0], z[-1], 5000)
    dz_num = z_num[1]-z_num[0]
    
    T_num = np.zeros(z_num.shape)
    T_num[0] = T0
    T_num[1] = T0 + dT*dz_num
+ 
+   pA = rhoA*R*TA/mu
 
    logp = np.zeros(z_num.shape)
    logp[0] = np.log(pA)
@@ -70,24 +72,29 @@ def EulerPerturb(T0, dT):
 
 
    i = 2
+   L_r = np.zeros(z_num.shape)
    while i<len(z_num):
       rho = np.exp(logp[i-1])*mu / (R*T_num[i-1]) 
       numericalDensity = rho/(mu*molarMass)
       
       logLamda = np.interp(np.log10(T_num[i-1]), logT_table, logLamda_table)
       
-      L_r = numericalDensity*numericalDensity*10**logLamda
-      #print L_r
-      #print (dz_num*dz_num * 7.*L_r/(2.*A) )**(2./7.), T[i-1]
-      #L_r = 0.
-      T7_2 = -dz_num*dz_num*7.*L_r/(2.*A) - T_num[i-2]**(7./2.) + 2*T_num[i-1]**(7./2.)
-      T_num[i] = T7_2**(2./7.) 
+      L_r[i] = numericalDensity*numericalDensity*10**logLamda
+      # -dz_num*dz_num*7.*L_r[i]/(2.*A)
+      # Parece ir con '+'. Sin embargo, las soluciones o no alcanzan 1e6K o lo hacen
+      # de manera demasiado similar a el caso Lr=0
+      T7_2 = - T_num[i-2]**(7./2.) + 2.*T_num[i-1]**(7./2.)  -  dz_num*dz_num*7.*L_r[i]/(2.*A)
+      T_num[i] = T7_2**(2./7.) #+ ( dz_num*dz_num*7.*L_r[i]/(2.*A) )
 
       logp[i] = logp[i-1] + dz_num*B/T_num[i]    
 
       i+=1
    
-   return z_num, T_num, np.exp(logp)
+   kappa = A*T_num**(5./2.)
+   dT = (T_num[2:]-T_num[:-2])/dz_num
+   F = -kappa[1:-1]*dT
+   dF = (F[2:]-F[:-2])/dz_num
+   return z_num, T_num, np.exp(logp), L_r, F, dF
    
 
 
@@ -128,6 +135,10 @@ def EulerPerturbInvert(T0, dT):
 
 
 #z_num1, T_num1, p_num1 = EulerPerturb(T[0], .278)
+#rho1 = p_num1*mu/(R*T_num1)
+
+#np.savetxt('ThermalLossesEq_ana.dat', np.array([z_num1, rho1, p_num1, T_num1]).T )
+
 
 z_in = z-dz/2.
 z_in = np.append(z_in, z[-1]+dz/2.)
@@ -148,7 +159,7 @@ rho_in[0] = 2*rho[0] - rho_in[1]
 rho_in[-1] = 2*rho[-1] - rho_in[-2]
 
 #np.savetxt('ThermalEq_IC.dat', np.array([z_in, p_in, rho_in]).T )
-np.savetxt('ThermalEq_IC_2.dat', np.array([z, p, rho]).T )
+#np.savetxt('ThermalEq_IC_2.dat', np.array([z, p, rho]).T )
 
 
 

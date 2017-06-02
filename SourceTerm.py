@@ -24,8 +24,46 @@ def computeGravSource():
 
 
 def computeMomentumDamping():
+
+   momentumDampingSource = np.zeros(Grid.z.shape)
+   energyDampingSource = np.zeros(Grid.z.shape)
+
+   if par.DampingMode == 'Simple':
+      DampingVel = par.DampingMultiplier*var.v   #Old method
+    
+      momentumDampingSource = -DampingVel*var.rho
+      energyDampingSource = -0.5*DampingVel*DampingVel*var.rho
+
    
+   elif par.DampingMode == 'FreeFallTime':
+
+      H_p = var.P[:-1]/np.abs(var.P[1:]-var.P[:-1]) * Grid.dz  #pressure scale-height
+      H_p = np.append(H_p, H_p[-1]) #Extent the array to avoid different sizes (this point is at the boundary)
+
+      tau_ff = np.sqrt(2*H_p/np.abs(par.g))    #Time taken to fall 4Mm
+      tau_damp = tau_ff
+
+      n_iter = tau_damp[1:-1]/par.dt
+
+      DampingPercent = 1./n_iter
+
+      DampingPercent_scalar = np.max(DampingPercent)* par.DampingMultiplier
+
+      DampingVel = DampingPercent_scalar*var.v
+
+
+   elif par.DampingMode == 'MaximumVelocity':
+      velMask = np.abs(var.v) > par.DampingMaxVel
+      DampingVel = par.DampingMultiplier*var.v*velMask   #The damping is only applied for points with excess of velocity
+ 
+      momentumDampingSource = -DampingVel*var.rho
+      energyDampingSource = -0.5*DampingVel*DampingVel*var.rho
+
+
+   else: 
+      print '#### ERROR #### \t ' + par.DampingMode + ' is not defined as a DampingMode' 
    
+   """ DELETE SOONER OR LATER
    H_p = var.P[:-1]/np.abs(var.P[1:]-var.P[:-1]) * Grid.dz  #pressure scale-height
    H_p = np.append(H_p, H_p[-1]) #Extent the array to avoid different sizes (this point is at the boundary)
 
@@ -44,11 +82,11 @@ def computeMomentumDamping():
    DampingVel = DampingPercent_scalar*var.v
    
    #print np.argmax(DampingPercent)
-   DampingVel = par.DampingMultiplier*var.v   #Old method
+   #DampingVel = par.DampingMultiplier*var.v   #Old method
    
-   momentumDampingSource = -DampingVel*var.rho
-   energyDampingSource = -0.5*DampingVel*DampingVel*var.rho
-   
+   #momentumDampingSource = -DampingVel*var.rho
+   #energyDampingSource = -0.5*DampingVel*DampingVel*var.rho
+   """
    return momentumDampingSource, energyDampingSource
 
 def computeTemperatureDiffusion():
@@ -152,7 +190,8 @@ def computeRadiativeLosses():
    logLamda[lowTmask] = var.logLamda_table[0] + 15*(logT[lowTmask]- 4)
 
    numericalDensity = var.rho/(par.mu*par.molarMass)
-   return par.RadiationPercent * numericalDensity * numericalDensity * 10**logLamda
+   var.RadiativeLoss = par.RadiationPercent * numericalDensity * numericalDensity * 10**logLamda
+   return var.RadiativeLoss
 
 
 def ComputeSource():

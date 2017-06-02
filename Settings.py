@@ -18,9 +18,9 @@ print 'Loading Settings..'
 #InitialCondition = InitialConditions.LogTGravityProfile
 #argsIC = [1e5, 1e6, 3.7677286546362324e-14, 2.52373286e-15]
 InitialCondition = InitialConditions.ReadICFromFilePressure
-argsIC = ['Extras/ThermalEq_IC_2.dat']
+argsIC = ['Extras/ThermalLossesEq_IC.dat']
 #InitialCondition = InitialConditions.RestartFromFile
-#argsIC = ['../Radiativ4/Parte1/RESULTS_DAT']
+#argsIC = ['RESULTS/AnalyticalLossEq_HydrostaticP/RESULTS_DAT']
 #InitialCondition = InitialConditions.ReadICFromFile
 #argsIC = ['hydrostatic_equilibrium_2.dat']
 #InitialCondition = InitialConditions.GaussianTemperature
@@ -51,9 +51,9 @@ ChangeOfVar.ConvertToPrim()
 
 
 # Solar transition region
-BoundaryConditionL = BoundaryConditions.WallFixedRhoFixedT #FixedT #WallSecondRhoFixedT
+BoundaryConditionL = BoundaryConditions.WallSecondRhoHydrostaticP #WallFixedRhoFixedT #FixedT #WallSecondRhoFixedT
 argsL = ['L', 1e5, 3.7677286546362324e-14]
-BoundaryConditionR = BoundaryConditions.FixedT #WallFixedRhoFixedT
+BoundaryConditionR = BoundaryConditions.FixedT
 argsR = ['R', 1e6, 2.52373286e-15]
 
 

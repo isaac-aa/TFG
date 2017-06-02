@@ -38,6 +38,7 @@ lower = np.zeros(Grid.z.shape)
 upper = np.zeros(Grid.z.shape)
 rhs = np.zeros(Grid.z.shape)
 
+RadiativeLoss = np.zeros(Grid.z.shape)
 logT_table, Lamda_table = np.loadtxt('dere_etal_table.dat', usecols=(0,1), unpack=True)
 logLamda_table = np.log10(Lamda_table)
 

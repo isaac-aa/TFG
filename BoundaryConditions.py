@@ -61,7 +61,7 @@ def FixedT(args):
    FixedT = args[1]
    var.rho[i] = var.rho[i_one]
    
-   var.momentum[i] = var.momentum[i_one]
+   var.momentum[i] = -var.momentum[i_one]
    
    #E_k = 0.5*var.v[i_one]*var.v[i_one]*var.rho[i_one]
    #boundaryE = var.rho[i]*par.cv*args[1] + E_k

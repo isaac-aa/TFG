@@ -86,5 +86,12 @@ TODOs:
 # ----- 30/05
         - After a few days of hard work. Thermal conduction is now fixed
         - Implemented LogT-LogRho profile as IC      
-    
-        
+        ************ COMMITED ********************
+# ----- 31/05
+        - Added flags to select the type of damping
+        - Now the folder where the results are stored can be changed
+        - Also, if it does not exist, it will create it
+# ----- 02/06
+        - The Settings.py and Parameters.py are copied to that folder
+        - If they already exists, the code raises a warning and ask the user to overwrite them 
+        - The radiative losses are stored in an array in case they want to be saved later (TODO)

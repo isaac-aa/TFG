@@ -17,7 +17,7 @@ import Grid
 
 # ------------------ MESH CREATION -------------
 #Grid.Uniform1DGrid(par.N, par.z0, par.zf)
-Grid.ReadGridFromFile('Extras/ThermalEq_IC_2.dat') #('hydrostatic_equilibrium_2.dat')
+Grid.ReadGridFromFile('Extras/ThermalLossesEq_IC.dat') #('hydrostatic_equilibrium_2.dat')
 
 import Variables as var
 import Settings as sets
