@@ -27,11 +27,11 @@ cfl = cfl_set
 
 # ------------------ PLOT SETUP ---------------
 
-FolderName = 'RESULTS/AnalyticalLossEq_HydrostaticP_SymV_NoDamping'
-save_rate = 10000
+FolderName = 'RESULTS/AnalyticalLossEq_HydrostaticP_NoDamping_3e4KLossCap_RestartNonSymV'
+save_rate = 100000
 
 SaveToFile = True
-SaveToFileRatio = 1
+SaveToFileRatio = 10
 
 PlotFile = False
 FileToPlot = 'Extras/ThermalLossesEq_ana.dat'

@@ -10,6 +10,8 @@
 
 
 import numpy as np
+import shutil
+
 import Grid
 import Parameters as par
 import Variables as var
@@ -205,13 +207,15 @@ def RestartFromFile(args):
    
    last_it = files[-1]
 
-   print "Restarting simulation from " + args[0] + "/" + last_it
+   shutil.copy2(last_it, par.FolderName)
+
+   print "Restarting simulation from " + last_it
 
    f = open(last_it)
    refs = f.readline().split()
-   mu = float(refs[1])
-   g = abs(float(refs[2]))
-   R = float(refs[3])
+   mu = float(refs[3])
+   g = abs(float(refs[4]))
+   R = float(refs[5])
    f.close()   
    print mu, R, g
    par.R = R

@@ -14,9 +14,9 @@ z = np.linspace(z0, zf, 5000)
 
 dz = z[1]- z[0]
 
-TA = 1e5
+TA = 1e4 #1e5
 TB = 1e6
-rhoA = 0.06589083*5.7181381e-13
+rhoA = 1e-14 #0.06589083*5.7181381e-13
 pA = rhoA*R*TA/mu 
 
 A = 9e-12 * 1e5
@@ -83,7 +83,7 @@ def EulerPerturb(rhoA, T0, dT):
       # -dz_num*dz_num*7.*L_r[i]/(2.*A)
       # Parece ir con '+'. Sin embargo, las soluciones o no alcanzan 1e6K o lo hacen
       # de manera demasiado similar a el caso Lr=0
-      T7_2 = - T_num[i-2]**(7./2.) + 2.*T_num[i-1]**(7./2.)  -  dz_num*dz_num*7.*L_r[i]/(2.*A)
+      T7_2 = - T_num[i-2]**(7./2.) + 2.*T_num[i-1]**(7./2.)  +  dz_num*dz_num*7.*L_r[i]/(2.*A)
       T_num[i] = T7_2**(2./7.) #+ ( dz_num*dz_num*7.*L_r[i]/(2.*A) )
 
       logp[i] = logp[i-1] + dz_num*B/T_num[i]    
@@ -124,7 +124,7 @@ def EulerPerturbInvert(T0, dT):
       #print (dz_num*dz_num * 7.*L_r/(2.*A) )**(2./7.), T[i-1]
       #L_r = 0.
 
-      T7_2 = -dz_num*dz_num*7.*L_r/(2.*A) - T_num[i+2]**(7./2.) + 2*T_num[i+1]**(7./2.)
+      T7_2 = +dz_num*dz_num*7.*L_r/(2.*A) - T_num[i+2]**(7./2.) + 2*T_num[i+1]**(7./2.)
       T_num[i] = T7_2**(2./7.) 
       #print T_num[i+2], T_num[i+1], T_num[i]
       logp[i] = logp[i+1] - dz_num*B/T_num[i]    

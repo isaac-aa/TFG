@@ -95,3 +95,9 @@ TODOs:
         - The Settings.py and Parameters.py are copied to that folder
         - If they already exists, the code raises a warning and ask the user to overwrite them 
         - The radiative losses are stored in an array in case they want to be saved later (TODO)
+        ************ COMMITED ********************
+# ----- 05/06
+        - The iteration and time taken are saved to .dat file
+        - Added temperature for analytical solution of Sound Waves
+# ----- 06/06
+        - If the simulation is restarted, a copy of the IC is done in the simulation folder

@@ -6,18 +6,18 @@ import glob
 import numpy as np
 import matplotlib.pyplot as plt
 
-SimulationFolder = '../RESULTS/AnalyticalLossEq_HydrostaticP_SymV_NoDamping'
 
+def TotalMass(SimulationFolder):
 
+  files = glob.glob(SimulationFolder+'/RESULTS_DAT/*.dat')
 
-files = glob.glob(SimulationFolder+'/RESULTS_DAT/*.dat')
+  times = np.zeros(len(files))
+  integratedMass = np.zeros(len(files))
 
-times = np.zeros(len(files))
-integratedMass = np.zeros(len(files))
+  for i in range(len(times)):
+     times[i] = float(files[i].split('/')[-1][:-4])
+     z, rho = np.loadtxt(files[i], skiprows=0, usecols=(0,1), unpack=True)
 
-for i in range(len(times)):
-    times[i] = float(files[i].split('/')[-1][:-4])
-    z, rho = np.loadtxt(files[i], skiprows=0, usecols=(0,1), unpack=True)
-
-    integratedMass[i] = np.trapz(rho[1:-1])
-
+     integratedMass[i] = np.trapz(rho[1:-1])
+  
+  return times, integratedMass

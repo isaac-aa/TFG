@@ -191,6 +191,7 @@ def computeRadiativeLosses():
 
    numericalDensity = var.rho/(par.mu*par.molarMass)
    var.RadiativeLoss = par.RadiationPercent * numericalDensity * numericalDensity * 10**logLamda
+   var.RadiativeLoss = var.RadiativeLoss*(var.T>3e4)
    return var.RadiativeLoss
 
 

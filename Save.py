@@ -10,6 +10,7 @@
 import shutil
 import os
 import numpy as np
+import time
 
 import Grid
 import Parameters as par
@@ -153,11 +154,12 @@ def Plot():
       
    # This can be further improved...
    if par.SoundSpeedAnalytic:
-      rhoAna, vAna, PAna = Analytic.SoundWaves(sets.argsIC, par.tt)
+      rhoAna, vAna, PAna, TAna = Analytic.SoundWaves(sets.argsIC, par.tt)
       rhoAna_line.set_ydata(rhoAna)
       vAna_line.set_ydata(vAna)
       PAna_line.set_ydata(PAna)
-   
+      TAna_line.set_ydata(TAna)  
+ 
    if par.IsothermalAnalytic:
       rhoAna, vAna, PAna = Analytic.Isothermal(sets.argsIC, par.tt)
       rhoAna_line.set_ydata(rhoAna)
@@ -190,13 +192,6 @@ def Plot():
      ax2.autoscale_view()  
    
    
-   print '----' 
-   print var.momentum[0], var.momentum[1], (var.momentum[0]+var.momentum[1])/2.
-   print var.momentum[-2], var.momentum[-1], (var.momentum[-1]+var.momentum[-2])/2.
-   print '----' 
-   
-   
-   
    if par.SaveToFile and plotCounter%par.SaveToFileRatio==0 :
       dataToSave = np.array([Grid.z, var.rho, var.v, var.T])
       if par.PlotCharacteristics:  
@@ -209,7 +204,7 @@ def Plot():
            dataToSave = np.append(dataToSave, [tau_R], axis=0)
         print 'Saving to file..'
       
-      np.savetxt(par.FolderName + '/RESULTS_DAT/%.20f.dat'%par.tt, dataToSave.T, header='%.7e %.7e %.7e'%(par.mu,par.g,par.R))
+      np.savetxt(par.FolderName + '/RESULTS_DAT/%.20f.dat'%par.tt, dataToSave.T, header='%d %.2f %.7e %.7e %.7e'%(par.it, time.clock(), par.mu,par.g,par.R))
            
          
    plt.savefig(par.FolderName + '/RESULTS/%.20f.png'%par.tt, bbox_inches='tight')
