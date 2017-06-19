@@ -16,8 +16,8 @@ import Parameters as par
 import Grid
 
 # ------------------ MESH CREATION -------------
-#Grid.Uniform1DGrid(par.N, par.z0, par.zf)
-Grid.ReadGridFromFile('Extras/ThermalLossesEq_IC.dat') #('hydrostatic_equilibrium_2.dat')
+Grid.Uniform1DGrid(par.N, par.z0, par.zf)
+#Grid.ReadGridFromFile('Extras/ThermalLossesEq_IC.dat') #('hydrostatic_equilibrium_2.dat')
 
 import Variables as var
 import Settings as sets
@@ -39,8 +39,16 @@ print 'Configuration took %.4f s'%(CPUTimeConf-CPUTime0)
 print '################ \t SIMULATION START \n'
 
 WallTime0 = time.time()
+computeDTTime = 0
+SchemeTime = 0
+SourceTime = 0
+BCTime = 0
+SaveTime = 0
 
+lastTime = 0
+nowTime = 0
 while (par.it<=par.max_it and par.tt<=par.tf):
+   lastTime = time.clock()
    TimeStep.ComputeDT()  
 
    par.tt += par.dt  
@@ -48,29 +56,48 @@ while (par.it<=par.max_it and par.tt<=par.tf):
    var.lastrho[:] = var.rho[:]
    var.lastmomentum[:] = var.momentum[:]
    var.lastenergy[:] = var.energy[:]
+   nowTime = time.clock()
+   computeDTTime += nowTime-lastTime
 
    # Time step
+   lastTime = nowTime
    sets.Scheme() 
-   
+   nowTime = time.clock()
+   SchemeTime += nowTime-lastTime
+
    # Source computation
+   lastTime = nowTime
    if par.IsComputingSource:
       SourceTerm.ComputeSource()
+   nowTime = time.clock()
+   SourceTime += nowTime-lastTime
 
    # Boundary conditions     
+   lastTime = nowTime
    sets.BoundaryConditionL(sets.argsL)
    sets.BoundaryConditionR(sets.argsR)
+   nowTime = time.clock()
+   BCTime = nowTime-lastTime
 
    # Compute change of variables
    ChangeOfVar.ConvertToPrim()
 
    if par.it%par.save_rate == 0.:
-     ItTime = time.clock()
-     print ' ## IT: %d \t CPU-Time: %.2f s \t Wall-time: %.2f'%(par.it, ItTime-CPUTimeConf, time.time()-WallTime0)
-     print 'DT: %.3e \t t: %.3f s \t CFL: %.3e'%(par.dt, par.tt, par.cfl)
+     
+     lastTime = time.clock()
      Save.Plot()
-     maxIndex = np.argmax(np.abs(var.v))
-     print 'Max v: %.2f cm/s @ z[%d]: %.3e \n'%(var.v[maxIndex], maxIndex, Grid.z[maxIndex])
-     #print var.P[0], var.P[1], var.P[2], 0.5*Grid.dz*boundaryRho*np.abs(par.g)
+     nowTime = time.clock()
+     SaveTime += nowTime-lastTime
+
+     print '\n   ## IT: %d \t CPU-Time: %.2f s \t Wall-time: %.2f'%(par.it, nowTime-CPUTimeConf, time.time()-WallTime0)
+     print 'DT: %.3e \t t: %.3f s \t CFL: %.3e'%(par.dt, par.tt, par.cfl)
+
+     nowTime /= 100.
+     print ' ComputeDT \t %.2f \n Scheme \t %.2f \n Source \t %.2f \n BC \t\t %.2f \n Save \t\t %.2f'%(computeDTTime/nowTime, SchemeTime/nowTime, SourceTime/nowTime, BCTime/nowTime, SaveTime/nowTime)
+
+
+     #maxIndex = np.argmax(np.abs(var.v))
+     #print 'Max v: %.2f cm/s @ z[%d]: %.3e \n'%(var.v[maxIndex], maxIndex, Grid.z[maxIndex])
 
 
 

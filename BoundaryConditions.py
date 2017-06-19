@@ -108,9 +108,38 @@ def WallSecondRhoFixedT(args):
       var.energy[i] = internalE + 0.5*var.momentum[i]*var.momentum[i]/var.rho[i]
 
 
+def SymVSecondRhoFixedT(args):
+   if args[0]=="L":
+     i = 0
+     i_one = 1
+     i_two = 2
+   if args[0]=="R":
+     i = -1
+     i_one = -2
+     i_two = -3
+
+   FixedT = args[1]
+
+   var.rho[i] = 2.*var.rho[i_one]-var.rho[i_two]
+   boundaryRho = 0.5*(var.rho[i]+var.rho[i_one])
+
+   var.momentum[i] = var.momentum[i_one]    #v = 0
+
+   if par.ImplicitConduction:
+      var.diag[i] = 1.
+      if args[0]=="L":
+         var.upper[1] = 1.
+      if args[0]=="R":
+         var.lower[-2] = 1.
+      var.rhs[i] = 2.*boundaryRho*par.cv*FixedT
+   else:
+      boundaryE = boundaryRho*par.cv*FixedT
+      internalE = 2*boundaryE - par.cv*var.rho[i_one]*var.T[i_one]
+      var.energy[i] = internalE + 0.5*var.momentum[i]*var.momentum[i]/var.rho[i]
 
 
-def WallFixedRhoHydrostaticP(args):
+
+def SymVFixedRhoHydrostaticP(args):
    if args[0]=="L":
      i = 0
      i_one = 1
@@ -143,7 +172,7 @@ def WallFixedRhoHydrostaticP(args):
 
 
 
-def ConservativeMassHydrostaticP(args):
+def WallFixedRhoHydrostaticP(args):
    if args[0]=="L":
      i = 0
      i_one = 1
@@ -153,11 +182,13 @@ def ConservativeMassHydrostaticP(args):
      i_one = -2
      i_two = -3
 
-   var.rho[i] = 2.*var.rho[i_one]-var.rho[i_two]
+   
+   FixedRho = args[1]
+
+   var.rho[i] = 2.*FixedRho-var.rho[i_one]
    boundaryRho = 0.5*(var.rho[i]+var.rho[i_one])
 
-   lamda = par.dt/Grid.dz
-   var.momentum[i] = - var.momentum[i_one] + (var.rho[i_two]-var.rho[i_one])/lamda
+   var.momentum[i] = -var.momentum[i_one]    #v = 0
 
    if par.ImplicitConduction:
       PJump = Grid.dz*boundaryRho*np.abs(par.g)
@@ -170,8 +201,14 @@ def ConservativeMassHydrostaticP(args):
 
       var.rhs[i] = PJump/(par.gamma-1.)
    else:
-      var.P[i] = var.P[i_one] + 0.5*Grid.dz*boundaryRho*np.abs(par.g)
+      dlogP = Grid.dz*boundaryRho*np.abs(par.g)
+      if args[0] == "R":
+          var.P[i] = np.exp( np.log(var.P[i_one]) + dlogP )
+      if args[1] == "L":
+          var.P[i] = np.exp( np.log(var.P[i_one]) - dlogP ) 
       var.energy[i] = var.P[i]/(par.gamma-1.) + 0.5*var.momentum[i]*var.momentum[i]/var.rho[i]
+
+
 
 
 
@@ -201,8 +238,44 @@ def WallSecondRhoHydrostaticP(args):
 
       var.rhs[i] = PJump/(par.gamma-1.)
    else:
+      dlogP = Grid.dz*boundaryRho*np.abs(par.g)
+      if args[0] == "L":
+          var.P[i] = np.exp( np.log(var.P[i_one]) + dlogP )
+      if args[1] == "R":
+          var.P[i] = np.exp( np.log(var.P[i_one]) - dlogP )
+
+      var.energy[i] = var.P[i]/(par.gamma-1.) + 0.5*var.momentum[i]*var.momentum[i]/var.rho[i]
+
+
+def SymVSecondRhoHydrostaticP(args):
+   if args[0]=="L":
+     i = 0
+     i_one = 1
+     i_two = 2
+   if args[0]=="R":
+     i = -1
+     i_one = -2
+     i_two = -3
+
+   var.rho[i] = 2.*var.rho[i_one]-var.rho[i_two]
+   boundaryRho = 0.5*(var.rho[i]+var.rho[i_one])
+
+   var.momentum[i] = var.momentum[i_one]    #Symmetric momentum
+
+   if par.ImplicitConduction:
+      PJump = Grid.dz*boundaryRho*np.abs(par.g)
+      if args[0]=="L":
+         var.diag[i] = 1.
+         var.upper[1] = -1.
+      if args[0]=="R":      #This case is not used
+         var.diag[i] = 1.
+         var.lower[-2] = -1.
+
+      var.rhs[i] = PJump/(par.gamma-1.)
+   else:
       var.P[i] = var.P[i_one] + 0.5*Grid.dz*boundaryRho*np.abs(par.g)
       var.energy[i] = var.P[i]/(par.gamma-1.) + 0.5*var.momentum[i]*var.momentum[i]/var.rho[i]
+
 
 def WallFixedRhoFixedT(args):
    if args[0]=="L":
@@ -231,6 +304,38 @@ def WallFixedRhoFixedT(args):
       boundaryE = FixedRho*par.cv*FixedT 
       internalE = 2*boundaryE - par.cv*var.rho[i_one]*var.T[i_one]   
       var.energy[i] = internalE + 0.5*var.momentum[i]*var.momentum[i]/var.rho[i]   
+
+
+def SymVFixedRhoFixedT(args):
+   if args[0]=="L":
+     i = 0
+     i_one = 1
+   if args[0]=="R":
+     i = -1
+     i_one = -2
+
+   FixedT = args[1]
+   FixedRho = args[2]
+
+   var.rho[i] = FixedRho #2.*FixedRho-var.rho[i_one]
+
+   var.momentum[i] = var.momentum[i_one]    #v = 0
+
+
+   if par.ImplicitConduction:
+      var.diag[i] = 1.
+      if args[0]=="L":
+         var.upper[1] = 0. #1.
+      if args[0]=="R":
+         var.lower[-2] = 0. #1. 
+      var.rhs[i] = FixedRho*par.cv*FixedT #2.*FixedRho*par.cv*FixedT
+   else:
+      boundaryE = FixedRho*par.cv*FixedT
+      internalE = 2*boundaryE - par.cv*var.rho[i_one]*var.T[i_one]
+      var.energy[i] = internalE + 0.5*var.momentum[i]*var.momentum[i]/var.rho[i]
+
+
+
    
 def Periodic(args):
    var.rho[0] = var.rho[-2]

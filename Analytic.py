@@ -41,8 +41,9 @@ def Isothermal(args, t):
   PAna = p0*np.exp(-Grid.z/1.)
   rhoAna = rho0*np.exp(-Grid.z/1.)
   vAna = Grid.z*0.
-  
-  return rhoAna, vAna, PAna  
+  TAna = PAna/(rhoAna*(par.gamma-1.))  
+
+  return rhoAna, vAna, PAna, TAna
   
 def GaussianThermal(args, t):
   T0 = args[0]
@@ -51,7 +52,7 @@ def GaussianThermal(args, t):
   rho0 = args[3]
   
   t_new = t + width/par.ct
-  exp = np.sqrt(width/(par.ct*t_new))*np.exp(-(Grid.z-z0)*(Grid.z-z0)/( 4*par.ct*t_new) ) 
+  exp = np.sqrt(width/(par.ct*t_new))*np.exp(-(Grid.z-z0)*(Grid.z-z0)/( 4*par.ct*t_new   ) ) 
   
   rhoAna = rho0*np.ones(Grid.z.shape)
   e = (1.+T0*exp)*par.cv

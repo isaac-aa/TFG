@@ -19,24 +19,24 @@ print 'Loading Settings..'
 #argsIC = [1e5, 1e6, 3.7677286546362324e-14, 2.52373286e-15]
 #InitialCondition = InitialConditions.ReadICFromFilePressure
 #argsIC = ['Extras/ThermalLossesEq_IC.dat']
-InitialCondition = InitialConditions.RestartFromFile
-argsIC = ['RESULTS/AnalyticalLossEq_HydrostaticP_NoDamping_ 3e4KLossCap/RESULTS_DAT']
+#InitialCondition = InitialConditions.RestartFromFile
+#argsIC = ['RESULTS/AnalyticalLossEq_HydrostaticP/RESULTS_DAT']
 #InitialCondition = InitialConditions.ReadICFromFile
 #argsIC = ['hydrostatic_equilibrium_2.dat']
 #InitialCondition = InitialConditions.GaussianTemperature
 #argsIC = [2., 0.5, 0.0005, 1.]
 #InitialCondition = InitialConditions.IsothermalEq
 #argsIC = [1., 1.]
-#InitialCondition = InitialConditions.SoundWaves
-#argsIC = [1.0, 0.001, 1.0, 4.]
+InitialCondition = InitialConditions.SoundWaves
+argsIC = [1.0, 0.001, 1.0, 4.]
 
 ChangeOfVar.ConvertToPrim()
 
 
-#BoundaryConditionL = BoundaryConditions.Periodic
-#argsL = []
-#BoundaryConditionR = BoundaryConditions.Periodic
-#argsR = []
+BoundaryConditionL = BoundaryConditions.Periodic
+argsL = []
+BoundaryConditionR = BoundaryConditions.Periodic
+argsR = []
 
 #BoundaryConditionL = BoundaryConditions.FixedRhoP
 #argsL = ['L',1.,1.]
@@ -51,10 +51,10 @@ ChangeOfVar.ConvertToPrim()
 
 
 # Solar transition region
-BoundaryConditionL = BoundaryConditions.WallFixedRhoHydrostaticP #WallSecondRhoHydrostaticP #FixedT #WallSecondRhoFixedT
-argsL = ['L', 7.9621557823904741e-14] 
-BoundaryConditionR = BoundaryConditions.FixedT
-argsR = ['R', 1e6, 2.52373286e-15]
+#BoundaryConditionL = BoundaryConditions.ConservativeMassHydrostaticP #WallExpRhoHydrostaticP #WallFixedRhoFixedT #FixedT #WallSecondRhoFixedT
+#argsL = ['L', 1e5, 3.7677286546362324e-14]
+#BoundaryConditionR = BoundaryConditions.FixedT
+#argsR = ['R', 1e6, 2.52373286e-15]
 
 
 Scheme = Advance.FirstGen

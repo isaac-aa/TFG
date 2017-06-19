@@ -101,3 +101,12 @@ TODOs:
         - Added temperature for analytical solution of Sound Waves
 # ----- 06/06
         - If the simulation is restarted, a copy of the IC is done in the simulation folder
+        ************ COMMITED ********************
+# ----- 08/06
+        - Added time and iterations stamp
+        - The labels are now a configurable parameters
+        - Now there is a small info about time taken for each step
+        - When restarting a simulation, the first IT can be chosen
+# ----- 15/06
+        - Added missing BC
+        - Added IC for constant flow

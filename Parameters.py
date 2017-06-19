@@ -10,16 +10,16 @@ import numpy as np
 print "Loading Variables.."
 
 # ------------------ MESH ---------------------
-N = 5000
-z0 = 1.349473185696847439e+08 #0.
-zf = 9.185744765195573568e+08 #1.
+N = 100
+z0 = 0.
+zf = 1.
 
 # ----------------- TIME SETUP ----------------
 
 dt_max = 0.1
 dt = dt_max
 tt = 0.
-tf = np.inf #500.
+tf = 1.
 it = 0
 max_it = np.inf
 cfl_set = 0.9
@@ -27,30 +27,34 @@ cfl = cfl_set
 
 # ------------------ PLOT SETUP ---------------
 
-FolderName = 'RESULTS/AnalyticalLossEq_HydrostaticP_NoDamping_3e4KLossCap_RestartNonSymV'
-save_rate = 100000
+FolderName = 'RESULTS_TESTCASES/SoundWaves_FirstGen' #'RESULTS/AnalyticalLossEq_HydrostaticP_ConsRho_SymV_NoDamping'
+save_rate = 1
 
 SaveToFile = True
-SaveToFileRatio = 10
+SaveToFileRatio = 1
 
 PlotFile = False
 FileToPlot = 'Extras/ThermalLossesEq_ana.dat'
 
-PlotCharacteristics = True
+PlotCharacteristics = False
 
 # Default configuration
 rhoAxis = []
 vAxis = []
 PAxis = []
 TAxis = []
+
+ylabels = [r'$\frac{g}{cm^3}$', r'$\frac{cm}{s}$', r'$\frac{dyn}{cm^2}$', r'$K$']
+xlabel = r'$cm$'
 logScale = [False, False, False, False]
 
 # Soundwaves
 SoundSpeedLine = False
-SoundSpeedAnalytic = False
-#rhoAxis = [0.995,1.005]
-#vAxis = [-.005, .005]
-#PAxis = [0.995, 1.005]
+SoundSpeedAnalytic = True
+rhoAxis = [0.995,1.005]
+vAxis = [-.005, .005]
+PAxis = [0.995, 1.005]
+TAxis = [1.495, 1.505]
 
 # Isothermal eq
 IsothermalAnalytic = False
@@ -74,20 +78,21 @@ SoundSpeedProfile = False
 #logScale = [True, False, False, True]
 
 # Thermal Equilibrium
-rhoAxis = [6e-16, 5e-12]
-vAxis = [-10e5, 10e5]
-PAxis = [0., .5]
-TAxis = [2e3, 1.1e6]
-logScale = [True, False, False, True]
+#rhoAxis = [6e-16, 5e-12]
+#vAxis = [-10e5, 10e5]
+#PAxis = [0., .5]
+#TAxis = [2e3, 1.1e6]
+#logScale = [True, False, False, True]
 
 
 # ------------------ SOURCE TERMS -------------
 
 
-IsComputingSource = True
+IsComputingSource = False
 
 # Gravity
-IsThereGravity = True
+IsThereGravity = False
+FreeFallLine = False
 g = -1.
 
 # Momentum Damping
@@ -115,8 +120,8 @@ RadiationPercent = 1.
 
 gamma = 5./3.
 R = 1.
-Na = 6.022e23
-molarMass = 1.6605e-24 #grams
+Na = 1 #6.022e23
+molarMass = 1 #1.6605e-24 #grams
 mu = 1.
 cv = 1.
 

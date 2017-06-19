@@ -186,12 +186,12 @@ def computeRadiativeLosses():
    """
    
    logLamda = np.interp(logT, var.logT_table, var.logLamda_table)
-   lowTmask = logT<4
-   logLamda[lowTmask] = var.logLamda_table[0] + 15*(logT[lowTmask]- 4)
+   lowTmask = logT<4.4771212547196626  #log10(3e4)
+   logLamda[lowTmask] = var.logLamda_table[9] + 35*(logT[lowTmask]- 4.4771212547196626)
 
    numericalDensity = var.rho/(par.mu*par.molarMass)
    var.RadiativeLoss = par.RadiationPercent * numericalDensity * numericalDensity * 10**logLamda
-   var.RadiativeLoss = var.RadiativeLoss*(var.T>3e4)
+   #var.RadiativeLoss = var.RadiativeLoss*(var.T>3e4)
    return var.RadiativeLoss
 
 

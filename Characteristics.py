@@ -14,7 +14,7 @@ def Thermal():
   Chi = var.kappa/(var.rho*par.cv)
   DiffusionTime = (5./2. + 1.)*L*L/Chi
 
-  return DiffusionTime, L
+  return DiffusionTime
 
 
 def Radiative():

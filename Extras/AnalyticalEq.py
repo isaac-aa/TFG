@@ -14,7 +14,7 @@ z = np.linspace(z0, zf, 5000)
 
 dz = z[1]- z[0]
 
-TA = 1e4 #1e5
+TA = 1e5
 TB = 1e6
 rhoA = 1e-14 #0.06589083*5.7181381e-13
 pA = rhoA*R*TA/mu 
@@ -50,7 +50,7 @@ def Euler():
 
    return T, np.exp(logp)
 
-dT = (T[1]-T[0])/dz
+#dT = (T[1]-T[0])/dz
 
 logT_table, Lamda_table = np.loadtxt('../dere_etal_table.dat', usecols=(0,1), unpack=True)
 logLamda_table = np.log10(Lamda_table)
@@ -98,9 +98,9 @@ def EulerPerturb(rhoA, T0, dT):
    
 
 
-dT2 = (T[-2]-T[-1])/dz  #Buen valor 0.00025 o 0.00013
-def EulerPerturbInvert(T0, dT):
-   z_num = np.linspace(z[0], z[-1], 5000.)
+#dT2 = (T[-2]-T[-1])/dz  #Buen valor 0.00025 o 0.00013
+def EulerPerturbInvert(rhoB, T0, dT):
+   z_num = np.linspace(z[0], z[-1], 500000.)
    dz_num = np.abs(z_num[1]-z_num[0])
    
    T_num = np.zeros(z_num.shape)
@@ -108,7 +108,7 @@ def EulerPerturbInvert(T0, dT):
    T_num[-2] = T0 + dT*dz_num
 
    logp = np.zeros(z_num.shape)
-   logp[-1] = np.log(0.20231163238863872) #np.log(p[-1])   
+   logp[-1] = np.log(rhoB*T0*R/mu) #np.log(p[-1])   
    logp[-2] = logp[-1] - dz_num*B/T_num[-2]
 
 
@@ -116,15 +116,18 @@ def EulerPerturbInvert(T0, dT):
    while abs(i)<=len(z_num):
       rho = np.exp(logp[i+1])*mu / (R*T_num[i+1]) 
       numericalDensity = rho/(mu*molarMass)
-      
-      logLamda = np.interp(np.log10(T_num[i+1]), logT_table, logLamda_table)
-      
+     
+      if np.log10(T_num[i+1])>4.4771212547196626: 
+        logLamda = np.interp(np.log10(T_num[i+1]), logT_table, logLamda_table)
+      else: 
+        logLamda = logLamda_table[9] + 35*(np.log10(T_num[i+1])- 4.4771212547196626)
+
       L_r = numericalDensity*numericalDensity*10**logLamda
       #print L_r
       #print (dz_num*dz_num * 7.*L_r/(2.*A) )**(2./7.), T[i-1]
       #L_r = 0.
 
-      T7_2 = +dz_num*dz_num*7.*L_r/(2.*A) - T_num[i+2]**(7./2.) + 2*T_num[i+1]**(7./2.)
+      T7_2 = dz_num*dz_num*7.*L_r/(2.*A) - T_num[i+2]**(7./2.) + 2*T_num[i+1]**(7./2.)
       T_num[i] = T7_2**(2./7.) 
       #print T_num[i+2], T_num[i+1], T_num[i]
       logp[i] = logp[i+1] - dz_num*B/T_num[i]    
@@ -133,7 +136,7 @@ def EulerPerturbInvert(T0, dT):
    
    return z_num, T_num, np.exp(logp)
 
-
+"""
 #z_num1, T_num1, p_num1 = EulerPerturb(T[0], .278)
 #rho1 = p_num1*mu/(R*T_num1)
 
@@ -161,7 +164,7 @@ rho_in[-1] = 2*rho[-1] - rho_in[-2]
 #np.savetxt('ThermalEq_IC.dat', np.array([z_in, p_in, rho_in]).T )
 #np.savetxt('ThermalEq_IC_2.dat', np.array([z, p, rho]).T )
 
-
+"""
 
 
 

@@ -32,6 +32,15 @@ def IsothermalEq(args):
   var.energy = P0/(par.gamma-1.)
 
 
+def ConstantFlow(args):
+  T0 = args[0]
+  rho0 = args[1]
+  v = args[1]
+
+  var.rho = rho0*np.ones(Grid.z.shape)
+  var.momentum = var.rho*v
+  var.energy = par.cv*T0*np.ones(Grid.z.shape) + 0.5*var.rho*v*v
+
 def SoundWaves(args):
   rho0 = args[0]
   A = args[1]
@@ -143,7 +152,7 @@ def GaussianTemperature(args):
   if par.SpitzerDiffusion:
     var.kappa = par.ct*np.ones(Grid.z.shape)*(1.+T0*exp)**(5./2.)
   else: 
-    var.kappa = par.ct*np.ones(Grid.z.shape) #*exp #np.ones(Grid.z.shape)
+    var.kappa = par.ct*np.ones(Grid.z.shape)*exp #np.ones(Grid.z.shape)
   
   
 def ReadICFromFileTemperature(args):
@@ -204,8 +213,11 @@ def ReadICFromFilePressure(args):
 def RestartFromFile(args):
    files = glob.glob(args[0]+'/*.dat')
    files.sort()
-   
-   last_it = files[-1]
+  
+   if len(args) == 2: #ie. there are two arguments, one of them is the filename 
+      last_it = args[0] + '/' + args[1]
+   else:
+      last_it = files[-1]
 
    shutil.copy2(last_it, par.FolderName)
 

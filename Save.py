@@ -61,21 +61,32 @@ P_line, = axs[2].plot(Grid.z, var.P)
 axs[3].set_title("T")
 T_line, = axs[3].plot(Grid.z, var.T)
 
+
+itTextStr = 'IT: 0'
+tTextStr = 't: 0 s'
+
+itText = f.text(0.8, 0.9, '', fontsize=14)
+tText = f.text(0.15, 0.9, '', fontsize= 14)
+
+itText.set_text(itTextStr)
+tText.set_text(tTextStr)
+
 if par.PlotCharacteristics:
-  axs[4].set_title('Characteristic lenght/time')
-  ax2 = axs[4].twinx()
+  axs[4].set_title('Characteristic lenght')
   if par.ThermalDiffusion:
     Thermal_tau, = axs[4].plot([],[], 'k')
     Thermal_tau.set_xdata(Grid.z)
-    Thermal_L, = ax2.plot([],[], 'k--')
-    Thermal_L.set_xdata(Grid.z) 
   if par.RadiativeLoss:
     Losses_tau, = axs[4].plot([],[], 'g')
     Losses_tau.set_xdata(Grid.z)
   Dynamic_tau, = axs[4].plot([],[], 'b')
   Dynamic_tau.set_xdata(Grid.z)
   axs[4].semilogy()
-  ax2.semilogy()
+  axs[4].set_xlabel(par.xlabel)
+  axs[4].set_ylabel(r'$s$')
+else:
+  axs[3].set_xlabel(par.xlabel)
+
 
 FreeFall_line, = axs[1].plot([],[], "r--")
 
@@ -87,9 +98,17 @@ vAna_line, = axs[1].plot([],[], "k--")
 PAna_line, = axs[2].plot([],[], "k--")
 TAna_line, = axs[3].plot([],[], "k--")
 
+axs[0].set_ylabel(par.ylabels[0])
+axs[1].set_ylabel(par.ylabels[1])
+axs[2].set_ylabel(par.ylabels[2])
+axs[3].set_ylabel(par.ylabels[3])
+
+#scientific notation for v axis
+axs[1].ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+
 SoundSpeedProf_line, = axs[1].plot([],[], 'g--')
 
-if par.IsThereGravity:
+if par.FreeFallLine:
    FreeFall_line.set_xdata([Grid.z[0], Grid.z[-1]])
 
 if par.SoundSpeedLine:
@@ -137,7 +156,10 @@ def Plot():
    P_line.set_ydata(var.P)
    T_line.set_ydata(var.T)
 
-   if par.IsThereGravity:
+   itText.set_text('IT: %d'%par.it)
+   tText.set_text('t: %.2f s'%par.tt)
+
+   if par.FreeFallLine:
       vff = par.g*par.tt
       FreeFall_line.set_ydata([vff, vff])
 
@@ -161,11 +183,12 @@ def Plot():
       TAna_line.set_ydata(TAna)  
  
    if par.IsothermalAnalytic:
-      rhoAna, vAna, PAna = Analytic.Isothermal(sets.argsIC, par.tt)
+      rhoAna, vAna, PAna, TAna = Analytic.Isothermal(sets.argsIC, par.tt)
       rhoAna_line.set_ydata(rhoAna)
       vAna_line.set_ydata(vAna)
       PAna_line.set_ydata(PAna)
-      
+      TAna_line.set_ydata(TAna)     
+ 
    if par.ThermalAnalytic:
       rhoAna, vAna, PAna, TAna = Analytic.GaussianThermal(sets.argsIC, par.tt)
       rhoAna_line.set_ydata(rhoAna)
@@ -175,21 +198,17 @@ def Plot():
       
    if par.PlotCharacteristics:
      if par.ThermalDiffusion:
-       tau, L = Characteristics.Thermal()
+       tau = Characteristics.Thermal()
        Thermal_tau.set_ydata(tau)
-       Thermal_L.set_ydata(L) 
      if par.RadiativeLoss:
        tau = Characteristics.Radiative()
        Losses_tau.set_ydata(tau)
     
      tau = Characteristics.DensityChanges()
      Dynamic_tau.set_ydata(tau) 
-     print 'Min characteristic time: %.2f'%np.min(np.abs(tau))
      #Re-scale axis
      axs[4].relim()
      axs[4].autoscale_view()  
-     ax2.relim()
-     ax2.autoscale_view()  
    
    
    if par.SaveToFile and plotCounter%par.SaveToFileRatio==0 :
@@ -197,8 +216,7 @@ def Plot():
       if par.PlotCharacteristics:  
         if par.ThermalDiffusion:
            tau_T = Thermal_tau.get_ydata()
-           L_T = Thermal_L.get_ydata()
-           dataToSave = np.append(dataToSave, [tau_T, L_T], axis=0)
+           dataToSave = np.append(dataToSave, [tau_T], axis=0)
         if par.RadiativeLoss:
            tau_R = Losses_tau.get_ydata()
            dataToSave = np.append(dataToSave, [tau_R], axis=0)
