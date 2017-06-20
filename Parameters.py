@@ -10,7 +10,7 @@ import numpy as np
 print "Loading Variables.."
 
 # ------------------ MESH ---------------------
-N = 100
+N = 100000
 z0 = 0.
 zf = 1.
 
@@ -19,18 +19,18 @@ zf = 1.
 dt_max = 0.1
 dt = dt_max
 tt = 0.
-tf = 1.
+tf = np.inf
 it = 0
-max_it = np.inf
+max_it = 50000 #np.inf
 cfl_set = 0.9
 cfl = cfl_set
 
 # ------------------ PLOT SETUP ---------------
 
 FolderName = 'RESULTS_TESTCASES/SoundWaves_FirstGen' #'RESULTS/AnalyticalLossEq_HydrostaticP_ConsRho_SymV_NoDamping'
-save_rate = 1
+save_rate = 10000
 
-SaveToFile = True
+SaveToFile = False
 SaveToFileRatio = 1
 
 PlotFile = False

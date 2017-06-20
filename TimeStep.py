@@ -6,6 +6,12 @@
 #--------------------------------------------
 
 import numpy as np
+from mpi4py import MPI
+
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+comm_size = comm.Get_size()
+
 import Parameters as par
 import Grid
 import Variables as var
@@ -25,3 +31,15 @@ def ComputeDT():
       par.dt = np.min([par.dt, dt_thermal])
       
    par.cfl = par.dt*np.max( [vchar1, vchar2] )/Grid.dz
+
+   comm.Barrier()
+   all_dt = None
+   if rank==0:
+     all_dt = np.zeros([comm_size])
+   comm.Gather(par.dt,all_dt, root=0)
+   if rank==0:
+     min_dt = np.min(all_dt)
+   else:
+     min_dt = None
+   min_dt = comm.bcast(min_dt, root=0)
+   par.dt = min_dt

@@ -11,6 +11,11 @@ import shutil
 import os
 import numpy as np
 import time
+from mpi4py import MPI
+
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+
 
 import Grid
 import Parameters as par
@@ -37,15 +42,17 @@ if not os.path.exists(par.FolderName):
 ThereIsSettings = os.path.exists(par.FolderName+'/Settings.py')
 ThereIsParameters = os.path.exists(par.FolderName+'/Parameters.py')
 
-if ThereIsSettings or ThereIsParameters:
+if rank == 0:
+
+  if ThereIsSettings or ThereIsParameters:
    print '###### WARNING ######'
    print 'There is already a previous simulation stored at ' + par.FolderName
    des = raw_input('Do you want to overwrite it? ([y]/n)')
    if des ==  'n':
       exit()
 
-shutil.copy2('Settings.py', par.FolderName)
-shutil.copy2('Parameters.py', par.FolderName)
+  shutil.copy2('Settings.py', par.FolderName)
+  shutil.copy2('Parameters.py', par.FolderName)
 
  
 plotCounter = 0

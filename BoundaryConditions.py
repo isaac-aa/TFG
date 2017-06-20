@@ -10,12 +10,34 @@
 
 
 import numpy as np
+from mpi4py import MPI
+
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+
 import Parameters as par
 import Variables as var
 import Settings as sets
 import Grid
 
 print 'Loading BC..'
+
+
+def InnerBoundary(args): 
+   # Boundary used for inner nodes, when using domain decomposition
+   # it just sets args as the conservative variables at the boundary
+   if args[0]==0.:
+     i = 0
+     i_one = 1
+   if args[0]==1.:
+     i = -1
+     i_one = -2
+
+   var.rho[i] = args[1]
+   var.momentum[i] = args[2]
+   var.energy[i] = args[3]
+
+
 
 def Wall(args):
    if args[0]=="L":
@@ -338,14 +360,34 @@ def SymVFixedRhoFixedT(args):
 
    
 def Periodic(args):
-   var.rho[0] = var.rho[-2]
-   var.rho[-1] = var.rho[1]
+   
+   if comm.Get_size()==1:
+     var.rho[0] = var.rho[-2]
+     var.rho[-1] = var.rho[1]
 
-   var.momentum[0] = var.momentum[-2]
-   var.momentum[-1] = var.momentum[1]
+     var.momentum[0] = var.momentum[-2]
+     var.momentum[-1] = var.momentum[1]
 
-   var.energy[0] = var.energy[-2]
-   var.energy[-1] = var.energy[1]
+     var.energy[0] = var.energy[-2]
+     var.energy[-1] = var.energy[1]
+   else:
+     lastT = (comm.Get_size()-1)
+     BCvalues = np.zeros((3))
+     if rank==0:
+        comm.Send(np.array([var.rho[1], var.momentum[1], var.energy[1]]), dest=lastT)
+        comm.Recv(BCvalues, source=lastT)
+        
+        var.rho[0] = BCvalues[0]
+        var.momentum[0] = BCvalues[1]
+        var.energy[0] = BCvalues[2]
+     elif rank==lastT:
+        comm.Recv(BCvalues, source=0)
+        comm.Send(np.array([var.rho[-2], var.momentum[-2], var.energy[-2]]), dest=0)
+        
+        var.rho[-1] = BCvalues[0]
+        var.momentum[-1] = BCvalues[1]
+        var.energy[-1] = BCvalues[2]
+
 
 
 

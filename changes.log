@@ -110,3 +110,19 @@ TODOs:
 # ----- 15/06
         - Added missing BC
         - Added IC for constant flow
+        ************ COMMITED ********************
+# ----- 19-20/06   MPI BRANCH
+        - Now simple one dimensional hydrostatic cases can be run with MPI and multiple cores!!!
+           ~ Implemented thanks to mpi4py
+           ~ Defined an internal BC for the connected subdomains
+           ~ Adapted the Periodic BC to be used with multiple cores. The rest of BC should still work
+           ~ Uniform1DGrid has been rewritten to create the mesh for each process
+           ~ Changed simulation verbose to be only printed for the rank=0 process
+           ~ Configuration for inner boundaries added at Main.py. This can be moved to a new file
+           ~ Intercomunication for boundaries done with odd-even subdomain classification at Main.py. Can be moved to a new file.
+           ~ Added 'End of Simulation' print, with total time taken
+           ~ Changes in ComputeDT to take the smallest DT computed for each subdomain
+           ~ From now on, Save.Plot() is no longer used. It will be deprecated by an .dat-only save module
+           ~ The new saving option is at SaveMPI.py, which implements collective I/O to save the data to one file per time.
+           ~ KNOWN ISSUES: It does not work for an odd number of cores (except one)
+           ~ EXAMPLE USAGE: mpiexec -n 4 python Main.py

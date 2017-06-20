@@ -34,9 +34,9 @@ ChangeOfVar.ConvertToPrim()
 
 
 BoundaryConditionL = BoundaryConditions.Periodic
-argsL = []
+argsL = np.array([])
 BoundaryConditionR = BoundaryConditions.Periodic
-argsR = []
+argsR = np.array([])
 
 #BoundaryConditionL = BoundaryConditions.FixedRhoP
 #argsL = ['L',1.,1.]
