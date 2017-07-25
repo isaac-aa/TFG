@@ -10,25 +10,32 @@ import numpy as np
 print "Loading Variables.."
 
 # ------------------ MESH ---------------------
-N = 100
-z0 = 0.
+Nz = 100
+z0 = -1.
 zf = 1.
+
+Ny = 100
+y0 = -1.
+yf = 1.
+
+dim = 2
+
 
 # ----------------- TIME SETUP ----------------
 
 dt_max = 0.1
 dt = dt_max
 tt = 0.
-tf = 1.
+tf = np.inf
 it = 0
-max_it = np.inf
-cfl_set = 0.9
+max_it = 1000 #np.inf
+cfl_set = 0.5
 cfl = cfl_set
 
 # ------------------ PLOT SETUP ---------------
 
-FolderName = 'RESULTS_TESTCASES/SoundWaves_FirstGen' #'RESULTS/AnalyticalLossEq_HydrostaticP_ConsRho_SymV_NoDamping'
-save_rate = 1
+FolderName = 'RESULTS/Star' #'RESULTS/AnalyticalLossEq_HydrostaticP_ConsRho_SymV_NoDamping'
+save_rate = 10
 
 SaveToFile = True
 SaveToFileRatio = 1
@@ -88,12 +95,13 @@ SoundSpeedProfile = False
 # ------------------ SOURCE TERMS -------------
 
 
-IsComputingSource = False
+IsComputingSource = True
 
 # Gravity
-IsThereGravity = False
+IsThereGravity = True
+GravityMode = 'Radial' 
 FreeFallLine = False
-g = -1.
+g = -2e-2
 
 # Momentum Damping
 MomentumDamping = False
@@ -102,7 +110,7 @@ DampingMultiplier = 0.01
 DampingMaxVel = 1000000
 
 # Thermal Diffusion
-ThermalDiffusion = True
+ThermalDiffusion = False
 SpitzerDiffusion = True
 ImplicitConduction = True
 ct = 9e-12 * 1e5 # Value at E.Priest "Solar Magnetohydrodynamics" * mks to cgs factor
@@ -112,7 +120,7 @@ DiffusionPercent = 1. #1e-2
 
 
 # Radiative losses
-RadiativeLoss = True
+RadiativeLoss = False
 RadiationPercent = 1.
 
 # ------------------ EQUATION OF STATE --------

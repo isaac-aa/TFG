@@ -21,6 +21,16 @@ def ComputeFlux(rho, momentum, energy, v, P):
 
 
 
+def ComputeFlux2D(rho, momentumZ, momentumY, energy, vZ, vY, P):
+   massFluxZ = momentumZ
+   massFluxY = momentumY
+   momentumZFluxZ = rho*vZ*vZ + P
+   momentumZFluxY = rho*vZ*vY
+   momentumYFluxZ = rho*vZ*vY
+   momentumYFluxY = rho*vY*vY + P
+   energyFluxZ = (energy + P)*vZ
+   energyFluxY = (energy + P)*vY
+   return massFluxZ, massFluxY, momentumZFluxZ, momentumZFluxY, momentumYFluxZ, momentumYFluxY, energyFluxZ, energyFluxY
 
 
 

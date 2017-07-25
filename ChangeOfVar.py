@@ -14,8 +14,9 @@ import Variables as var
 print "Loading ChangeOfpar.."
 
 def ConvertToPrim():
-   var.v = var.momentum/var.rho
-   e = var.energy/var.rho - 0.5*var.v*var.v              #rho*e = E - 0.5*rho*v*v
+   var.vZ = var.momentumZ/var.rho
+   var.vY = var.momentumY/var.rho
+   e = var.energy/var.rho - 0.5*(var.vZ*var.vZ + var.vY*var.vY)              #rho*e = E - 0.5*rho*v*v
 
    var.T = e/par.cv          
    var.P = var.rho*(par.gamma-1.)*e

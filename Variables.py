@@ -12,22 +12,26 @@ import Grid
 
 # Conservative variables
 rho = np.ones(Grid.z.shape)
-momentum = np.zeros(Grid.z.shape)
+momentumZ = np.zeros(Grid.z.shape)
+momentumY = np.zeros(Grid.z.shape)
 energy = np.ones(Grid.z.shape)
 
 # Conservative variables at last time step
 lastrho = np.ones(Grid.z.shape)
-lastmomentum = np.ones(Grid.z.shape)
+lastmomentumZ = np.zeros(Grid.z.shape)
+lastmomentumY = np.zeros(Grid.z.shape)
 lastenergy = np.ones(Grid.z.shape)
 
 # Source arrays
-momentumSource = np.zeros(Grid.z.shape)
+momentumSourceZ = np.zeros(Grid.z.shape)
+momentumSourceY = np.zeros(Grid.z.shape)
 energySource = np.zeros(Grid.z.shape)
 
 # Primitive variables
 T = np.ones(Grid.z.shape)
 P = np.ones(Grid.z.shape)
-v = np.ones(Grid.z.shape)
+vZ = np.ones(Grid.z.shape)
+vY = np.ones(Grid.z.shape)
 
 # Kappa of thermal diffusion
 kappa = np.zeros(Grid.z.shape)

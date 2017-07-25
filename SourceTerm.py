@@ -18,9 +18,23 @@ from scipy import linalg
 print 'Loading SourceTerm..'
 
 def computeGravSource():
-   momentumGravSource = 0.5*(var.rho+var.lastrho)*par.g
-   energyGravSource = 0.5*(var.momentum+var.lastmomentum)*par.g
-   return momentumGravSource, energyGravSource
+   if par.GravityMode == 'Constant':
+     momentumGravSourceZ = var.rho+var.lastrho*par.g
+     momentumGravSourceY = var.rho*0.
+     energyGravSource = var.momentumZ*par.g
+
+   elif par.GravityMode == 'Radial':
+     R2 = Grid.z*Grid.z + Grid.y*Grid.y + 0.005
+     unitZ = Grid.z/np.sqrt(R2)
+     unitY = Grid.y/np.sqrt(R2)
+     g_Z = unitZ*par.g/R2 
+     g_Y = unitY*par.g/R2
+     momentumGravSourceZ = 0.5*(var.rho+var.lastrho)*g_Z
+     momentumGravSourceY = 0.5*(var.rho+var.lastrho)*g_Y
+     energyGravSource = var.momentumZ*g_Z + var.momentumY*g_Y
+   return momentumGravSourceZ, momentumGravSourceY, energyGravSource
+
+
 
 
 def computeMomentumDamping():
@@ -197,8 +211,9 @@ def computeRadiativeLosses():
 
 def ComputeSource():
   if par.IsThereGravity:
-     momentumG, energyG = computeGravSource()
-     var.momentum += par.dt*momentumG
+     momentumGZ, momentumGY, energyG = computeGravSource()
+     var.momentumZ += par.dt*momentumGZ
+     var.momentumY += par.dt*momentumGY
      var.energy += par.dt*energyG
      ChangeOfVar.ConvertToPrim()
   

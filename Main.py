@@ -16,7 +16,8 @@ import Parameters as par
 import Grid
 
 # ------------------ MESH CREATION -------------
-Grid.Uniform1DGrid(par.N, par.z0, par.zf)
+Grid.Uniform2DGrid(par.Nz, par.Ny, par.z0, par.zf, par.y0, par.yf)
+#Grid.Uniform1DGrid(par.N, par.z0, par.zf)
 #Grid.ReadGridFromFile('Extras/ThermalLossesEq_IC.dat') #('hydrostatic_equilibrium_2.dat')
 
 import Variables as var
@@ -24,13 +25,13 @@ import Settings as sets
 import SourceTerm
 import TimeStep
 import ChangeOfVar
-import Save
+import Save2D
 
 # ------------------ INITIAL CONDITION ---------
 
 sets.InitialCondition(sets.argsIC)
 ChangeOfVar.ConvertToPrim()
-Save.Plot()
+Save2D.Plot2D()
 # ------------------ MAIN LOOP -----------------
 
 CPUTimeConf = time.clock()
@@ -53,9 +54,10 @@ while (par.it<=par.max_it and par.tt<=par.tf):
 
    par.tt += par.dt  
    par.it += 1
-   var.lastrho[:] = var.rho[:]
-   var.lastmomentum[:] = var.momentum[:]
-   var.lastenergy[:] = var.energy[:]
+   # For the Lax Wendroff Richtmyer scheme
+   #var.lastrho[:] = var.rho[:]
+   #var.lastmomentum[:] = var.momentum[:]
+   #var.lastenergy[:] = var.energy[:]
    nowTime = time.clock()
    computeDTTime += nowTime-lastTime
 
@@ -76,6 +78,9 @@ while (par.it<=par.max_it and par.tt<=par.tf):
    lastTime = nowTime
    sets.BoundaryConditionL(sets.argsL)
    sets.BoundaryConditionR(sets.argsR)
+   if par.dim==2:
+     sets.BoundaryConditionT(sets.argsT)
+     sets.BoundaryConditionB(sets.argsB)
    nowTime = time.clock()
    BCTime = nowTime-lastTime
 
@@ -85,7 +90,7 @@ while (par.it<=par.max_it and par.tt<=par.tf):
    if par.it%par.save_rate == 0.:
      
      lastTime = time.clock()
-     Save.Plot()
+     Save2D.Plot2D()
      nowTime = time.clock()
      SaveTime += nowTime-lastTime
 
