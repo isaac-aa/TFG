@@ -7,7 +7,7 @@
 
 import numpy as np
 import Advance
-import BoundaryConditions
+import BoundaryConditions as BC
 import InitialConditions
 import ChangeOfVar
 import Parameters as par
@@ -32,11 +32,12 @@ argsIC = [1.0, 0.001, 1.0, 4.]
 
 ChangeOfVar.ConvertToPrim()
 
+BoundaryConditionL = BC.Periodic( BC.BoundaryCondition('R'), BC.BoundaryCondition('L') )
+BoundaryConditionR = None
 
-BoundaryConditionL = BoundaryConditions.Periodic
-argsL = []
-BoundaryConditionR = BoundaryConditions.Periodic
-argsR = []
+BoundaryConditionL.setup()
+#BoundaryConditionR.setup()
+
 
 #BoundaryConditionL = BoundaryConditions.FixedRhoP
 #argsL = ['L',1.,1.]

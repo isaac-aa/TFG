@@ -17,6 +17,206 @@ import Grid
 
 print 'Loading BC..'
 
+
+class BoundaryCondition(object):
+   """
+   Parent class for the Boundary Conditions
+   """
+
+
+   def __init__(self, region):
+     """
+     The mask for the BC is done. Options:
+	'R'igth 
+	'L'eft
+	'T'op
+	'B'ottom
+     """
+     self.region = region
+     self.name = 'Generic BC'
+
+
+     if region=='R':
+        if par.dim == 2:
+          self.sliceBC = ( slice(None,None), -1)
+          self.sliceOne = ( slice(None,None), -2)
+          self.sliceTwo = ( slice(None,None), -3)
+        if par.dim == 1:
+          self.sliceBC = -1
+          self.sliceOne = -2
+          self.sliceTwo = -3
+     if region=='L':
+        if par.dim == 2:
+          self.sliceBC = ( slice(None,None), 0)
+          self.sliceOne = ( slice(None,None), 1)
+          self.sliceTwo = ( slice(None,None), 2)
+        if par.dim == 1:
+          self.sliceBC = 0
+          self.sliceOne = 1
+          self.sliceTwo = 2
+     if region=='T':
+        if par.dim == 2:
+          self.sliceBC = ( -1, slice(None,None))
+          self.sliceOne = ( -2, slice(None,None))
+          self.sliceTwo = ( -3, slice(None,None))
+     if region=='B':
+        if par.dim == 2:	
+          self.sliceBC = ( 0, slice(None,None))
+          self.sliceOne = ( 1, slice(None,None))
+          self.sliceTwo = ( 2, slice(None,None))
+
+
+   def __str__(self):
+     return 'BC: ' + self.name + ' @ ' + self.region
+
+
+   def setup(self):
+     """
+     Setup function to pre-allocate neccesary data
+     """
+     print 'Setup \t '+ str(self.__str__())
+
+   def computeBC(self):
+     """
+     Function to be overrided by each BC
+     """
+     print 'Select a BC' 
+
+
+
+
+
+
+
+
+class BCComposite(BoundaryCondition):
+   """
+   Composite for different boundaries for each variable
+   """
+
+   name = 'BCComposite'
+   
+   def setup(self, rhoBC, momentumBC, energyBC):
+      """ Setup for a one-dimensional BC """
+      print 'Setup \t ', self 
+      self.rhoBC = rhoBC
+      self.momentumZBC = momentumBC
+      self.momentumYBC = None
+      self.energyBC = energyBC
+
+      self.rhoBC.setup()
+      self.momentumZBC.setup()
+      self.energyBC.setup()
+
+   def setup(self, rhoBC, momentumZBC, momentumYBC, energyBC):
+      """ Setup for a two-dimensional BC """
+      self.rhoBC = rhoBC
+      self.momentumZBC = momentumZBC
+      self.momentumYBC = momentumYBC
+      self.energyBC = energyBC
+
+      self.rhoBC.setup()
+      self.momentumZBC.setup()
+      self.momentumYBC.setup()
+      self.energyBC.setup()
+
+
+   def computeBC(self):
+      rhoBC.computeBC(var.rho)
+      momentumZBC.computeBC(var.momentum)
+      if momentumYBC!=None: momentumYBC.computeBC(var.momentum)
+      if par.ImplicitCondution:
+        energyBC.computeImplicitBC(var.energy)
+      else:
+        energyBC.computeBC(var.energy)
+   
+
+
+
+class ZeroDer(BoundaryCondition):
+   name = 'Zero der'
+   def computeBC(self, variable):
+     variable[self.sliceBC] = variable[self.sliceOne]
+
+class AntiSym(BoundaryCondition):
+   name = 'Antisymmetry'
+   def computeBC(self, variable):
+     variable[self.sliceBC] = -variable[self.sliceOne]
+
+
+class Fixed(BoundaryCondition):
+   name = 'Fixed'
+
+   def setup(self, fixedVar):
+     self.fixed = fixedVar
+
+
+   def computeBC(self, variable):
+     variable[sliceBC] = 2*self.fixed - variable[sliceOne]
+
+   def computeImplicitBC(self):
+      var.diag[i] = 1.
+      if args[0]=="L":
+         var.upper[1] = 1.
+      if args[0]=="R":
+         var.lower[-2] = 1.
+      var.rhs[i] = 2.*var.rho[i]*par.cv*self.fixed
+
+
+class ConstantSecondDer(BoundaryCondition):
+   name = 'Fixed second derivative'
+
+   def computeBC(self, variable):
+      variable[sliceBC] = 2*variable[sliceOne] - variable[sliceTwo]
+
+
+
+class Hydrostatic(BoundaryCondition):
+   name = 'Hydrostatic condition'
+
+   def computeBC(self, variable):
+      var.energy[sliceBC] = var.P[sliceBC]/(par.gamma-1.) + 0.5*var.momentum[sliceBC]*var.momentum[sliceBC]/var.rho[sliceBC]
+
+
+   def computeImplicitBC(self):
+      PJump = Grid.dz*boundaryRho*np.abs(par.g)
+      if args[0]=="L":
+         var.diag[i] = 1.
+         var.upper[1] = -1.
+      if args[0]=="R":      
+         var.diag[i] = 1.
+         var.lower[-2] = -1.
+
+      var.rhs[i] = PJump/(par.gamma-1.)
+
+
+
+
+class Periodic(BoundaryCondition):
+   """ Given two generic BC region, it connects them """
+   name = 'Periodic'
+
+   def __init__(self, regionA, regionB):
+     self.regionA = regionA
+     self.regionB = regionB
+
+   def __str__(self):
+     return 'Periodic BC: ' +  str(self.regionA) + str(self.regionB) 
+
+   def computeBC(self):
+     var.rho[self.regionA.sliceBC] = var.rho[self.regionB.sliceOne]
+     var.rho[self.regionB.sliceBC] = var.rho[self.regionA.sliceOne]
+
+     var.momentum[self.regionA.sliceBC] = var.momentum[self.regionB.sliceOne]
+     var.momentum[self.regionB.sliceBC] = var.momentum[self.regionA.sliceOne]
+
+     var.energy[self.regionA.sliceBC] = var.energy[self.regionB.sliceOne]
+     var.energy[self.regionB.sliceBC] = var.energy[self.regionA.sliceOne]
+
+
+
+# ---------------- OLD PART
+"""
 def Wall(args):
    if args[0]=="L":
      i = 0
@@ -348,6 +548,6 @@ def Periodic(args):
    var.energy[-1] = var.energy[1]
 
 
-
+"""
 
 

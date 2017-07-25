@@ -31,11 +31,17 @@ import Save
 sets.InitialCondition(sets.argsIC)
 ChangeOfVar.ConvertToPrim()
 Save.Plot()
-# ------------------ MAIN LOOP -----------------
+
+# ------------------ SETUP PHASE ---------------
+
 
 CPUTimeConf = time.clock()
 print '################ \n'
 print 'Configuration took %.4f s'%(CPUTimeConf-CPUTime0)
+
+
+# ------------------ MAIN LOOP -----------------
+
 print '################ \t SIMULATION START \n'
 
 WallTime0 = time.time()
@@ -74,8 +80,8 @@ while (par.it<=par.max_it and par.tt<=par.tf):
 
    # Boundary conditions     
    lastTime = nowTime
-   sets.BoundaryConditionL(sets.argsL)
-   sets.BoundaryConditionR(sets.argsR)
+   if sets.BoundaryConditionL!=None: sets.BoundaryConditionL.computeBC()
+   if sets.BoundaryConditionR!=None: sets.BoundaryConditionR.computeBC()
    nowTime = time.clock()
    BCTime = nowTime-lastTime
 
