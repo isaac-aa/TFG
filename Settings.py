@@ -5,12 +5,10 @@
 #
 #--------------------------------------------
 
-import numpy as np
 import Advance
 import BoundaryConditions as BC
 import InitialConditions
 import ChangeOfVar
-import Parameters as par
 
 print 'Loading Settings..'
 

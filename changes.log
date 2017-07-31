@@ -110,3 +110,9 @@ TODOs:
 # ----- 15/06
         - Added missing BC
         - Added IC for constant flow
+        ************ COMMITED ********************
+# ----- 31/07
+		- Development restarted after the presentation
+		- Merged the OOP structure of the BC condition
+		- Minor improvements in the formatting
+		- Started using Eclipse as the main editor, instead of vim

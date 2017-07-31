@@ -5,8 +5,6 @@
 #
 #--------------------------------------------
 
-import numpy as np
-
 
 print 'Loading Flux..'
 
