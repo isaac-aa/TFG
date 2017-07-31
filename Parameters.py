@@ -14,6 +14,8 @@ N = 100
 z0 = 0.
 zf = 1.
 
+dim = 1
+
 # ----------------- TIME SETUP ----------------
 
 dt_max = 0.1
@@ -27,7 +29,7 @@ cfl = cfl_set
 
 # ------------------ PLOT SETUP ---------------
 
-FolderName = 'RESULTS_TESTCASES/SoundWaves_FirstGen' #'RESULTS/AnalyticalLossEq_HydrostaticP_ConsRho_SymV_NoDamping'
+FolderName = 'RESULTS_TESTCASES/SoundWaves' #'RESULTS/AnalyticalLossEq_HydrostaticP_ConsRho_SymV_NoDamping'
 save_rate = 1
 
 SaveToFile = True
