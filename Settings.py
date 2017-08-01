@@ -1,5 +1,5 @@
 #--------------------------------------------
-#		Settings.py
+#      Settings.py
 # This module defines the different functions
 # and numerical schemes used for the simulation
 #
@@ -58,5 +58,4 @@ BoundaryConditionL.setup()
 
 Scheme = Advance.FirstGen
 #Advance.AllocateFirstGen() #Ponerlo en el main, despues de crear la malla
-
 

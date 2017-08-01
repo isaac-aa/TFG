@@ -1,5 +1,5 @@
 #--------------------------------------------
-#		Parameters.py
+#      Parameters.py
 # In this module all the different user defined
 # parameters are set.
 #
@@ -23,7 +23,7 @@ dt = dt_max
 tt = 0.
 tf = 1.
 it = 0
-max_it = np.inf
+max_it = 100
 cfl_set = 0.9
 cfl = cfl_set
 
@@ -128,9 +128,8 @@ mu = 1.
 cv = 1.
 
 def Computecv():
-  global cv
-  cv = R/(mu*(gamma-1.)*molarMass*Na)
-
+   global cv
+   cv = R/(mu*(gamma-1.)*molarMass*Na)
 
 
 

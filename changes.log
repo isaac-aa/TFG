@@ -116,3 +116,9 @@ TODOs:
 		- Merged the OOP structure of the BC condition
 		- Minor improvements in the formatting
 		- Started using Eclipse as the main editor, instead of vim
+        ************ COMMITED ********************
+# ----- 01/08
+		- Simplified ChangeOfVar
+		- The data files are stored in binary files
+		- Save.py does not save images now. Extra scripts will be created/polished to make them 
+		- A log.txt file is created to save it, dt, t, and time taken

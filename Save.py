@@ -41,13 +41,16 @@ if ThereIsSettings or ThereIsParameters:
    print '###### WARNING ######'
    print 'There is already a previous simulation stored at ' + par.FolderName
    des = raw_input('Do you want to overwrite it? ([y]/n)')
+   fh = open(par.FolderName + '/log.txt', 'w')
+   fh.write('#Starting simulation\n')
+   fh.close()
    if des ==  'n':
       exit()
 
 shutil.copy2('Settings.py', par.FolderName)
 shutil.copy2('Parameters.py', par.FolderName)
 
- 
+ZeroTime = time.clock()
 plotCounter = 0
 
 f, axs = plt.subplots(4+par.PlotCharacteristics,1, sharex=True)
@@ -150,7 +153,7 @@ if par.PlotFile:
 
 def Plot():
    global plotCounter
-
+   
    rho_line.set_ydata(var.rho)
    v_line.set_ydata(var.v)
    P_line.set_ydata(var.P)
@@ -215,16 +218,19 @@ def Plot():
       dataToSave = np.array([Grid.z, var.rho, var.v, var.T])
       if par.PlotCharacteristics:  
          if par.ThermalDiffusion:
-            tau_T = Thermal_tau.get_ydata()
+            tau_T = Characteristics.Thermal()
             dataToSave = np.append(dataToSave, [tau_T], axis=0)
          if par.RadiativeLoss:
-            tau_R = Losses_tau.get_ydata()
+            tau_R = Characteristics.Radiative()
             dataToSave = np.append(dataToSave, [tau_R], axis=0)
          print 'Saving to file..'
       
-      np.savetxt(par.FolderName + '/RESULTS_DAT/%.20f.dat'%par.tt, dataToSave.T, header='%d %.2f %.7e %.7e %.7e'%(par.it, time.clock(), par.mu,par.g,par.R))
-           
-         
+      np.save(par.FolderName + '/RESULTS_DAT/%.20f.dat'%par.tt, dataToSave) #, header='%d %.2f %.7e %.7e %.7e'%(par.it, time.clock(), par.mu,par.g,par.R))
+      
+      fh = open(par.FolderName + '/log.txt','a')
+      fh.write(str(par.it) + ' ' + str(par.dt) + ' ' + str(par.tt) + ' ' + str(time.clock() - ZeroTime) + '\n')     
+      fh.close()
+      
    plt.savefig(par.FolderName + '/RESULTS/%.20f.png'%par.tt, bbox_inches='tight')
    plotCounter +=1
 

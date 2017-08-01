@@ -24,7 +24,12 @@ class BoundaryCondition(object):
    """
 
 
-   def __init__(self, region):
+   def __init__(self, *args):
+      if args[0] != ():
+         self.setRegion(*args[0])
+      self.name = 'Generic BC'
+      
+   def setRegion(self, region):
       """
       The slice for the BC is done. 'region' can be:
 	    'R'igth 
@@ -35,7 +40,6 @@ class BoundaryCondition(object):
       """
      
       self.region = region
-      self.name = 'Generic BC'
 
 
       if region=='R':
@@ -98,41 +102,43 @@ class BCComposite(BoundaryCondition):
 
    name = 'BCComposite'
    
-   def setup(self, rhoBC, momentumBC, energyBC):
+   def setup(self, rhoBC, momentumBC, energyBC, conf):
       """
-         Setup for a one-dimensional BC
+         Setup for the multiple BC
          To allow for more than one dimension within the same function,
          momentumBC should be a tuple of the dimension par.dim
+         conf is a tuple of size 3, storing the extra arguments for the BC if needed
       """
       
       
-      print 'Setup \t ', self 
+      print 'Setup \t ', str(self) 
       if par.dim==1:
-         self.rhoBC = rhoBC
-         self.momentumZBC = momentumBC[0]
+         self.rhoBC = rhoBC(self.region)
+         self.momentumZBC = momentumBC[0](self.region)
          self.momentumYBC = None
-         self.energyBC = energyBC
+         self.energyBC = energyBC(self.region)
 
-         self.rhoBC.setup()
-         self.momentumZBC.setup()
-         self.energyBC.setup()
+         if conf[0] != None: self.rhoBC.setup(conf[0])
+         if conf[1] != None: self.momentumZBC.setup(conf[1])
+         if conf[2] != None: self.energyBC.setup(conf[2])
       elif par.dim==2:
-         self.rhoBC = rhoBC
-         self.momentumZBC = momentumBC[0]
-         self.momentumYBC = momentumBC[1]
-         self.energyBC = energyBC
+         self.rhoBC = rhoBC(self.region)
+         self.momentumZBC = momentumBC[0](self.region)
+         self.momentumYBC = momentumBC[1](self.region)
+         self.energyBC = energyBC(self.region)
 
-         self.rhoBC.setup()
-         self.momentumZBC.setup()
-         self.momentumYBC.setup()
-         self.energyBC.setup()
+         if conf[0] != None: self.rhoBC.setup(conf[0])
+         if conf[1] != None: self.momentumZBC.setup(conf[1][0])
+         if conf[2] != None: self.momentumYBC.setup(conf[1][1])
+         if conf[3] != None: self.energyBC.setup(conf[2])
        
    def computeBC(self):
+      
       self.rhoBC.computeBC(var.rho)
       self.momentumZBC.computeBC(var.momentum)
       if self.momentumYBC!=None: self.momentumYBC.computeBC(var.momentum)
       if par.ImplicitConduction:
-         self.energyBC.computeImplicitBC(var.energy)
+         self.energyBC.computeImplicitBC()
       else:
          self.energyBC.computeBC(var.energy)
    
@@ -156,9 +162,20 @@ class Fixed(BoundaryCondition):
    def setup(self, fixedVar):
       self.fixed = fixedVar
 
+   def computeBC(self, variable):
+      variable[self.sliceBC] = 2*self.fixed - variable[self.sliceOne]
+
+
+class FixedT(BoundaryCondition):
+   name = 'Fixed temperature value'
+
+   def setup(self, fixedVar):
+      self.fixed = fixedVar
 
    def computeBC(self, variable):
       variable[self.sliceBC] = 2*self.fixed - variable[self.sliceOne]
+      boundaryE = 0.5*(var.rho[self.sliceBC] + var.rho[self.sliceOne])*par.cv*self.fixed 
+      var.energy[self.sliceBC] = 2*boundaryE - par.cv*var.rho[self.sliceOne]*var.T[self.sliceOne] + 0.5*var.momentum[self.sliceBC]*var.momentum[self.sliceBC]/var.rho[self.sliceBC]
 
    def computeImplicitBC(self):
       var.diag[self.sliceBC] = 1.    #This only works for one-dimensional cases
@@ -208,7 +225,7 @@ class Periodic(BoundaryCondition):
       self.regionB = regionB
 
    def __str__(self):
-      return 'Periodic BC: ' +  str(self.regionA) + str(self.regionB) 
+      return 'Periodic BC: ' +  self.regionA.region + ' & ' + self.regionB.region 
 
    def computeBC(self):
       var.rho[self.regionA.sliceBC] = var.rho[self.regionB.sliceOne]
