@@ -15,10 +15,6 @@ import time
 import Grid
 import Parameters as par
 import Variables as var
-import Settings as sets
-import Analytic
-import matplotlib.pyplot as plt
-import Characteristics
 
 # ------------------ PLOT ----------------------
 
@@ -51,6 +47,7 @@ shutil.copy2('Settings.py', par.FolderName)
 shutil.copy2('Parameters.py', par.FolderName)
 
 ZeroTime = time.clock()
+"""
 plotCounter = 0
 
 f, axs = plt.subplots(4+par.PlotCharacteristics,1, sharex=True)
@@ -149,11 +146,11 @@ if par.PlotFile:
    axs[0].plot(z_dat, rho_dat, 'k--')
    axs[2].plot(z_dat, p_dat, 'k--')
    axs[3].plot(z_dat, T_dat, 'k--')
-
+"""
 
 def Plot():
    global plotCounter
-   
+   """
    rho_line.set_ydata(var.rho)
    v_line.set_ydata(var.v)
    P_line.set_ydata(var.P)
@@ -224,15 +221,16 @@ def Plot():
             tau_R = Characteristics.Radiative()
             dataToSave = np.append(dataToSave, [tau_R], axis=0)
          print 'Saving to file..'
+   """
+   
+   np.save(par.FolderName + '/RESULTS_DAT/%.20f.dat'%par.tt, np.array([Grid.z, Grid.y, var.rho, var.vZ, var.vY, var.T]) ) 
       
-      np.save(par.FolderName + '/RESULTS_DAT/%.20f.dat'%par.tt, dataToSave) #, header='%d %.2f %.7e %.7e %.7e'%(par.it, time.clock(), par.mu,par.g,par.R))
+   fh = open(par.FolderName + '/log.txt','a')
+   fh.write(str(par.it) + ' ' + str(par.dt) + ' ' + str(par.tt) + ' ' + str(time.clock() - ZeroTime) + '\n')     
+   fh.close()
       
-      fh = open(par.FolderName + '/log.txt','a')
-      fh.write(str(par.it) + ' ' + str(par.dt) + ' ' + str(par.tt) + ' ' + str(time.clock() - ZeroTime) + '\n')     
-      fh.close()
-      
-   plt.savefig(par.FolderName + '/RESULTS/%.20f.png'%par.tt, bbox_inches='tight')
-   plotCounter +=1
+   #plt.savefig(par.FolderName + '/RESULTS/%.20f.png'%par.tt, bbox_inches='tight')
+   #plotCounter +=1
 
 
 

@@ -122,3 +122,6 @@ TODOs:
 		- The data files are stored in binary files
 		- Save.py does not save images now. Extra scripts will be created/polished to make them 
 		- A log.txt file is created to save it, dt, t, and time taken
+		************ COMMITED ********************
+		- Merged 2D branch
+		- Minor bug fixes

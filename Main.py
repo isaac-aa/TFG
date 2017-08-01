@@ -19,12 +19,11 @@ Grid.Uniform2DGrid(par.Nz, par.Ny, par.z0, par.zf, par.y0, par.yf)
 #Grid.Uniform1DGrid(par.N, par.z0, par.zf)
 #Grid.ReadGridFromFile('Extras/ThermalLossesEq_IC.dat') #('hydrostatic_equilibrium_2.dat')
 
-import Variables as var
 import Settings as sets
 import SourceTerm
 import TimeStep
 import ChangeOfVar
-import Save2D
+import Save
 
 # ------------------ INITIAL CONDITION ---------
 
@@ -114,8 +113,6 @@ while (par.it<=par.max_it and par.tt<=par.tf):
       print ' ComputeDT \t %.2f \n Scheme \t %.2f \n Source \t %.2f \n BC \t\t %.2f \n Save \t\t %.2f'%(computeDTTime/nowTime, SchemeTime/nowTime, SourceTime/nowTime, BCTime/nowTime, SaveTime/nowTime)
 
 
-     #maxIndex = np.argmax(np.abs(var.v))
-     #print 'Max v: %.2f cm/s @ z[%d]: %.3e \n'%(var.v[maxIndex], maxIndex, Grid.z[maxIndex])
 
 
 

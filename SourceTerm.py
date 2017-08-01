@@ -19,19 +19,19 @@ print 'Loading SourceTerm..'
 
 def computeGravSource():
    if par.GravityMode == 'Constant':
-     momentumGravSourceZ = var.rho+var.lastrho*par.g
-     momentumGravSourceY = var.rho*0.
-     energyGravSource = var.momentumZ*par.g
+      momentumGravSourceZ = var.rho+var.lastrho*par.g
+      momentumGravSourceY = var.rho*0.
+      energyGravSource = var.momentumZ*par.g
 
    elif par.GravityMode == 'Radial':
-     R2 = Grid.z*Grid.z + Grid.y*Grid.y + 0.005
-     unitZ = Grid.z/np.sqrt(R2)
-     unitY = Grid.y/np.sqrt(R2)
-     g_Z = unitZ*par.g/R2 
-     g_Y = unitY*par.g/R2
-     momentumGravSourceZ = 0.5*(var.rho+var.lastrho)*g_Z
-     momentumGravSourceY = 0.5*(var.rho+var.lastrho)*g_Y
-     energyGravSource = var.momentumZ*g_Z + var.momentumY*g_Y
+      R2 = Grid.z*Grid.z + Grid.y*Grid.y + 0.005
+      unitZ = Grid.z/np.sqrt(R2)
+      unitY = Grid.y/np.sqrt(R2)
+      g_Z = unitZ*par.g/R2 
+      g_Y = unitY*par.g/R2
+      momentumGravSourceZ = 0.5*(var.rho+var.lastrho)*g_Z
+      momentumGravSourceY = 0.5*(var.rho+var.lastrho)*g_Y
+      energyGravSource = var.momentumZ*g_Z + var.momentumY*g_Y
    return momentumGravSourceZ, momentumGravSourceY, energyGravSource
 
 
@@ -43,7 +43,7 @@ def computeMomentumDamping():
    energyDampingSource = np.zeros(Grid.z.shape)
 
    if par.DampingMode == 'Simple':
-      DampingVel = par.DampingMultiplier*var.v   #Old method
+      DampingVel = par.DampingMultiplier*var.vZ   #Old method
     
       momentumDampingSource = -DampingVel*var.rho
       energyDampingSource = -0.5*DampingVel*DampingVel*var.rho
@@ -63,12 +63,12 @@ def computeMomentumDamping():
 
       DampingPercent_scalar = np.max(DampingPercent)* par.DampingMultiplier
 
-      DampingVel = DampingPercent_scalar*var.v
+      DampingVel = DampingPercent_scalar*var.vZ
 
 
    elif par.DampingMode == 'MaximumVelocity':
-      velMask = np.abs(var.v) > par.DampingMaxVel
-      DampingVel = par.DampingMultiplier*var.v*velMask   #The damping is only applied for points with excess of velocity
+      velMask = np.abs(var.vZ) > par.DampingMaxVel
+      DampingVel = par.DampingMultiplier*var.vZ*velMask   #The damping is only applied for points with excess of velocity
  
       momentumDampingSource = -DampingVel*var.rho
       energyDampingSource = -0.5*DampingVel*DampingVel*var.rho
@@ -172,9 +172,11 @@ def computeImplicitConduction():
    #print sol_e[:6]
    #print ''
    #print var.T-sol_e/(par.cv*var.rho)
+   if par.dim == 1:
+      var.energy = sol_e + 0.5*var.momentumZ*var.momentumZ/var.rho
+   elif par.dim == 2:
+      var.energy = sol_e + 0.5*( var.momentumZ*var.momentumZ + var.momentumY*var.momentumY )/var.rho
    
-   E_k = 0.5*var.momentum*var.momentum/var.rho
-   var.energy = sol_e + E_k
    var.T = sol_e/(var.rho*par.cv)
 
 
@@ -211,12 +213,12 @@ def computeRadiativeLosses():
 
 def ComputeSource():
 
-  if par.IsThereGravity:
-     momentumGZ, momentumGY, energyG = computeGravSource()
-     var.momentumZ += par.dt*momentumGZ
-     var.momentumY += par.dt*momentumGY
-     var.energy += par.dt*energyG
-     ChangeOfVar.ConvertToPrim()
+   if par.IsThereGravity:
+      momentumGZ, momentumGY, energyG = computeGravSource()
+      var.momentumZ += par.dt*momentumGZ
+      var.momentumY += par.dt*momentumGY
+      var.energy += par.dt*energyG
+      ChangeOfVar.ConvertToPrim()
 
 
   

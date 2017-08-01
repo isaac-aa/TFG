@@ -135,8 +135,8 @@ class BCComposite(BoundaryCondition):
    def computeBC(self):
       
       self.rhoBC.computeBC(var.rho)
-      self.momentumZBC.computeBC(var.momentum)
-      if self.momentumYBC!=None: self.momentumYBC.computeBC(var.momentum)
+      self.momentumZBC.computeBC(var.momentumZ)
+      if self.momentumYBC!=None: self.momentumYBC.computeBC(var.momentumY)
       if par.ImplicitConduction:
          self.energyBC.computeImplicitBC()
       else:
@@ -175,7 +175,10 @@ class FixedT(BoundaryCondition):
    def computeBC(self, variable):
       variable[self.sliceBC] = 2*self.fixed - variable[self.sliceOne]
       boundaryE = 0.5*(var.rho[self.sliceBC] + var.rho[self.sliceOne])*par.cv*self.fixed 
-      var.energy[self.sliceBC] = 2*boundaryE - par.cv*var.rho[self.sliceOne]*var.T[self.sliceOne] + 0.5*var.momentum[self.sliceBC]*var.momentum[self.sliceBC]/var.rho[self.sliceBC]
+      if par.dim == 1:
+         var.energy[self.sliceBC] = 2*boundaryE - par.cv*var.rho[self.sliceOne]*var.T[self.sliceOne] + 0.5*var.momentumZ[self.sliceBC]*var.momentumZ[self.sliceBC]/var.rho[self.sliceBC]
+      elif par.dim == 2:
+         var.energy[self.sliceBC] = 2*boundaryE - par.cv*var.rho[self.sliceOne]*var.T[self.sliceOne] + 0.5*(var.momentumZ[self.sliceBC]*var.momentumZ[self.sliceBC]+ var.momentumY[self.sliceBC]*var.momentumY[self.sliceBC])/var.rho[self.sliceBC]
 
    def computeImplicitBC(self):
       var.diag[self.sliceBC] = 1.    #This only works for one-dimensional cases
@@ -198,7 +201,10 @@ class Hydrostatic(BoundaryCondition):
    name = 'Hydrostatic condition'
 
    def computeBC(self, variable):
-      var.energy[self.sliceBC] = var.P[self.sliceBC]/(par.gamma-1.) + 0.5*var.momentum[self.sliceBC]*var.momentum[self.sliceBC]/var.rho[self.sliceBC]
+      if par.dim == 1:
+               var.energy[self.sliceBC] = var.P[self.sliceBC]/(par.gamma-1.) + 0.5*var.momentumZ[self.sliceBC]*var.momentumZ[self.sliceBC]/var.rho[self.sliceBC]
+      elif par.dim == 2:
+               var.energy[self.sliceBC] = var.P[self.sliceBC]/(par.gamma-1.) + 0.5*(var.momentumZ[self.sliceBC]*var.momentumZ[self.sliceBC]+ var.momentumY[self.sliceBC]*var.momentumY[self.sliceBC])/var.rho[self.sliceBC]
 
 
    def computeImplicitBC(self):
@@ -231,8 +237,12 @@ class Periodic(BoundaryCondition):
       var.rho[self.regionA.sliceBC] = var.rho[self.regionB.sliceOne]
       var.rho[self.regionB.sliceBC] = var.rho[self.regionA.sliceOne]
       
-      var.momentum[self.regionA.sliceBC] = var.momentum[self.regionB.sliceOne]
-      var.momentum[self.regionB.sliceBC] = var.momentum[self.regionA.sliceOne]
+      var.momentumZ[self.regionA.sliceBC] = var.momentumZ[self.regionB.sliceOne]
+      var.momentumZ[self.regionB.sliceBC] = var.momentumZ[self.regionA.sliceOne]
+
+      if par.dim == 2:
+         var.momentumY[self.regionA.sliceBC] = var.momentumY[self.regionB.sliceOne]
+         var.momentumY[self.regionB.sliceBC] = var.momentumY[self.regionA.sliceOne]
 
       var.energy[self.regionA.sliceBC] = var.energy[self.regionB.sliceOne]
       var.energy[self.regionB.sliceBC] = var.energy[self.regionA.sliceOne]
