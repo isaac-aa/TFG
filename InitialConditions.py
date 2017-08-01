@@ -60,6 +60,126 @@ def SoundWaves(args):
    var.energy = pIn/(par.gamma-1.) + 0.5*var.rho*vIn*vIn
 
 
+def SoundWaves2D(args):
+  rho0 = args[0]
+  A = args[1]
+  p0 = args[2]
+  Nwav = args[3]
+
+  #K = Nwav*2*np.pi/(Grid.zf-Grid.z0)
+  phas = Nwav * 2. * np.pi *(Grid.z-par.z0)/(par.zf-par.z0)
+  
+  var.rho = rho0*(1. + A*np.cos(phas) )
+  
+  c_s = np.sqrt(par.gamma*p0/rho0)
+  vIn =  c_s*A*np.cos(phas)
+  var.momentumZ = vIn*var.rho
+  var.momentumY = var.momentumY*0.
+
+  pIn = p0*(1. + par.gamma*A*np.cos(phas) )
+  var.energy = pIn/(par.gamma-1.) + 0.5*var.momentumZ*var.momentumZ/var.rho
+
+
+def KelvinHelmholtz2D(args):
+  rho0 = args[0]
+  p0 = args[1]
+  vA = args[2]
+  vB = args[3]
+  center = args[4]
+  width = args[5]
+  amp = args[6]
+  freq = args[7]
+  
+  mask_center = np.abs(Grid.y-center) < width+amp*np.sin(freq*Grid.z)/2.  #Mask for values INSIDE the A tube
+  mask_outside = np.invert(mask_center)
+
+  var.rho = np.ones(Grid.z.shape)*rho0
+
+  var.momentumY = np.zeros(Grid.z.shape)
+  var.momentumZ[mask_center] = vA*var.rho[mask_center]
+  var.momentumZ[mask_outside] = vB*var.rho[mask_outside]
+
+  var.energy = p0/(par.gamma-1.) + 0.5*var.momentumZ*var.momentumZ/var.rho 
+   
+
+def IsothermalAtm2D(args):
+  p0 = args[0]
+  rho0 = args[1]
+  
+  P0 = p0*np.exp(-Grid.z/1.)
+  var.rho = rho0*np.exp(-Grid.z/1.)
+  var.momentumY = var.momentumY*0.
+  var.momentumZ = var.momentumZ*0.
+  var.energy = P0/(par.gamma-1.)
+
+  #pert = 1.*np.exp( -(Grid.z-0.5)*(Grid.z-0.5)/2. - (Grid.y-0.5)*(Grid.y-0.5)/2.  ) 
+  #var.energy += pert
+
+
+
+def RayleighTaylorIns(args):
+  rho1 = args[0]
+  rho2 = args[1]
+  discZ = args[2]
+  discP = args[3]
+  amp = args[4]
+  freq = args[5]
+
+
+  # Mask for both domains
+  thresholdZ = discZ - amp*np.sin(2.*np.pi*freq*Grid.y)
+  upper = Grid.z>thresholdZ
+  lower = np.invert(upper)
+
+  
+  # Static in all the domain
+  var.momentumZ = var.momentumZ*0.
+  var.momentumY = var.momentumY*0.
+
+  # We set a constant density atmosphere at both domains
+  var.rho[lower] = rho1
+  var.rho[upper] = rho2
+
+  P0 = par.g*var.rho*(Grid.z-discZ) + discP
+  var.energy = P0/(par.gamma-1.)
+
+
+
+
+def Star2D(args):
+   rho0 = args[0]
+   rho1 = args[1]
+   sigma = args[2]
+   z0 = args[3]
+   y0 = args[4]
+   momY = args[5]
+
+   # Background density
+   var.rho = np.ones(Grid.z.shape)*rho0
+
+   # 'Planet'
+   var.rho += rho1*np.exp(-((Grid.z-z0)*(Grid.z-z0) + (Grid.y-y0)*(Grid.y-y0) )/sigma  )
+   
+   # Static
+   var.momentumZ = -momY*np.exp(-((Grid.z-z0)*(Grid.z-z0) + (Grid.y-y0)*(Grid.y-y0) )/sigma  )
+   var.momemtumY = var.momentumY*0.
+
+   var.energy = np.ones(Grid.z.shape) + 0.5*var.momentumZ*var.momentumZ/var.rho
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def LogTLogRhoProfile(args):
    logTA = np.log(args[0])
    logTB = np.log(args[1])

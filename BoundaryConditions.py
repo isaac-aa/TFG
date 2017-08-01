@@ -262,6 +262,36 @@ def Wall(args):
    else:
       var.energy[i] = var.energy[i_one]
 
+
+def Wall2D(args):
+   if args[0] == 'R':
+      var.rho[:,-1] = var.rho[:,-2]
+      var.momentumZ[:,-1] = var.momentumZ[:,-2]
+      var.momentumY[:,-1] = var.momentumY[:,-2]
+      var.energy[:,-1] = var.energy[:,-2]
+
+
+def WallFixedRhoHydrostaticP2D(args):
+   rhoFixed = args[1]
+   # USE MASKED ARRAYS
+   if args[0]=='L':
+      var.rho[:, 0] = 2.*rhoFixed - var.rho[:,1]  
+      var.P[:, 0] = var.P[:,1] + 0.5*Grid.dz*rhoFixed*np.abs(par.g)
+      var.momentumZ[:,0] = var.momentumZ[:,1]
+      var.momentumY[:,0] = var.momentumY[:,1]
+      var.energy[:,0] = var.P[:,0]/(par.gamma-1.) + 0.5*(var.momentumZ[:,0]*var.momentumZ[:,0] - var.momentumY[:,0]*var.momentumY[:,0])/var.rho[:,0]
+
+   if args[0]=='R':
+      var.rho[:,-1] = 2.*rhoFixed - var.rho[:,-2]
+      var.P[:, -1] = var.P[i_one] + 0.5*Grid.dz*rhoFixed*np.abs(par.g)
+   if args[0]=='T':
+      var.rho[-1,:] = 2.*rhoFixed - var.rho[-2,:]
+      var.P[-1,:] = var.P[i_one] + 0.5*Grid.dy*rhoFixed*np.abs(par.g)
+   if args[0]=='B':
+      var.rho[0,:] = 2.*rhoFixed - var.rho[1,:]
+      var.P[0,:] = var.P[i_one] + 0.5*Grid.dy*rhoFixes*np.abs(par.g)
+
+
 def FixedRhoP(args):
    if args[0]=="L":
      i = 0
@@ -573,5 +603,6 @@ def Periodic(args):
 
 
 """
+
 
 

@@ -25,8 +25,23 @@ print 'Loading Settings..'
 #argsIC = [2., 0.5, 0.0005, 1.]
 #InitialCondition = InitialConditions.IsothermalEq
 #argsIC = [1., 1.]
-InitialCondition = InitialConditions.SoundWaves
-argsIC = [1.0, 0.001, 1.0, 4.]
+#InitialCondition = InitialConditions.SoundWaves2D
+#argsIC = [1.0, 0.001, 1.0, 4.]
+#InitialCondition = InitialConditions.KelvinHelmholtz2D
+#argsIC = [1e-2, 1e-2, .3, -.3, 0.5, 0.25, 0.05, 50]
+#InitialCondition = InitialConditions.IsothermalAtm2D
+#argsIC = [1., 1.]
+#InitialCondition = InitialConditions.RayleighTaylorIns
+#argsIC = [1.,2., 0.5, 10., 0.2, .5]
+
+
+InitialCondition = InitialConditions.Star2D
+argsIC = [1., 10., 0.01, 0.5, 0.5, 10.]
+
+
+
+
+
 
 ChangeOfVar.ConvertToPrim()
 
@@ -36,6 +51,10 @@ BoundaryConditionR = None
 BoundaryConditionL.setup()
 #BoundaryConditionR.setup()
 
+
+
+BoundaryConditionT = BC.Periodic( BC.BoundaryCondition('T'), BC.BoundaryCondition('B') )
+BoundaryConditionB = None
 
 #BoundaryConditionL = BoundaryConditions.FixedRhoP
 #argsL = ['L',1.,1.]
@@ -56,6 +75,6 @@ BoundaryConditionL.setup()
 #argsR = ['R', 1e6, 2.52373286e-15]
 
 
-Scheme = Advance.FirstGen
+Scheme = Advance.LaxFriedrichs2D
 #Advance.AllocateFirstGen() #Ponerlo en el main, despues de crear la malla
 
