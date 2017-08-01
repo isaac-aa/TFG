@@ -7,7 +7,6 @@
 #
 #--------------------------------------------
 
-import numpy as np
 import time
 
 CPUTime0 = time.clock()
@@ -31,12 +30,22 @@ import Save2D
 
 sets.InitialCondition(sets.argsIC)
 ChangeOfVar.ConvertToPrim()
-Save2D.Plot2D()
+
 # ------------------ MAIN LOOP -----------------
+
+Save.Plot()
+
+# ------------------ SETUP PHASE ---------------
+
+
 
 CPUTimeConf = time.clock()
 print '################ \n'
 print 'Configuration took %.4f s'%(CPUTimeConf-CPUTime0)
+
+
+# ------------------ MAIN LOOP -----------------
+
 print '################ \t SIMULATION START \n'
 
 WallTime0 = time.time()
@@ -76,11 +85,13 @@ while (par.it<=par.max_it and par.tt<=par.tf):
 
    # Boundary conditions     
    lastTime = nowTime
-   sets.BoundaryConditionL(sets.argsL)
-   sets.BoundaryConditionR(sets.argsR)
+
+   if sets.BoundaryConditionL!=None: sets.BoundaryConditionL.computeBC()
+   if sets.BoundaryConditionR!=None: sets.BoundaryConditionR.computeBC()
    if par.dim==2:
-     sets.BoundaryConditionT(sets.argsT)
-     sets.BoundaryConditionB(sets.argsB)
+      if sets.BoundaryConditionT != None: sets.BoundaryConditionT.computeBC()
+      if sets.BoundaryConditionB != None: sets.BoundaryConditionB.computeBC()
+
    nowTime = time.clock()
    BCTime = nowTime-lastTime
 
@@ -89,16 +100,18 @@ while (par.it<=par.max_it and par.tt<=par.tf):
 
    if par.it%par.save_rate == 0.:
      
-     lastTime = time.clock()
-     Save2D.Plot2D()
-     nowTime = time.clock()
-     SaveTime += nowTime-lastTime
 
-     print '\n   ## IT: %d \t CPU-Time: %.2f s \t Wall-time: %.2f'%(par.it, nowTime-CPUTimeConf, time.time()-WallTime0)
-     print 'DT: %.3e \t t: %.3f s \t CFL: %.3e'%(par.dt, par.tt, par.cfl)
+      lastTime = time.clock()
+      Save.Plot()
+      nowTime = time.clock()
+      SaveTime += nowTime-lastTime
 
-     nowTime /= 100.
-     print ' ComputeDT \t %.2f \n Scheme \t %.2f \n Source \t %.2f \n BC \t\t %.2f \n Save \t\t %.2f'%(computeDTTime/nowTime, SchemeTime/nowTime, SourceTime/nowTime, BCTime/nowTime, SaveTime/nowTime)
+
+      print '\n   ## IT: %d \t CPU-Time: %.2f s \t Wall-time: %.2f'%(par.it, nowTime-CPUTimeConf, time.time()-WallTime0)
+      print 'DT: %.3e \t t: %.3f s \t CFL: %.3e'%(par.dt, par.tt, par.cfl)
+
+      nowTime /= 100.
+      print ' ComputeDT \t %.2f \n Scheme \t %.2f \n Source \t %.2f \n BC \t\t %.2f \n Save \t\t %.2f'%(computeDTTime/nowTime, SchemeTime/nowTime, SourceTime/nowTime, BCTime/nowTime, SaveTime/nowTime)
 
 
      #maxIndex = np.argmax(np.abs(var.v))

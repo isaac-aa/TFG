@@ -146,8 +146,8 @@ def computeImplicitConduction():
    
    var.rhs[1:-1] = -e[1:-1]*var.rho[1:-1]
    
-   sets.BoundaryConditionL(sets.argsL)
-   sets.BoundaryConditionR(sets.argsR)
+   if sets.BoundaryConditionL!=None: sets.BoundaryConditionL.computeBC()
+   if sets.BoundaryConditionR!=None: sets.BoundaryConditionR.computeBC()
    
    """
    # Hard-coded fixed temperature boundaries
@@ -210,31 +210,34 @@ def computeRadiativeLosses():
 
 
 def ComputeSource():
+
   if par.IsThereGravity:
      momentumGZ, momentumGY, energyG = computeGravSource()
      var.momentumZ += par.dt*momentumGZ
      var.momentumY += par.dt*momentumGY
      var.energy += par.dt*energyG
      ChangeOfVar.ConvertToPrim()
-  
-  if par.RadiativeLoss:
-     RadLoss = computeRadiativeLosses()
-     var.energy[1:-1] -= par.dt*RadLoss[1:-1]
-     ChangeOfVar.ConvertToPrim()
 
-  if par.ThermalDiffusion:
-     if par.ImplicitConduction:
-        computeImplicitConduction()
-     else:
-       ThermalDiff = computeTemperatureDiffusion()
-       var.energy[1:-1] += par.dt*ThermalDiff
-     ChangeOfVar.ConvertToPrim()
+
+  
+   if par.RadiativeLoss:
+      RadLoss = computeRadiativeLosses()
+      var.energy[1:-1] -= par.dt*RadLoss[1:-1]
+      ChangeOfVar.ConvertToPrim()
+
+   if par.ThermalDiffusion:
+      if par.ImplicitConduction:
+         computeImplicitConduction()
+      else:
+         ThermalDiff = computeTemperatureDiffusion()
+         var.energy[1:-1] += par.dt*ThermalDiff
+      ChangeOfVar.ConvertToPrim()
        
-  if par.MomentumDamping:
-     momentumDamping, energyDamping = computeMomentumDamping()
-     var.momentum += momentumDamping
-     var.energy += energyDamping
-     ChangeOfVar.ConvertToPrim()
+   if par.MomentumDamping:
+      momentumDamping, energyDamping = computeMomentumDamping()
+      var.momentum += momentumDamping
+      var.energy += energyDamping
+      ChangeOfVar.ConvertToPrim()
      
      
      

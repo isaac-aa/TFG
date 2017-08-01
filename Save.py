@@ -29,9 +29,9 @@ print 'Loading Save..'
 
 # Create results folders
 if not os.path.exists(par.FolderName):
-    os.makedirs(par.FolderName)
-    os.makedirs(par.FolderName + '/RESULTS')
-    os.makedirs(par.FolderName + '/RESULTS_DAT')
+   os.makedirs(par.FolderName)
+   os.makedirs(par.FolderName + '/RESULTS')
+   os.makedirs(par.FolderName + '/RESULTS_DAT')
   
 
 ThereIsSettings = os.path.exists(par.FolderName+'/Settings.py')
@@ -41,13 +41,16 @@ if ThereIsSettings or ThereIsParameters:
    print '###### WARNING ######'
    print 'There is already a previous simulation stored at ' + par.FolderName
    des = raw_input('Do you want to overwrite it? ([y]/n)')
+   fh = open(par.FolderName + '/log.txt', 'w')
+   fh.write('#Starting simulation\n')
+   fh.close()
    if des ==  'n':
       exit()
 
 shutil.copy2('Settings.py', par.FolderName)
 shutil.copy2('Parameters.py', par.FolderName)
 
- 
+ZeroTime = time.clock()
 plotCounter = 0
 
 f, axs = plt.subplots(4+par.PlotCharacteristics,1, sharex=True)
@@ -72,20 +75,20 @@ itText.set_text(itTextStr)
 tText.set_text(tTextStr)
 
 if par.PlotCharacteristics:
-  axs[4].set_title('Characteristic lenght')
-  if par.ThermalDiffusion:
-    Thermal_tau, = axs[4].plot([],[], 'k')
-    Thermal_tau.set_xdata(Grid.z)
-  if par.RadiativeLoss:
-    Losses_tau, = axs[4].plot([],[], 'g')
-    Losses_tau.set_xdata(Grid.z)
-  Dynamic_tau, = axs[4].plot([],[], 'b')
-  Dynamic_tau.set_xdata(Grid.z)
-  axs[4].semilogy()
-  axs[4].set_xlabel(par.xlabel)
-  axs[4].set_ylabel(r'$s$')
+   axs[4].set_title('Characteristic lenght')
+   if par.ThermalDiffusion:
+      Thermal_tau, = axs[4].plot([],[], 'k')
+      Thermal_tau.set_xdata(Grid.z)
+   if par.RadiativeLoss:
+      Losses_tau, = axs[4].plot([],[], 'g')
+      Losses_tau.set_xdata(Grid.z)
+   Dynamic_tau, = axs[4].plot([],[], 'b')
+   Dynamic_tau.set_xdata(Grid.z)
+   axs[4].semilogy()
+   axs[4].set_xlabel(par.xlabel)
+   axs[4].set_ylabel(r'$s$')
 else:
-  axs[3].set_xlabel(par.xlabel)
+   axs[3].set_xlabel(par.xlabel)
 
 
 FreeFall_line, = axs[1].plot([],[], "r--")
@@ -126,13 +129,13 @@ if par.SoundSpeedAnalytic or par.IsothermalAnalytic or par.ThermalAnalytic:
 
 
 if par.rhoAxis != []:
-  axs[0].set_ylim(par.rhoAxis)
+   axs[0].set_ylim(par.rhoAxis)
 if par.vAxis != []:
-  axs[1].set_ylim(par.vAxis)
+   axs[1].set_ylim(par.vAxis)
 if par.PAxis != []:
-  axs[2].set_ylim(par.PAxis)
+   axs[2].set_ylim(par.PAxis)
 if par.TAxis != []:
-  axs[3].set_ylim(par.TAxis)
+   axs[3].set_ylim(par.TAxis)
   
 for i in range(4):
    if par.logScale[i]==True:
@@ -150,7 +153,7 @@ if par.PlotFile:
 
 def Plot():
    global plotCounter
-
+   
    rho_line.set_ydata(var.rho)
    v_line.set_ydata(var.v)
    P_line.set_ydata(var.P)
@@ -197,34 +200,37 @@ def Plot():
       TAna_line.set_ydata(TAna)
       
    if par.PlotCharacteristics:
-     if par.ThermalDiffusion:
-       tau = Characteristics.Thermal()
-       Thermal_tau.set_ydata(tau)
-     if par.RadiativeLoss:
-       tau = Characteristics.Radiative()
-       Losses_tau.set_ydata(tau)
+      if par.ThermalDiffusion:
+         tau = Characteristics.Thermal()
+         Thermal_tau.set_ydata(tau)
+      if par.RadiativeLoss:
+         tau = Characteristics.Radiative()
+         Losses_tau.set_ydata(tau)
     
-     tau = Characteristics.DensityChanges()
-     Dynamic_tau.set_ydata(tau) 
-     #Re-scale axis
-     axs[4].relim()
-     axs[4].autoscale_view()  
+      tau = Characteristics.DensityChanges()
+      Dynamic_tau.set_ydata(tau) 
+      #Re-scale axis
+      axs[4].relim()
+      axs[4].autoscale_view()  
    
    
    if par.SaveToFile and plotCounter%par.SaveToFileRatio==0 :
       dataToSave = np.array([Grid.z, var.rho, var.v, var.T])
       if par.PlotCharacteristics:  
-        if par.ThermalDiffusion:
-           tau_T = Thermal_tau.get_ydata()
-           dataToSave = np.append(dataToSave, [tau_T], axis=0)
-        if par.RadiativeLoss:
-           tau_R = Losses_tau.get_ydata()
-           dataToSave = np.append(dataToSave, [tau_R], axis=0)
-        print 'Saving to file..'
+         if par.ThermalDiffusion:
+            tau_T = Characteristics.Thermal()
+            dataToSave = np.append(dataToSave, [tau_T], axis=0)
+         if par.RadiativeLoss:
+            tau_R = Characteristics.Radiative()
+            dataToSave = np.append(dataToSave, [tau_R], axis=0)
+         print 'Saving to file..'
       
-      np.savetxt(par.FolderName + '/RESULTS_DAT/%.20f.dat'%par.tt, dataToSave.T, header='%d %.2f %.7e %.7e %.7e'%(par.it, time.clock(), par.mu,par.g,par.R))
-           
-         
+      np.save(par.FolderName + '/RESULTS_DAT/%.20f.dat'%par.tt, dataToSave) #, header='%d %.2f %.7e %.7e %.7e'%(par.it, time.clock(), par.mu,par.g,par.R))
+      
+      fh = open(par.FolderName + '/log.txt','a')
+      fh.write(str(par.it) + ' ' + str(par.dt) + ' ' + str(par.tt) + ' ' + str(time.clock() - ZeroTime) + '\n')     
+      fh.close()
+      
    plt.savefig(par.FolderName + '/RESULTS/%.20f.png'%par.tt, bbox_inches='tight')
    plotCounter +=1
 

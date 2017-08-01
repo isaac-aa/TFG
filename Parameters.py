@@ -1,5 +1,5 @@
 #--------------------------------------------
-#		Parameters.py
+#      Parameters.py
 # In this module all the different user defined
 # parameters are set.
 #
@@ -14,11 +14,13 @@ Nz = 100
 z0 = -1.
 zf = 1.
 
+
 Ny = 100
 y0 = -1.
 yf = 1.
 
 dim = 2
+
 
 
 # ----------------- TIME SETUP ----------------
@@ -28,14 +30,18 @@ dt = dt_max
 tt = 0.
 tf = np.inf
 it = 0
-max_it = 1000 #np.inf
-cfl_set = 0.5
+
+max_it = 100
+cfl_set = 0.9
+
 cfl = cfl_set
 
 # ------------------ PLOT SETUP ---------------
 
+
 FolderName = 'RESULTS/Star' #'RESULTS/AnalyticalLossEq_HydrostaticP_ConsRho_SymV_NoDamping'
 save_rate = 10
+
 
 SaveToFile = True
 SaveToFileRatio = 1
@@ -134,9 +140,8 @@ mu = 1.
 cv = 1.
 
 def Computecv():
-  global cv
-  cv = R/(mu*(gamma-1.)*molarMass*Na)
-
+   global cv
+   cv = R/(mu*(gamma-1.)*molarMass*Na)
 
 
 

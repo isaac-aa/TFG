@@ -1,16 +1,14 @@
 #--------------------------------------------
-#		Settings.py
+#      Settings.py
 # This module defines the different functions
 # and numerical schemes used for the simulation
 #
 #--------------------------------------------
 
-import numpy as np
 import Advance
-import BoundaryConditions
+import BoundaryConditions as BC
 import InitialConditions
 import ChangeOfVar
-import Parameters as par
 
 print 'Loading Settings..'
 
@@ -47,16 +45,16 @@ argsIC = [1., 10., 0.01, 0.5, 0.5, 10.]
 
 ChangeOfVar.ConvertToPrim()
 
+BoundaryConditionL = BC.Periodic( BC.BoundaryCondition('R'), BC.BoundaryCondition('L') )
+BoundaryConditionR = None
 
-BoundaryConditionL = BoundaryConditions.Periodic2D
-argsL = ['L']
-BoundaryConditionR = BoundaryConditions.Periodic2D
-argsR = ['R']
+BoundaryConditionL.setup()
+#BoundaryConditionR.setup()
 
-BoundaryConditionT = BoundaryConditions.PeriodicY2D
-argsT = []
-BoundaryConditionB = BoundaryConditions.PeriodicY2D
-argsB = []
+
+
+BoundaryConditionT = BC.Periodic( BC.BoundaryCondition('T'), BC.BoundaryCondition('B') )
+BoundaryConditionB = None
 
 #BoundaryConditionL = BoundaryConditions.FixedRhoP
 #argsL = ['L',1.,1.]
@@ -79,5 +77,4 @@ argsB = []
 
 Scheme = Advance.LaxFriedrichs2D
 #Advance.AllocateFirstGen() #Ponerlo en el main, despues de crear la malla
-
 
