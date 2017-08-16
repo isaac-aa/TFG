@@ -125,3 +125,16 @@ TODOs:
 		************ COMMITED ********************
 		- Merged 2D branch
 		- Minor bug fixes
+		************ COMMITED ********************
+# ----- 02/08
+        - OOP applied to the numerical schemes
+        - Fixed time step computation for 2D
+# ----- 03/08
+		- Added RK4 and RK3 schemes   
+# ----- 07/08
+		- Added lagrange elements tracer
+		- Fixed bug in Flux
+		- Now variables are arguments of computeBC()
+# ----- 14/07
+		- Implemented a staggered grid (only for 1D cases)
+		- Implemented a RK3 scheme for staggered grids

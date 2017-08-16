@@ -9,14 +9,17 @@ import Advance
 import BoundaryConditions as BC
 import InitialConditions
 import ChangeOfVar
+import LagrangeTracer
+import Parameters as par
+import Grid
 
 print 'Loading Settings..'
 
 
 #InitialCondition = InitialConditions.LogTGravityProfile
 #argsIC = [1e5, 1e6, 3.7677286546362324e-14, 2.52373286e-15]
-#InitialCondition = InitialConditions.ReadICFromFilePressure
-#argsIC = ['Extras/ThermalLossesEq_IC.dat']
+InitialCondition = InitialConditions.ReadICFromFilePressure
+argsIC = ['Extras/ThermalEq_IC_2.dat']
 #InitialCondition = InitialConditions.RestartFromFile
 #argsIC = ['RESULTS/AnalyticalLossEq_HydrostaticP/RESULTS_DAT']
 #InitialCondition = InitialConditions.ReadICFromFile
@@ -35,26 +38,22 @@ print 'Loading Settings..'
 #argsIC = [1.,2., 0.5, 10., 0.2, .5]
 
 
-InitialCondition = InitialConditions.Star2D
-argsIC = [1., 10., 0.01, 0.5, 0.5, 10.]
-
-
-
-
-
 
 ChangeOfVar.ConvertToPrim()
 
-BoundaryConditionL = BC.Periodic( BC.BoundaryCondition('R'), BC.BoundaryCondition('L') )
-BoundaryConditionR = None
 
-BoundaryConditionL.setup()
-#BoundaryConditionR.setup()
+BoundaryConditionR = BC.BCComposite('R')
+BoundaryConditionL = BC.BCComposite('L')
+
+BoundaryConditionR.setup(BC.ZeroDer, (BC.AntiSym,), BC.FixedT, [None, None, 1e6])
+BoundaryConditionL.setup(BC.ConstantSecondDer, (BC.AntiSym,), BC.Hydrostatic, [None, None, None])
 
 
-
-BoundaryConditionT = BC.Periodic( BC.BoundaryCondition('T'), BC.BoundaryCondition('B') )
+BoundaryConditionT = None
 BoundaryConditionB = None
+
+
+Tracers = None #(LagrangeTracer.Tracer(par.z0 + 500*Grid.dz, 0), LagrangeTracer.Tracer(par.z0 + 1000*Grid.dz, 0), LagrangeTracer.Tracer(par.z0 + 1500*Grid.dz, 0), LagrangeTracer.Tracer(par.z0 + 2000*Grid.dz, 0) , LagrangeTracer.Tracer(par.z0 + 2500*Grid.dz, 0) , LagrangeTracer.Tracer(par.z0 + 3000*Grid.dz, 0) , LagrangeTracer.Tracer(par.z0 + 3500*Grid.dz, 0))
 
 #BoundaryConditionL = BoundaryConditions.FixedRhoP
 #argsL = ['L',1.,1.]
@@ -75,6 +74,5 @@ BoundaryConditionB = None
 #argsR = ['R', 1e6, 2.52373286e-15]
 
 
-Scheme = Advance.LaxFriedrichs2D
-#Advance.AllocateFirstGen() #Ponerlo en el main, despues de crear la malla
-
+Scheme = Advance.RK3Staggered()
+Scheme.setup()

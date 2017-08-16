@@ -53,7 +53,7 @@ def ReadGridFromFile(FileName):
    data = data.T
    z = data[0]*z_ref
    dz = z[1]-z[0]
-   print "Mesh created with N=%d and dz=%.3e"%(par.N, dz)
+   print "Mesh created with Nz=%d and dz=%.3e"%(par.Nz, dz)
    
    
    

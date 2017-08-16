@@ -23,7 +23,7 @@ def SoundWaves(args, t):
    #K = Nwav*2*np.pi/(Grid.zf-Grid.z0)
    c_s = np.sqrt(par.gamma*p0/rho0)
    phas = Nwav * 2. * np.pi *(Grid.z-par.z0)/(par.zf-par.z0)
-  
+   
    # v = w/k -> w = v*k
    w = c_s*Nwav*2.*np.pi/(par.zf-par.z0)
   

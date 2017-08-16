@@ -15,6 +15,8 @@ import time
 import Grid
 import Parameters as par
 import Variables as var
+import Settings as sets
+
 
 # ------------------ PLOT ----------------------
 
@@ -228,6 +230,13 @@ def Plot():
    fh = open(par.FolderName + '/log.txt','a')
    fh.write(str(par.it) + ' ' + str(par.dt) + ' ' + str(par.tt) + ' ' + str(time.clock() - ZeroTime) + '\n')     
    fh.close()
+   
+   
+   if sets.Tracers != None:
+      fh = open(par.FolderName + '/RESULTS_DAT/%.20f.tcr'%par.tt,'w')
+      for Trace in sets.Tracers:
+         fh.write(str(Trace.z) + ' ' + str(Trace.vZ) + '\n')     
+      fh.close()
       
    #plt.savefig(par.FolderName + '/RESULTS/%.20f.png'%par.tt, bbox_inches='tight')
    #plotCounter +=1

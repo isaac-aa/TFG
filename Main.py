@@ -15,15 +15,16 @@ import Parameters as par
 import Grid
 
 # ------------------ MESH CREATION -------------
-Grid.Uniform2DGrid(par.Nz, par.Ny, par.z0, par.zf, par.y0, par.yf)
-#Grid.Uniform1DGrid(par.N, par.z0, par.zf)
-#Grid.ReadGridFromFile('Extras/ThermalLossesEq_IC.dat') #('hydrostatic_equilibrium_2.dat')
+#Grid.Uniform2DGrid(par.Nz, par.Ny, par.z0, par.zf, par.y0, par.yf)
+Grid.Uniform1DGrid(par.Nz, par.z0, par.zf)
+#Grid.ReadGridFromFile('Extras/ThermalEq_IC_2.dat') #('hydrostatic_equilibrium_2.dat')
 
 import Settings as sets
 import SourceTerm
 import TimeStep
 import ChangeOfVar
 import Save
+import Variables as var
 
 # ------------------ INITIAL CONDITION ---------
 
@@ -34,7 +35,6 @@ ChangeOfVar.ConvertToPrim()
 
 Save.Plot()
 
-# ------------------ SETUP PHASE ---------------
 
 
 
@@ -62,40 +62,52 @@ while (par.it<=par.max_it and par.tt<=par.tf):
 
    par.tt += par.dt  
    par.it += 1
-   # For the Lax Wendroff Richtmyer scheme
-   #var.lastrho[:] = var.rho[:]
-   #var.lastmomentum[:] = var.momentum[:]
-   #var.lastenergy[:] = var.energy[:]
+   var.lastrho[:] = var.rho[:]
+   var.lastmomentumZ[:] = var.momentumZ[:]
+   var.lastenergy[:] = var.energy[:]
    nowTime = time.clock()
    computeDTTime += nowTime-lastTime
-
+   
+   
    # Time step
    lastTime = nowTime
-   sets.Scheme() 
+   sets.Scheme.compute()
    nowTime = time.clock()
    SchemeTime += nowTime-lastTime
-
-   # Source computation
+   
+   ChangeOfVar.ConvertToPrim()
+   #SourceTerm.computeImplicitConduction()   
+   
+   #"""
+   #Source computation
    lastTime = nowTime
    if par.IsComputingSource:
       SourceTerm.ComputeSource()
    nowTime = time.clock()
    SourceTime += nowTime-lastTime
-
+   #"""
+   ChangeOfVar.ConvertToPrim()
+   
+   
    # Boundary conditions     
    lastTime = nowTime
 
-   if sets.BoundaryConditionL!=None: sets.BoundaryConditionL.computeBC()
-   if sets.BoundaryConditionR!=None: sets.BoundaryConditionR.computeBC()
+   if sets.BoundaryConditionL!=None: sets.BoundaryConditionL.computeBC(var.rho, (var.momentumZ, var.momentumY), var.energy)
+   if sets.BoundaryConditionR!=None: sets.BoundaryConditionR.computeBC(var.rho, (var.momentumZ, var.momentumY), var.energy)
    if par.dim==2:
-      if sets.BoundaryConditionT != None: sets.BoundaryConditionT.computeBC()
-      if sets.BoundaryConditionB != None: sets.BoundaryConditionB.computeBC()
-
+      if sets.BoundaryConditionT != None: sets.BoundaryConditionT.computeBC(var.rho, (var.momentumZ, var.momentumY), var.energy)
+      if sets.BoundaryConditionB != None: sets.BoundaryConditionB.computeBC(var.rho, (var.momentumZ, var.momentumY), var.energy)
+   
+   
    nowTime = time.clock()
    BCTime = nowTime-lastTime
 
    # Compute change of variables
    ChangeOfVar.ConvertToPrim()
+
+   if sets.Tracers != None:
+      for Tracer in sets.Tracers:
+         Tracer.TimeStep()
 
    if par.it%par.save_rate == 0.:
      

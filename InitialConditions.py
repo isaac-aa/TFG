@@ -28,7 +28,7 @@ def IsothermalEq(args):
   
    P0 = p0*np.exp(-Grid.z/1.)
    var.rho = rho0*np.exp(-Grid.z/1.)
-   var.momentum = var.momentum*0.
+   var.momentumZ = var.momentumZ*0.
    var.energy = P0/(par.gamma-1.)
 
 
@@ -38,7 +38,7 @@ def ConstantFlow(args):
    v = args[1]
 
    var.rho = rho0*np.ones(Grid.z.shape)
-   var.momentum = var.rho*v
+   var.momentumZ = var.rho*v
    var.energy = par.cv*T0*np.ones(Grid.z.shape) + 0.5*var.rho*v*v
 
 def SoundWaves(args):
@@ -54,127 +54,240 @@ def SoundWaves(args):
   
    c_s = np.sqrt(par.gamma*p0/rho0)
    vIn =  c_s*A*np.cos(phas)
-   var.momentum = vIn*var.rho
+   var.momentumZ = vIn*var.rho
 
    pIn = p0*(1. + par.gamma*A*np.cos(phas) )
    var.energy = pIn/(par.gamma-1.) + 0.5*var.rho*vIn*vIn
 
 
 def SoundWaves2D(args):
-  rho0 = args[0]
-  A = args[1]
-  p0 = args[2]
-  Nwav = args[3]
+   rho0 = args[0]
+   A = args[1]
+   p0 = args[2]
+   Nwav = args[3]
 
-  #K = Nwav*2*np.pi/(Grid.zf-Grid.z0)
-  phas = Nwav * 2. * np.pi *(Grid.z-par.z0)/(par.zf-par.z0)
+   #K = Nwav*2*np.pi/(Grid.zf-Grid.z0)
+   phas = Nwav * 2. * np.pi *(Grid.z-par.z0)/(par.zf-par.z0)
   
-  var.rho = rho0*(1. + A*np.cos(phas) )
+   var.rho = rho0*(1. + A*np.cos(phas) )
   
-  c_s = np.sqrt(par.gamma*p0/rho0)
-  vIn =  c_s*A*np.cos(phas)
-  var.momentumZ = vIn*var.rho
-  var.momentumY = var.momentumY*0.
+   c_s = np.sqrt(par.gamma*p0/rho0)
+   vIn =  c_s*A*np.cos(phas)
+   var.momentumZ = vIn*var.rho
+   var.momentumY = var.momentumY*0.
 
-  pIn = p0*(1. + par.gamma*A*np.cos(phas) )
-  var.energy = pIn/(par.gamma-1.) + 0.5*var.momentumZ*var.momentumZ/var.rho
+   pIn = p0*(1. + par.gamma*A*np.cos(phas) )
+   var.energy = pIn/(par.gamma-1.) + 0.5*var.momentumZ*var.momentumZ/var.rho
 
 
 def KelvinHelmholtz2D(args):
-  rho0 = args[0]
-  p0 = args[1]
-  vA = args[2]
-  vB = args[3]
-  center = args[4]
-  width = args[5]
-  amp = args[6]
-  freq = args[7]
+   rho0 = args[0]
+   p0 = args[1]
+   vA = args[2]
+   vB = args[3]
+   center = args[4]
+   width = args[5]
+   amp = args[6]
+   freq = args[7]
   
-  mask_center = np.abs(Grid.y-center) < width+amp*np.sin(freq*Grid.z)/2.  #Mask for values INSIDE the A tube
-  mask_outside = np.invert(mask_center)
+   mask_center = np.abs(Grid.y-center) < width+amp*np.sin(freq*Grid.z)/2.  #Mask for values INSIDE the A tube
+   mask_outside = np.invert(mask_center)
 
-  var.rho = np.ones(Grid.z.shape)*rho0
+   var.rho = np.ones(Grid.z.shape)*rho0
 
-  var.momentumY = np.zeros(Grid.z.shape)
-  var.momentumZ[mask_center] = vA*var.rho[mask_center]
-  var.momentumZ[mask_outside] = vB*var.rho[mask_outside]
+   var.momentumY = np.zeros(Grid.z.shape)
+   var.momentumZ[mask_center] = vA*var.rho[mask_center]
+   var.momentumZ[mask_outside] = vB*var.rho[mask_outside]
 
-  var.energy = p0/(par.gamma-1.) + 0.5*var.momentumZ*var.momentumZ/var.rho 
+   var.energy = p0/(par.gamma-1.) + 0.5*var.momentumZ*var.momentumZ/var.rho 
    
 
 def IsothermalAtm2D(args):
-  p0 = args[0]
-  rho0 = args[1]
+   p0 = args[0]
+   rho0 = args[1]
   
-  P0 = p0*np.exp(-Grid.z/1.)
-  var.rho = rho0*np.exp(-Grid.z/1.)
-  var.momentumY = var.momentumY*0.
-  var.momentumZ = var.momentumZ*0.
-  var.energy = P0/(par.gamma-1.)
+   P0 = p0*np.exp(-Grid.z/1.)
+   var.rho = rho0*np.exp(-Grid.z/1.)
+   var.momentumY = var.momentumY*0.
+   var.momentumZ = var.momentumZ*0.
+   var.energy = P0/(par.gamma-1.)
 
-  #pert = 1.*np.exp( -(Grid.z-0.5)*(Grid.z-0.5)/2. - (Grid.y-0.5)*(Grid.y-0.5)/2.  ) 
-  #var.energy += pert
+   #pert = 1.*np.exp( -(Grid.z-0.5)*(Grid.z-0.5)/2. - (Grid.y-0.5)*(Grid.y-0.5)/2.  ) 
+   #var.energy += pert
 
 
 
 def RayleighTaylorIns(args):
-  rho1 = args[0]
-  rho2 = args[1]
-  discZ = args[2]
-  discP = args[3]
-  amp = args[4]
-  freq = args[5]
+   rho1 = args[0]
+   rho2 = args[1]
+   discZ = args[2]
+   discP = args[3]
+   amp = args[4]
+   freq = args[5]
 
 
-  # Mask for both domains
-  thresholdZ = discZ - amp*np.sin(2.*np.pi*freq*Grid.y)
-  upper = Grid.z>thresholdZ
-  lower = np.invert(upper)
+   # Mask for both domains
+   thresholdZ = discZ - amp*np.sin(2.*np.pi*freq*Grid.y)
+   upper = Grid.z>thresholdZ
+   lower = np.invert(upper)
 
   
-  # Static in all the domain
-  var.momentumZ = var.momentumZ*0.
-  var.momentumY = var.momentumY*0.
+   # Static in all the domain
+   var.momentumZ = var.momentumZ*0.
+   var.momentumY = var.momentumY*0.
 
-  # We set a constant density atmosphere at both domains
-  var.rho[lower] = rho1
-  var.rho[upper] = rho2
+   # We set a constant density atmosphere at both domains
+   var.rho[lower] = rho1
+   var.rho[upper] = rho2
 
-  P0 = par.g*var.rho*(Grid.z-discZ) + discP
-  var.energy = P0/(par.gamma-1.)
+   P0 = -par.g*var.rho*(Grid.z-discZ) + discP
+   var.energy = P0/(par.gamma-1.)
+
+
+def BuildSystemMatrix(center, L, R,  T, B):
+   N = Grid.z.shape[0]*Grid.z.shape[1]
+   x_side = Grid.z.shape[0]    #Make sure that this is indeed correct for non-square meshes
+   y_side = Grid.z.shape[1]
+
+
+   nnz = np.zeros(5*N)  #Four neighbours for each cell plus the cell itself
+   col = np.zeros(5*N, dtype=int)
+   offset = np.zeros(N+1, dtype=int)
+   i=1
+
+   #center = 0. #-2*(1./(Grid.dz*Grid.dz) + 1./(Grid.dy*Grid.dy))
+   #LR =   1./(dx)
+   #TB = 0. #1./(Grid.dy*Grid.dy)
+
+   for xi in range(Grid.z.shape[0]):
+      for yj in range(Grid.z.shape[1]):
+         index = (yj*y_side + xi)*5
+         cell = yj*y_side + xi
+         index = cell*5
+
+         nnz[index] = center #Center cell
+         col[index] = cell
+
+
+         nnz[index + 1] = L #Left
+         col[index + 1] = cell-1  #Left neighbor
+
+
+         nnz[index + 2] = R #Right
+         col[index + 2] = cell+1  #Right
+
+
+         nnz[index + 3] = T #Top
+         col[index + 3] = cell-x_side #Top
+
+
+         nnz[index + 4] = B #Bottom
+         col[index + 4] = cell+x_side
+
+
+         offset[i] = offset[i-1]+5  #Improve performance-wise later on
+         i+=1
+
+   # Zero-derivative potential boundary condition
+   for xi in range(Grid.z.shape[0]):
+      index = (y_side*0 + xi)*5
+      nnz[index + 3] = 0.
+      col[index + 3] = N-(x_side-xi)
+      nnz[index + 4] = -1.
+
+      index = (y_side*(y_side-1) + xi)*5
+      nnz[index + 4] = 0.
+      col[index + 4] = xi
+      nnz[index + 3] = -1.
+
+
+   for yj in range(Grid.z.shape[1]):
+      index = (y_side*yj + 0)*5
+      cell = y_side*yj
+      index = cell*5
+
+      nnz[index + 1] = 0.
+      col[index + 1] = cell + (x_side-1)
+      nnz[index+2] = -1.
+
+      index = (y_side*yj + (x_side-1))*5
+      cell = y_side*yj + (x_side-1)
+      nnz[index + 2] = 0.
+      col[index + 2] = cell - (x_side-1)
+      nnz[index+1] = -1
 
 
 
+   return nnz, col, offset
 
 def Star2D(args):
+   """
+   WIP
+   """
+   
    rho0 = args[0]
    rho1 = args[1]
    sigma = args[2]
    z0 = args[3]
    y0 = args[4]
    momY = args[5]
+   p0 = 1.
 
    # Background density
    var.rho = np.ones(Grid.z.shape)*rho0
 
    # 'Planet'
    var.rho += rho1*np.exp(-((Grid.z-z0)*(Grid.z-z0) + (Grid.y-y0)*(Grid.y-y0) )/sigma  )
-   
+   #var.rho += rho1*np.exp(-((Grid.z-.2)*(Grid.z-.2) + (Grid.y-.2)*(Grid.y-.2) )/sigma  )
+
    # Static
    var.momentumZ = -momY*np.exp(-((Grid.z-z0)*(Grid.z-z0) + (Grid.y-y0)*(Grid.y-y0) )/sigma  )
    var.momemtumY = var.momentumY*0.
 
-   var.energy = np.ones(Grid.z.shape) + 0.5*var.momentumZ*var.momentumZ/var.rho
+     
+   fz = np.zeros(Grid.z.shape)
+   fy = np.zeros(Grid.z.shape)
 
+   import SourceTerm
+   import scipy.sparse
+   import scipy.sparse.linalg
+   nnz, col, offset = SourceTerm.BuildSystemMatrix()
+   N = Grid.z.shape[0]*Grid.z.shape[1]   #Repeated operation
+   SystemMatrix = scipy.sparse.csr_matrix( (nnz, col, offset), shape=(N, N)  )
+      
+   #var.rho = 0.1*np.ones(Grid.z.shape)*np.exp( -( (Grid.z-0.4)*(Grid.z-0.4)+(Grid.y-0.4)*(Grid.y-0.4) )/0.005 )
+   #var.rho += 0.1*np.exp( -( (Grid.z-0.7)*(Grid.z-0.7)+(Grid.y-0.7)*(Grid.y-0.7) )/0.005 )
+      
+   sol = scipy.sparse.linalg.spsolve(SystemMatrix, var.rho.flatten() )
+   phi = sol.reshape(Grid.z.shape)
+      
+   fy[1:-1, 1:-1] = -var.rho[1:-1, 1:-1]*(phi[2:, 1:-1] - phi[:-2, 1:-1])/(2.*Grid.dz)
+   fz[1:-1, 1:-1] = -var.rho[1:-1, 1:-1]*(phi[1:-1, 2:] - phi[1:-1, :-2])/(2.*Grid.dy)
+   
+   nnz, col, offset = BuildSystemMatrix(0., 1./(2.*Grid.dz), -1./(2.*Grid.dz), 0., 0.)
+   N = Grid.z.shape[0]*Grid.z.shape[1]   #Repeated operation
+   SystemMatrix = scipy.sparse.csr_matrix( (nnz, col, offset), shape=(N, N)  )   
+   sol = scipy.sparse.linalg.spsolve(SystemMatrix, fz.flatten() )
+   pZ = sol.reshape(Grid.z.shape)
+ 
+   nnz, col, offset = BuildSystemMatrix(0., 0., 0., 1./(2.*Grid.dy), -1./(2.*Grid.dy) )
+   N = Grid.z.shape[0]*Grid.z.shape[1]   #Repeated operation
+   SystemMatrix = scipy.sparse.csr_matrix( (nnz, col, offset), shape=(N, N)  )   
+   sol = scipy.sparse.linalg.spsolve(SystemMatrix, fy.flatten() )
+   pY = sol.reshape(Grid.z.shape) 
+   
 
-
-
-
-
-
-
-
-
+   var.P = pZ*pY
+   var.P += abs(np.min(var.P)) + 10.
+   
+   var.energy = var.P/(par.gamma-1.)
+   
+   import matplotlib.pyplot as plt
+   
+   plt.pcolor(Grid.z, Grid.y, var.P)
+   plt.colorbar()
+   plt.quiver(Grid.z, Grid.y, fz/var.rho, fy/var.rho)
+   plt.show()
 
 
 
@@ -219,7 +332,7 @@ def LogTLogRhoProfile(args):
    """
 
    par.Computecv()
-   var.momentum = var.momentum*0.
+   var.momentumZ = var.momentumZ*0.
    var.rho = np.exp(logrho)
    var.energy = var.rho*par.cv*var.T
 
@@ -254,7 +367,7 @@ def LogTGravityProfile(args):
    print np.exp(logp)
    par.Computecv()
    var.rho = np.exp(logp)*par.mu/(par.R * var.T)
-   var.momentum = var.momentum*0.
+   var.momentumZ = var.momentumZ*0.
    var.energy = var.rho*par.cv*var.T
 
 
@@ -267,7 +380,7 @@ def GaussianTemperature(args):
   
    exp = np.exp(-(Grid.z-z0)*(Grid.z-z0)/(4*width))
    var.rho = rho0*np.ones(Grid.z.shape)
-   var.momentum = var.momentum*0.
+   var.momentumZ = var.momentumZ*0.
    var.energy = (1.+T0*exp)*var.rho*par.cv
    if par.SpitzerDiffusion:
       var.kappa = par.ct*np.ones(Grid.z.shape)*(1.+T0*exp)**(5./2.)
@@ -298,7 +411,7 @@ def ReadICFromFileTemperature(args):
 
    var.rho = rho_data*rho_ref
    var.energy = var.rho*T_data*T_ref*R/mu /(par.gamma-1.)
-   var.momentum = var.momentum*0.
+   var.momentumZ = var.momentumZ*0.
    var.kappa = par.ct*(T_data*T_ref)**(5./2.)
    
    
@@ -321,14 +434,16 @@ def ReadICFromFilePressure(args):
    par.Computecv()
    #print par.R, par.mu, par.g, par.cv
    
-   p_data, rho_data = np.loadtxt(FileName, skiprows=2, usecols=(1,2), unpack=True)
+   z_data, p_data, rho_data = np.loadtxt(FileName, skiprows=2, usecols=(0,1,2), unpack=True)
 
-   var.rho = rho_data*rho_ref
-   var.energy = p_data /(par.gamma-1.)
-   var.momentum = var.momentum*0.
+   var.rho =  np.interp(Grid.z, z_data, rho_data*rho_ref)
+   var.energy = np.interp(Grid.z, z_data, p_data) /(par.gamma-1.)
+   var.momentumZ = var.momentumZ*0.
    var.T = var.energy/(var.rho*par.cv)
    var.kappa = par.ct*(var.T)**(5./2.)
    #print var.kappa
+   
+   
    
 def RestartFromFile(args):
    files = glob.glob(args[0]+'/*.dat')
