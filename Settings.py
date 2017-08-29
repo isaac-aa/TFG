@@ -16,10 +16,10 @@ import Grid
 print 'Loading Settings..'
 
 
-#InitialCondition = InitialConditions.LogTGravityProfile
-#argsIC = [1e5, 1e6, 3.7677286546362324e-14, 2.52373286e-15]
-InitialCondition = InitialConditions.ReadICFromFilePressure
-argsIC = ['Extras/ThermalEq_IC_2.dat']
+InitialCondition = InitialConditions.LogTGravityProfile
+argsIC = [1e5, 1e6, 3.7677286546362324e-14]
+#InitialCondition = InitialConditions.ReadICFromFilePressure
+#argsIC = ['Extras/ThermalEq_IC_2.dat']
 #InitialCondition = InitialConditions.RestartFromFile
 #argsIC = ['RESULTS/AnalyticalLossEq_HydrostaticP/RESULTS_DAT']
 #InitialCondition = InitialConditions.ReadICFromFile
@@ -45,12 +45,19 @@ ChangeOfVar.ConvertToPrim()
 BoundaryConditionR = BC.BCComposite('R')
 BoundaryConditionL = BC.BCComposite('L')
 
-BoundaryConditionR.setup(BC.ZeroDer, (BC.AntiSym,), BC.FixedT, [None, None, 1e6])
-BoundaryConditionL.setup(BC.ConstantSecondDer, (BC.AntiSym,), BC.Hydrostatic, [None, None, None])
+BoundaryConditionR.setup(BC.ZeroDer, (BC.AntiSym,BC.AntiSym), BC.FixedT, [None, None,None, 1e6])
+BoundaryConditionL.setup(BC.ZeroDer, (BC.AntiSym,BC.AntiSym), BC.FixedT, [None, None, None, 1e5])
 
 
-BoundaryConditionT = None
-BoundaryConditionB = None
+BoundaryConditionT = BC.BCComposite('T')
+BoundaryConditionB = BC.BCComposite('B')
+
+BoundaryConditionT.setup(BC.ZeroDer, (BC.AntiSym,BC.AntiSym), BC.ZeroDer, [None, None, None, None])
+BoundaryConditionB.setup(BC.ZeroDer, (BC.AntiSym,BC.AntiSym), BC.ZeroDer, [None, None, None, None])
+
+
+#BoundaryConditionT = BC.Periodic(BC.BoundaryCondition('T'), BC.BoundaryCondition('B'))
+#BoundaryConditionB = None
 
 
 Tracers = None #(LagrangeTracer.Tracer(par.z0 + 500*Grid.dz, 0), LagrangeTracer.Tracer(par.z0 + 1000*Grid.dz, 0), LagrangeTracer.Tracer(par.z0 + 1500*Grid.dz, 0), LagrangeTracer.Tracer(par.z0 + 2000*Grid.dz, 0) , LagrangeTracer.Tracer(par.z0 + 2500*Grid.dz, 0) , LagrangeTracer.Tracer(par.z0 + 3000*Grid.dz, 0) , LagrangeTracer.Tracer(par.z0 + 3500*Grid.dz, 0))

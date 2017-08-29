@@ -8,6 +8,7 @@
 #--------------------------------------------
 import numpy as np
 
+import Parameters as par
 import Grid
 
 # Conservative variables
@@ -47,5 +48,10 @@ logT_table, Lamda_table = np.loadtxt('dere_etal_table.dat', usecols=(0,1), unpac
 logLamda_table = np.log10(Lamda_table)
 
 
-
+def updateLastVars():
+   lastrho[:] = rho[:]
+   lastmomentumZ[:] = momentumZ[:]
+   if par.dim==2:
+      lastmomentumY[:] = momentumY[:]
+   lastenergy[:] = energy[:]
 

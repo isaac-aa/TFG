@@ -11,11 +11,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import glob
 
-folder = '../RESULTS/AnalyticalLossEq_HydrostaticP_NoDamping_SmoothLambda/'
+folder = '../RESULTS/2D_Staggered_STR_Implicit/'
 
 files = glob.glob(folder+'RESULTS_DAT/*.npy')
 
-dim = 1
+dim = 2
 
 import Grid
 import Parameters as par
@@ -70,10 +70,13 @@ if dim == 2:
       data = np.load(files[i])
       print i, ' out of ', len(files)
       
-      #plt.imshow(data[2])
+      #plt.imshow(data[2][:-1,1:-1], aspect='auto')
+      #plt.title(r'$T$')
       #plt.colorbar()
-      
-      
+
+      plt.plot(data[5][5,:])
+      plt.semilogy()
+      """
       fig, axs = plt.subplots(ncols=3, nrows=2)
 
       fig.set_size_inches(18.5, 10.5)
@@ -107,10 +110,20 @@ if dim == 2:
       #plt.imshow(data[2])  #data[5]- 0.5*(data[3]*data[3] + data[4]*data[4])/data[2])
       #plt.plot(data[0][10,:], data[2][10,:]) 
       #plt.ylim(1+2e-3, 1-2e-3) 
- 
+      """
       plt.tight_layout()
       plt.savefig(files[i]+'.png')
-
       plt.clf()
-      plt.close()
       #plt.close(fig)
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      

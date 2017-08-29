@@ -10,16 +10,16 @@ import numpy as np
 print "Loading Variables.."
 
 # ------------------ MESH ---------------------
-Nz = 5000
+Nz = 1000
 z0 = 1.351040753526313007e+08
 zf = 9.184177197366108894e+08
 
 
-Ny = 1
-y0 = -5e7
-yf = 5e7
+Ny = 50
+y0 = 1.351040753526313007e+08
+yf = 9.184177197366108894e+08
 
-dim = 1
+dim = 2
 
 staggered = True
 
@@ -28,7 +28,7 @@ staggered = True
 dt_max = 0.1
 dt = dt_max
 tt = 0.
-tf = np.inf #50000.
+tf = np.inf #5000.
 it = 0
 max_it = np.inf
 cfl_set = .9
@@ -37,8 +37,8 @@ cfl = cfl_set
 # ------------------ PLOT SETUP ---------------
 
 
-FolderName = 'RESULTS/AnalyticalLossEq_HydrostaticP_NoDamping_SmoothLambda'
-save_rate = 10000
+FolderName = 'RESULTS/2D_Staggered_STR_Implicit'
+save_rate = 1000
 
 
 # ------------------ SOURCE TERMS -------------
@@ -69,7 +69,7 @@ DiffusionPercent = 1. #1e-2
 
 
 # Radiative losses
-RadiativeLoss = True
+RadiativeLoss = False
 RadiationPercent = 1.
 
 # ------------------ EQUATION OF STATE --------

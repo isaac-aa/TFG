@@ -31,7 +31,7 @@ def Uniform2DGrid(NcellZ, NcellY, z0, zf, y0, yf):
    dz = (zf-z0)/NcellZ
    dy = (yf-y0)/NcellY
 
-   z_ax = np.arange(z0-dz/2, zf+3*dz/2., dz)
+   z_ax = np.arange(z0-dz/2, zf+dz, dz)
    y_ax = np.arange(y0-dy/2, yf+3*dy/2., dy)
 
    z, y = np.meshgrid(z_ax, y_ax)

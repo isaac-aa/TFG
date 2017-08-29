@@ -19,45 +19,41 @@ import scipy.sparse.linalg
 print 'Loading SourceTerm..'
 
 
-def BuildSystemMatrix():
+def BuildSystemMatrix(center, T, B, L, R):
    N = Grid.z.shape[0]*Grid.z.shape[1]
-   x_side = Grid.z.shape[0]    #Make sure that this is indeed correct for non-square meshes
-   y_side = Grid.z.shape[1]
-
+   y_side = Grid.z.shape[0]
+   x_side = Grid.z.shape[1]
+   
 
    nnz = np.zeros(5*N)  #Four neighbours for each cell plus the cell itself
    col = np.zeros(5*N, dtype=int)
    offset = np.zeros(N+1, dtype=int)
    i=1
 
-   center = -2*(1./(Grid.dz*Grid.dz) + 1./(Grid.dy*Grid.dy))
-   LR = 1./(Grid.dz*Grid.dz)
-   TB = 1./(Grid.dy*Grid.dy)
-
-   for xi in range(Grid.z.shape[0]):
-      for yj in range(Grid.z.shape[1]):
-         index = (yj*y_side + xi)*5
-         cell = yj*y_side + xi
+   for xi in range(x_side):
+      for yj in range(y_side):
+         #index = (yj*y_side + xi)*5
+         cell = yj*x_side + xi
          index = cell*5
-
-         nnz[index] = center #Center cell
+         #print cell, xi, yj
+         nnz[index] = center[yj,xi] #Center cell
          col[index] = cell
 
 
-         nnz[index + 1] = LR #Left
+         nnz[index + 1] = L[yj,xi] #Left
          col[index + 1] = cell-1  #Left neighbor
 
 
-         nnz[index + 2] = LR #Right
+         nnz[index + 2] = R[yj,xi] #Right
          col[index + 2] = cell+1  #Right
 
 
-         nnz[index + 3] = TB #Top
-         col[index + 3] = cell-x_side #Top
+         nnz[index + 3] = T[yj,xi] #Top
+         col[index + 3] = cell+x_side #Top
 
 
-         nnz[index + 4] = TB #Bottom
-         col[index + 4] = cell+x_side
+         nnz[index + 4] = B[yj,xi] #Bottom
+         col[index + 4] = cell-x_side
 
 
          offset[i] = offset[i-1]+5  #Improve performance-wise later on
@@ -89,34 +85,47 @@ def BuildSystemMatrix():
    """
 
    # Zero-derivative potential boundary condition
-   for xi in range(Grid.z.shape[0]):
-      index = (y_side*0 + xi)*5
-      nnz[index + 3] = 0.
-      col[index + 3] = N-(x_side-xi)
-      nnz[index + 4] = -1.
+   rhs, nnzC, nnzBC = sets.BoundaryConditionB.energyBC.computeImplicitBC()
+   for xi in range(x_side):
+      index = (x_side*0 + xi)*5     # B
+      nnz[index] = nnzC
+      nnz[index + 3] = nnzBC
+      var.rhs[index/5] = rhs[xi]
+      nnz[index + 4] = 0
+      col[index + 4] = 0
 
-      index = (y_side*(y_side-1) + xi)*5
-      nnz[index + 4] = 0.
-      col[index + 4] = xi
-      nnz[index + 3] = -1.
+   rhs, nnzC, nnzBC = sets.BoundaryConditionT.energyBC.computeImplicitBC()
+   for xi in range(x_side):
+      index = (x_side*(y_side-1) + xi)*5   # T
+      nnz[index] = nnzC
+      nnz[index + 4] = nnzBC
+      var.rhs[index/5] = rhs[xi]
+      nnz[index + 3] = 0
+      col[index + 3] = 0
 
-
-   for yj in range(Grid.z.shape[1]):
-      index = (y_side*yj + 0)*5
-      cell = y_side*yj
-      index = cell*5
-
+   rhs, nnzC, nnzBC = sets.BoundaryConditionL.energyBC.computeImplicitBC()
+   for yj in range(1,y_side-1):
+      index = (x_side*yj + 0)*5            # L
+      nnz[index] = nnzC
+      nnz[index+2] = nnzBC
+      var.rhs[index/5] = rhs[yj]
       nnz[index + 1] = 0.
-      col[index + 1] = cell + (x_side-1)
-      nnz[index+2] = -1.
-
-      index = (y_side*yj + (x_side-1))*5
-      cell = y_side*yj + (x_side-1)
+      col[index + 1] = 0
+      
+      
+   rhs, nnzC, nnzBC = sets.BoundaryConditionR.energyBC.computeImplicitBC()
+   for yj in range(1,y_side-1):
+      index = (x_side*yj + (x_side-1))*5    # R
+      nnz[index] = nnzC
+      nnz[index + 1] = nnzBC
+      var.rhs[index/5] = rhs[yj]
       nnz[index + 2] = 0.
-      col[index + 2] = cell - (x_side-1)
-      nnz[index+1] = -1
-
-
+      col[index + 2] = 0
+      
+   
+   #print nnz.shape
+   #print nnz[2000:2020]
+   #print col[2000:2020]
 
    return nnz, col, offset
 
@@ -125,9 +134,14 @@ def BuildSystemMatrix():
 
 def computeGravSource():
    if par.GravityMode == 'Constant':
-      momentumGravSourceZ = 0.5*(var.rho+var.lastrho)*par.g
-      momentumGravSourceY = var.rho*0.
-      energyGravSource = 0.5*(var.momentumZ + var.lastmomentumZ)*par.g
+      if par.staggered:
+         momentumGravSourceZ = 0.5*(var.rho[1:-1,:-1] + var.rho[1:-1,1:])*par.g
+         momentumGravSourceY = 0.
+         energyGravSource = 0.5*(var.momentumZ[1:-1, :-2] + var.momentumZ[1:-1, 1:-1])*par.g
+      else:
+         momentumGravSourceZ = 0.5*(var.rho+var.lastrho)*par.g
+         momentumGravSourceY = var.rho*0.
+         energyGravSource = 0.5*(var.momentumZ + var.lastmomentumZ)*par.g
       
    elif par.GravityMode == 'Radial':
       R2 = Grid.z*Grid.z + Grid.y*Grid.y + 0.005
@@ -181,7 +195,7 @@ def computeGravSource():
       fz = np.zeros(Grid.z.shape)
       fy = np.zeros(Grid.z.shape)
 
-      nnz, col, offset = BuildSystemMatrix()
+      nnz, col, offset = BuildSystemMatrix(-2*(1./(Grid.dz*Grid.dz) + 1./(Grid.dy*Grid.dy)), 1./(Grid.dy*Grid.dy), 1./(Grid.dy*Grid.dy), 1./(Grid.dz*Grid.dz), 1./(Grid.dz*Grid.dz) )
       N = Grid.z.shape[0]*Grid.z.shape[1]   #Repeated operation
       SystemMatrix = scipy.sparse.csr_matrix( (nnz, col, offset), shape=(N, N)  )
       
@@ -253,44 +267,30 @@ def computeMomentumDamping():
 
    else: 
       print '#### ERROR #### \t ' + par.DampingMode + ' is not defined as a DampingMode' 
-   
-   """ DELETE SOONER OR LATER
-   H_p = var.P[:-1]/np.abs(var.P[1:]-var.P[:-1]) * Grid.dz  #pressure scale-height
-   H_p = np.append(H_p, H_p[-1]) #Extent the array to avoid different sizes (this point is at the boundary)
 
-   tau_ff = np.sqrt(2*H_p/np.abs(par.g))    #Time taken to fall 4Mm
-   tau_damp = tau_ff
-   
-   n_iter = tau_damp[1:-1]/par.dt
-   
-   DampingPercent = 1./n_iter 
-   
-   DampingPercent_scalar = np.max(DampingPercent)* par.DampingMultiplier  
-   
-   if DampingPercent_scalar >1.:
-      print 'Too much Damping!!'
-   
-   DampingVel = DampingPercent_scalar*var.v
-   
-   #print np.argmax(DampingPercent)
-   #DampingVel = par.DampingMultiplier*var.v   #Old method
-   
-   #momentumDampingSource = -DampingVel*var.rho
-   #energyDampingSource = -0.5*DampingVel*DampingVel*var.rho
-   """
    return momentumDampingSource, energyDampingSource
 
 def computeTemperatureDiffusion():
-   #ct = 9e-12 * 1e5 # Value at E.Priest "Solar Magnetohydrodynamics" * mks to cgs factor
    if par.SpitzerDiffusion:
       var.kappa = par.ct*var.T**(5./2.)
    
-   Dkappa = (var.kappa[2:]-var.kappa[:-2])/4.
-   EnergyDiff = (var.kappa[1:-1]+Dkappa)*var.T[2:] - 2.*var.kappa[1:-1]*var.T[1:-1] + (var.kappa[1:-1]-Dkappa)*var.T[:-2]
+   if par.dim == 1:
+      Dkappa = (var.kappa[2:]-var.kappa[:-2])/4.
+      EnergyDiff = (var.kappa[1:-1]+Dkappa)*var.T[2:] - 2.*var.kappa[1:-1]*var.T[1:-1] + (var.kappa[1:-1]-Dkappa)*var.T[:-2]
 
-   return par.DiffusionPercent*EnergyDiff/(Grid.dz*Grid.dz)
+      return par.DiffusionPercent*EnergyDiff/(Grid.dz*Grid.dz)
+   
+   elif par.dim==2:
+      DkappaZ = (var.kappa[1:-1, 2:]-var.kappa[1:-1, :-2])/4.
+      DkappaY = (var.kappa[2:, 1:-1]-var.kappa[:-2, 1:-1])/4.
+   
+      dz2 = Grid.dz*Grid.dz
+      dy2 = Grid.dy*Grid.dy
 
-
+      EnergyDiffZ = (var.kappa[1:-1,1:-1]+DkappaZ)*var.T[1:-1,2:] - 2.*var.kappa[1:-1,1:-1]*var.T[1:-1,1:-1] + (var.kappa[1:-1,1:-1]-DkappaZ)*var.T[1:-1,:-2]
+      EnergyDiffY = (var.kappa[1:-1,1:-1]+DkappaY)*var.T[2:,1:-1] - 2.*var.kappa[1:-1,1:-1]*var.T[1:-1,1:-1] + (var.kappa[1:-1,1:-1]-DkappaY)*var.T[:-2,1:-1]
+      
+      return EnergyDiffZ/dz2 + EnergyDiffY/dy2
 
 def computeImplicitConduction():
    if par.SpitzerDiffusion:
@@ -306,29 +306,29 @@ def computeImplicitConduction():
    var.momentum[-1] = var.momentum[-2]
    var.v = var.momentum/var.rho
    """ 
+   if par.dim == 1:
+      e = par.cv*var.T   #Internal energy
+      Ek = var.energy-e*var.rho
+      Dkappa = (var.kappa[2:]-var.kappa[:-2])/4.
+   
+      dz2 = Grid.dz*Grid.dz
+      A = par.DiffusionPercent * (var.kappa[1:-1]+Dkappa)/dz2
+      B = -2.*par.DiffusionPercent * var.kappa[1:-1]/dz2
+      C = par.DiffusionPercent * (var.kappa[1:-1]-Dkappa)/dz2
+   
+      var.diag[1:-1] = par.dt*B/(var.rho[1:-1]*par.cv) - 1.  
+      var.lower[:-2] = par.dt*C/(var.rho[:-2]*par.cv)   
+      var.upper[2:] = par.dt*A/(var.rho[2:]*par.cv)
+   
+      var.rhs[1:-1] = -e[1:-1]*var.rho[1:-1]
 
-   e = par.cv*var.T   #Internal energy
-   Ek = var.energy-e*var.rho
-   Dkappa = (var.kappa[2:]-var.kappa[:-2])/4.
-   
-   dz2 = Grid.dz*Grid.dz
-   A = par.DiffusionPercent * (var.kappa[1:-1]+Dkappa)/dz2
-   B = -2.*par.DiffusionPercent * var.kappa[1:-1]/dz2
-   C = par.DiffusionPercent * (var.kappa[1:-1]-Dkappa)/dz2
-   
-   var.diag[1:-1] = par.dt*B/(var.rho[1:-1]*par.cv) - 1.  
-   var.lower[:-2] = par.dt*C/(var.rho[:-2]*par.cv)   
-   var.upper[2:] = par.dt*A/(var.rho[2:]*par.cv)
-   
-   var.rhs[1:-1] = -e[1:-1]*var.rho[1:-1]
-
-   if sets.BoundaryConditionL!=None: 
-      sets.BoundaryConditionL.computeBC(var.rho, (var.momentumZ,), var.energy)
-   if sets.BoundaryConditionR!=None: 
-      sets.BoundaryConditionR.computeBC(var.rho, (var.momentumZ,), var.energy)
+      if sets.BoundaryConditionL!=None: 
+         sets.BoundaryConditionL.computeBC(var.rho, (var.momentumZ,), var.energy)
+      if sets.BoundaryConditionR!=None: 
+         sets.BoundaryConditionR.computeBC(var.rho, (var.momentumZ,), var.energy)
    
    
-   """
+      """
    # Hard-coded fixed temperature boundaries
    #Lower boundary
    diag = np.insert(diag, 0, 1.)   
@@ -345,19 +345,88 @@ def computeImplicitConduction():
    #Fill of the lower and upper diagonals https://docs.scipy.org/doc/scipy/reference/generated/scipy.linalg.solve_banded.html#scipy.linalg.solve_banded
    #upper = np.insert(upper, 0 , 0.)
    #lower = np.append(lower, 0.)
-   """
-   #print e[:6]*var.rho[:6]
-   sol_e = linalg.solve_banded( (1,1), [var.upper, var.diag, var.lower], var.rhs )
-   #print sol_e[:6]
-   #print ''
-   #print var.T-sol_e/(par.cv*var.rho)
-   if par.dim == 1:
-      var.energy = sol_e + Ek #0.5*var.momentumZ*var.momentumZ/var.rho
-   elif par.dim == 2:
-      var.energy = sol_e + 0.5*( var.momentumZ*var.momentumZ + var.momentumY*var.momentumY )/var.rho
+      """
+      #print e[:6]*var.rho[:6]
+      sol_e = linalg.solve_banded( (1,1), [var.upper, var.diag, var.lower], var.rhs )
+      #print sol_e[:6]
+      #print ''
+      #print var.T-sol_e/(par.cv*var.rho)
+      if par.dim == 1:
+         var.energy = sol_e + Ek #0.5*var.momentumZ*var.momentumZ/var.rho
+      elif par.dim == 2:
+         var.energy = sol_e + 0.5*( var.momentumZ*var.momentumZ + var.momentumY*var.momentumY )/var.rho
    
-   var.T = sol_e/(var.rho*par.cv)
+      var.T = sol_e/(var.rho*par.cv)
 
+   elif par.dim == 2:
+      e = par.cv*var.T
+      Ek = var.energy-var.rho*e
+
+      Dkappa = 0.5*(var.kappa[1:-1,2:] - var.kappa[1:-1,:-2])/Grid.dz + 0.5*(var.kappa[2:,1:-1] - var.kappa[:-2,1:-1])/Grid.dy
+              
+      dz2 = Grid.dz*Grid.dz
+      dy2 = Grid.dy*Grid.dy
+      
+      
+      var.rhs = np.zeros_like(Grid.z)
+      var.rhs[1:-1,1:-1] = -e[1:-1,1:-1]*var.rho[1:-1,1:-1]
+      var.rhs = var.rhs.flatten()
+      
+      L = np.zeros_like(Grid.z)
+      R = np.zeros_like(Grid.z)
+      C = np.zeros_like(Grid.z)
+      T = np.zeros_like(Grid.z)
+      B = np.zeros_like(Grid.z)
+
+      C[1:-1, 1:-1] = par.dt * var.kappa[1:-1,1:-1] * (-2./dy2  - 2./dz2) / (var.rho[1:-1,1:-1]*par.cv) - 1.
+      R[1:-1, 1:-1] = par.dt * ( 0.5*Dkappa/Grid.dz + var.kappa[1:-1,1:-1]/dz2 ) / (var.rho[1:-1,2:]*par.cv)
+      L[1:-1, 1:-1] = par.dt * (-0.5*Dkappa/Grid.dz + var.kappa[1:-1,1:-1]/dz2 ) / (var.rho[1:-1,:-2]*par.cv)
+      T[1:-1, 1:-1] = par.dt * ( 0.5*Dkappa/Grid.dy + var.kappa[1:-1,1:-1]/dy2 ) / (var.rho[2:,1:-1]*par.cv)
+      B[1:-1, 1:-1] = par.dt * (-0.5*Dkappa/Grid.dy + var.kappa[1:-1,1:-1]/dy2 ) / (var.rho[:-2,1:-1]*par.cv)
+   
+      #var.diag[1:-1] = par.dt*B/(var.rho[1:-1]*par.cv) - 1.  
+      #var.lower[:-2] = par.dt*C/(var.rho[:-2]*par.cv)   
+      #var.upper[2:] = par.dt*A/(var.rho[2:]*par.cv)
+
+      nnz, col, offset = BuildSystemMatrix(C, T, B, L, R) 
+      N = Grid.z.shape[0]*Grid.z.shape[1]   
+      
+      #print nnz, col, offset, nnz.shape, offset.shape
+      #var.rho = 0.1*np.ones(Grid.z.shape)*np.exp( -( (Grid.z-0.4)*(Grid.z-0.4)+(Grid.y-0.4)*(Grid.y-0.4) )/0.005 )
+      #var.rho += 0.1*np.exp( -( (Grid.z-0.7)*(Grid.z-0.7)+(Grid.y-0.7)*(Grid.y-0.7) )/0.005 )
+      
+      
+      
+      #print rhs.flatten().shape, N
+      """
+      if sets.BoundaryConditionL!=None: 
+         sets.BoundaryConditionL.computeBC(var.rho, (var.momentumZ,), var.energy)
+      if sets.BoundaryConditionR!=None: 
+         sets.BoundaryConditionR.computeBC(var.rho, (var.momentumZ,), var.energy)
+      """
+      
+      SystemMatrix = scipy.sparse.csr_matrix( (nnz, col, offset), shape=(N, N)  )
+      
+      sol_e, info = scipy.sparse.linalg.gmres(SystemMatrix, var.rhs.flatten(), x0=var.T.flatten() )
+      sol_e = sol_e.reshape(Grid.z.shape)
+      if info!=0:
+         print '### GMRES DID NOT CONVERGE'
+      
+   
+      #var.rhs[1:-1] = -e[1:-1]*var.rho[1:-1]
+
+
+      
+      #print e[:6]*var.rho[:6]
+      #sol_e = linalg.solve_banded( (1,1), [var.upper, var.diag, var.lower], var.rhs )
+      #print sol_e[:6]
+      #print ''
+      #print var.T-sol_e/(par.cv*var.rho)
+      
+      var.T = sol_e/(var.rho*par.cv)
+      var.energy = Ek + sol_e
+   
+            
 
 
 
@@ -365,24 +434,6 @@ def computeImplicitConduction():
 def computeRadiativeLosses():
    logT = np.log10(var.T)
 
-   """
-   Lamda = np.zeros(Grid.z.shape)  #This can be allocated at settings/variables
-   for i in range(len(logT)):   #Not sure if this will be faster than masked arrays...
-     if logT[i] <= 4.97:
-       Lamda[i] = 1.09e-31*var.T[i]*var.T[i]
-     elif logT[i] < 5.67:
-       Lamda[i] = 8.87e-17/var.T[i]
-     elif logT[i] < 6.18:
-       Lamda[i] = 1.90e-22
-     elif logT[i] < 6.55:
-       Lamda[i] = 3.53e-13*var.T[i]**(-3./2.)
-     elif logT[i] < 6.90:
-       Lamda[i] = 3.56e-25*var.T[i]**(1./3.)
-     else:
-       Lamda[i] = 5.49e-16/var.T[i]
-   logLamda = np.log10(Lamda)
-   """
-   
    logLamda = np.interp(logT, var.logT_table, var.logLamda_table)
    
    lowTmask = logT<4.4771212547196626  #log10(3e4)
@@ -398,9 +449,14 @@ def ComputeSource():
    
    if par.IsThereGravity:
       momentumGZ, momentumGY, energyG = computeGravSource()
-      var.momentumZ += par.dt*momentumGZ
-      var.momentumY += par.dt*momentumGY
-      var.energy += par.dt*energyG
+      if par.staggered:
+         var.momentumZ[1:-1, :-1] += par.dt*momentumGZ
+         var.momentumY += par.dt*momentumGY
+         var.energy[1:-1, 1:-1] += par.dt*energyG        
+      else: 
+         var.momentumZ += par.dt*momentumGZ
+         var.momentumY += par.dt*momentumGY
+         var.energy += par.dt*energyG
       ChangeOfVar.ConvertToPrim()
 
    
@@ -414,8 +470,12 @@ def ComputeSource():
          computeImplicitConduction()
       else:
          ThermalDiff = computeTemperatureDiffusion()
-         var.energy[1:-1] += par.dt*ThermalDiff
-      ChangeOfVar.ConvertToPrim()
+         if par.dim == 1:
+            var.energy[1:-1] += par.dt*ThermalDiff
+         elif par.dim == 2:
+            var.energy[1:-1,1:-1] += par.dt*ThermalDiff
+            
+         ChangeOfVar.ConvertToPrim()   
 
    if par.MomentumDamping:
       momentumDamping, energyDamping = computeMomentumDamping()

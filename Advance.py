@@ -98,18 +98,14 @@ class FirstGen(AdvanceScheme):
       
       self.lamdaZ = par.dt/Grid.dz
 
-      massFlux, momentumFlux, energyFlux = Flux.ComputeFluxOld(var.rho, var.momentumZ, var.energy, var.vZ, var.P)
+      massFlux, momentumFlux, energyFlux = Flux.ComputeFlux(var.rho, var.momentumZ, var.energy)
 
       self.rhoHalf[:-1] = 0.5*(var.rho[1:]+var.rho[:-1]) - 0.5*self.lamdaZ*(massFlux[1:] - massFlux[:-1]) 
       self.momentumHalf[:-1] = 0.5*(var.momentumZ[1:]+var.momentumZ[:-1]) - 0.5*self.lamdaZ*(momentumFlux[1:] - momentumFlux[:-1]) 
       self.energyHalf[:-1] = 0.5*(var.energy[1:]+var.energy[:-1]) - 0.5*self.lamdaZ*(energyFlux[1:] - energyFlux[:-1]) 
 
-
-      vHalf = self.momentumHalf/self.rhoHalf
-      eHalf = self.energyHalf/self.rhoHalf - 0.5*vHalf*vHalf              #rho*e = E - 0.5*rho*v*v
-      PHalf = self.rhoHalf*(par.gamma-1.)*eHalf
       
-      massFluxHalf, momentumFluxHalf, energyFluxHalf = Flux.ComputeFluxOld(self.rhoHalf, self.momentumHalf, self.energyHalf, vHalf, PHalf)
+      massFluxHalf, momentumFluxHalf, energyFluxHalf = Flux.ComputeFlux(self.rhoHalf, self.momentumHalf, self.energyHalf)
 
 
       var.rho[1:-1] = var.rho[1:-1] - self.lamdaZ*( massFluxHalf[1:-1] - massFluxHalf[:-2] )
@@ -374,20 +370,21 @@ class RK3Staggered(AdvanceScheme):
          self.momY_k1 = np.zeros_like(Grid.z)
          self.momY_k2 = np.zeros_like(Grid.z)
          self.momY_k3 = np.zeros_like(Grid.z)
+         
       
       AdvanceScheme.setup(self)
    
    def compute(self):
       if par.dim==1:
          self.compute1D()
+      if par.dim==2:
+         self.compute2D()
    
 
    def compute1D(self):
       h = par.dt
 
-      massFlux, momentumZFlux, energyFlux = Flux.ComputeFlux(var.rho, var.momentumZ, var.energy)
 
-      momentumGZ, momentumGY, energyG = SourceTerm.computeGravSource()
       self.rho_k1[1:-1] = -(var.momentumZ[1:-1]-var.momentumZ[:-2])/Grid.dz
       
       term1 = (0.5*(var.momentumZ[:-2] + var.momentumZ[1:-1]))**2/var.rho[1:-1]
@@ -408,9 +405,6 @@ class RK3Staggered(AdvanceScheme):
       
       
       
-      massFlux, momentumZFlux, energyFlux = Flux.ComputeFlux(var.rho, var.momentumZ, var.energy)
-      
-      momentumGZ, momentumGY, energyG = SourceTerm.computeGravSource()
       self.rho_k2[1:-1] = -(var.momentumZ[1:-1]-var.momentumZ[:-2])/Grid.dz
       term1 = (0.5*(var.momentumZ[:-2] + var.momentumZ[1:-1]))**2/var.rho[1:-1]
       self.momZ_k2[1:-2] = -(term1[1:]-term1[:-1])/Grid.dz - (var.P[2:-1]-var.P [1:-2])/Grid.dz
@@ -429,9 +423,7 @@ class RK3Staggered(AdvanceScheme):
 
 
       
-      massFlux, momentumZFlux, energyFlux = Flux.ComputeFlux(var.rho, var.momentumZ, var.energy)
 
-      momentumGZ, momentumGY, energyG = SourceTerm.computeGravSource()
       self.rho_k3[1:-1] = -(var.momentumZ[1:-1]-var.momentumZ[:-2])/Grid.dz
       term1 = (0.5*(var.momentumZ[:-2] + var.momentumZ[1:-1]))**2/var.rho[1:-1]
       self.momZ_k3[1:-2] = -(term1[1:]-term1[:-1])/Grid.dz - (var.P[2:-1]-var.P [1:-2])/Grid.dz
@@ -445,7 +437,115 @@ class RK3Staggered(AdvanceScheme):
       var.energy = var.lastenergy +        h/6. * (self.ene_k1 + 4.*self.ene_k2 + self.ene_k3)
 
 
+   def compute2D(self):
+      h = par.dt
+      
+      # WARNING, CHECK THAT THE ORDER OF INDICES IS INDEED CORRECT
+      self.rho_k1[1:-1, 1:-1] = -(var.momentumZ[1:-1,1:-1]-var.momentumZ[1:-1,:-2])/Grid.dz -(var.momentumY[1:-1,1:-1]-var.momentumY[:-2,1:-1])/Grid.dy
+      
+      momZ_int = 0.5*(var.momentumZ[:,1:-1] + var.momentumZ[:,:-2])
+      momY_int = 0.5*(var.momentumY[:-2,:] + var.momentumY[1:-1,:])
 
+      termZZ = (momZ_int)**2/var.rho[:,1:-1]
+      termYY = (momY_int)**2/var.rho[1:-1,:] 
+      
+      meanRho = 0.25*( var.rho[1:-2,1:-2] + var.rho[2:-1,1:-2] + var.rho[2:-1,2:-1] + var.rho[1:-2,2:-1] )
+      momZ2 = 0.5*( var.momentumZ[1:-2, 1:-2] + var.momentumZ[2:-1, 1:-2] )
+      momY2 = 0.5*( var.momentumY[1:-2, 2:-1] + var.momentumY[1:-2, 1:-2] )
+      termZY = momZ2*momY2/meanRho
+      
+      #print self.momZ_k1[2:-2,1:-2].shape,termZZ[2:-2,1:].shape, var.P[2:-2,2:-1].shape, termZY[1:,:].shape
+      self.momZ_k1[2:-2,1:-2] = -(termZZ[2:-2,1:]-termZZ[2:-2,:-1])/Grid.dz - (var.P[2:-2,2:-1]-var.P[2:-2,1:-2])/Grid.dz - (termZY[1:,:]-termZY[:-1,:])/Grid.dy
+      self.momY_k1[1:-2,2:-2] = -(termYY[1:,2:-2]-termYY[:-1,2:-2])/Grid.dy - (var.P[2:-1,2:-2]-var.P[1:-2,2:-2])/Grid.dy - (termZY[:,1:]-termZY[:,:-1])/Grid.dz
+    
+      Et_plus_PZ = (0.5*(var.energy+var.P)[:,:-1] + (var.energy+var.P)[:,1:])/(0.5*(var.rho[:,1:] + var.rho[:,:-1])  ) 
+      termZ = Et_plus_PZ*var.momentumZ[:,:-1]
+      
+      Et_plus_PY = (0.5*(var.energy+var.P)[:-1,:] + (var.energy+var.P)[1:,:])/(0.5*(var.rho[1:,:] + var.rho[:-1,:])  ) 
+      termY = Et_plus_PY*var.momentumY[:-1,:]
+      self.ene_k1[1:-1,1:-1] = -(termZ[1:-1,1:]-termZ[1:-1,:-1])/Grid.dz - (termY[1:,1:-1]-termY[:-1,1:-1])/Grid.dy
+      
+      var.rho = var.lastrho+self.rho_k1*h*0.5
+      var.momentumZ = var.lastmomentumZ+self.momZ_k1*h*0.5
+      var.momentumY = var.lastmomentumY+self.momY_k1*h*0.5
+      var.energy = var.lastenergy+self.ene_k1*h*0.5
+      
+      
+      if sets.BoundaryConditionL!=None: sets.BoundaryConditionL.computeBC(var.rho, (var.momentumZ, var.momentumY), var.energy)
+      if sets.BoundaryConditionR!=None: sets.BoundaryConditionR.computeBC(var.rho, (var.momentumZ, var.momentumY), var.energy)
+      if sets.BoundaryConditionT!=None: sets.BoundaryConditionT.computeBC(var.rho, (var.momentumZ, var.momentumY), var.energy)
+      if sets.BoundaryConditionB!=None: sets.BoundaryConditionB.computeBC(var.rho, (var.momentumZ, var.momentumY), var.energy)
+      ChangeOfVar.ConvertToPrim()
+      
+      
+      
+      self.rho_k2[1:-1, 1:-1] = -(var.momentumZ[1:-1,1:-1]-var.momentumZ[1:-1,:-2])/Grid.dz -(var.momentumY[1:-1,1:-1]-var.momentumY[:-2,1:-1])/Grid.dy
+      
+      momZ_int = 0.5*(var.momentumZ[:,1:-1] + var.momentumZ[:,:-2])
+      momY_int = 0.5*(var.momentumY[:-2,:] + var.momentumY[1:-1,:])
+
+      termZZ = (momZ_int)**2/var.rho[:,1:-1]
+      termYY = (momY_int)**2/var.rho[1:-1,:] 
+      
+      meanRho = 0.25*( var.rho[1:-2,1:-2] + var.rho[2:-1,1:-2] + var.rho[2:-1,2:-1] + var.rho[1:-2,2:-1] )
+      momZ2 = 0.5*( var.momentumZ[1:-2, 1:-2] + var.momentumZ[2:-1, 1:-2] )
+      momY2 = 0.5*( var.momentumY[1:-2, 2:-1] + var.momentumY[1:-2, 1:-2] )
+      termZY = momZ2*momY2/meanRho
+      
+      #print self.momZ_k1[2:-2,1:-2].shape,termZZ[2:-2,1:].shape, var.P[2:-2,2:-1].shape, termZY[1:,:].shape
+      self.momZ_k2[2:-2,1:-2] = -(termZZ[2:-2,1:]-termZZ[2:-2,:-1])/Grid.dz - (var.P[2:-2,2:-1]-var.P[2:-2,1:-2])/Grid.dz - (termZY[1:,:]-termZY[:-1,:])/Grid.dy
+      self.momY_k2[1:-2,2:-2] = -(termYY[1:,2:-2]-termYY[:-1,2:-2])/Grid.dy - (var.P[2:-1,2:-2]-var.P[1:-2,2:-2])/Grid.dy - (termZY[:,1:]-termZY[:,:-1])/Grid.dz
+
+    
+      Et_plus_PZ = (0.5*(var.energy+var.P)[:,:-1] + (var.energy+var.P)[:,1:])/(0.5*(var.rho[:,1:] + var.rho[:,:-1])  ) 
+      termZ = Et_plus_PZ*var.momentumZ[:,:-1]
+      
+      Et_plus_PY = (0.5*(var.energy+var.P)[:-1,:] + (var.energy+var.P)[1:,:])/(0.5*(var.rho[1:,:] + var.rho[:-1,:])  ) 
+      termY = Et_plus_PY*var.momentumY[:-1,:]
+      self.ene_k2[1:-1,1:-1] = -(termZ[1:-1,1:]-termZ[1:-1,:-1])/Grid.dz - (termY[1:,1:-1]-termY[:-1,1:-1])/Grid.dy
+     
+      var.rho = var.lastrho - self.rho_k1*h + 2.*self.rho_k2*h
+      var.momentumZ = var.lastmomentumZ - self.momZ_k1*h + 2.*self.momZ_k2*h
+      var.momentumY = var.lastmomentumY - self.momY_k1*h + 2.*self.momY_k2*h
+      var.energy = var.lastenergy - self.ene_k1*h + 2.*self.ene_k2*h
+      
+      
+      if sets.BoundaryConditionL!=None: sets.BoundaryConditionL.computeBC(var.rho, (var.momentumZ, var.momentumY), var.energy)
+      if sets.BoundaryConditionR!=None: sets.BoundaryConditionR.computeBC(var.rho, (var.momentumZ, var.momentumY), var.energy)
+      if sets.BoundaryConditionT!=None: sets.BoundaryConditionT.computeBC(var.rho, (var.momentumZ, var.momentumY), var.energy)
+      if sets.BoundaryConditionB!=None: sets.BoundaryConditionB.computeBC(var.rho, (var.momentumZ, var.momentumY), var.energy)
+      ChangeOfVar.ConvertToPrim()
+      
+      self.rho_k3[1:-1, 1:-1] = -(var.momentumZ[1:-1,1:-1]-var.momentumZ[1:-1,:-2])/Grid.dz -(var.momentumY[1:-1,1:-1]-var.momentumY[:-2,1:-1])/Grid.dy
+      
+      momZ_int = 0.5*(var.momentumZ[:,1:-1] + var.momentumZ[:,:-2])
+      momY_int = 0.5*(var.momentumY[:-2,:] + var.momentumY[1:-1,:])
+
+      termZZ = (momZ_int)**2/var.rho[:,1:-1]
+      termYY = (momY_int)**2/var.rho[1:-1,:] 
+      
+      meanRho = 0.25*( var.rho[1:-2,1:-2] + var.rho[2:-1,1:-2] + var.rho[2:-1,2:-1] + var.rho[1:-2,2:-1] )
+      momZ2 = 0.5*( var.momentumZ[1:-2, 1:-2] + var.momentumZ[2:-1, 1:-2] )
+      momY2 = 0.5*( var.momentumY[1:-2, 2:-1] + var.momentumY[1:-2, 1:-2] )
+      termZY = momZ2*momY2/meanRho
+      
+      #print self.momZ_k1[2:-2,1:-2].shape,termZZ[2:-2,1:].shape, var.P[2:-2,2:-1].shape, termZY[1:,:].shape
+      self.momZ_k3[2:-2,1:-2] = -(termZZ[2:-2,1:]-termZZ[2:-2,:-1])/Grid.dz - (var.P[2:-2,2:-1]-var.P[2:-2,1:-2])/Grid.dz - (termZY[1:,:]-termZY[:-1,:])/Grid.dy
+      self.momY_k3[1:-2,2:-2] = -(termYY[1:,2:-2]-termYY[:-1,2:-2])/Grid.dy - (var.P[2:-1,2:-2]-var.P[1:-2,2:-2])/Grid.dy - (termZY[:,1:]-termZY[:,:-1])/Grid.dz
+
+    
+      Et_plus_PZ = (0.5*(var.energy+var.P)[:,:-1] + (var.energy+var.P)[:,1:])/(0.5*(var.rho[:,1:] + var.rho[:,:-1])  ) 
+      termZ = Et_plus_PZ*var.momentumZ[:,:-1]
+      
+      Et_plus_PY = (0.5*(var.energy+var.P)[:-1,:] + (var.energy+var.P)[1:,:])/(0.5*(var.rho[1:,:] + var.rho[:-1,:])  ) 
+      termY = Et_plus_PY*var.momentumY[:-1,:]
+      self.ene_k3[1:-1,1:-1] = -(termZ[1:-1,1:]-termZ[1:-1,:-1])/Grid.dz - (termY[1:,1:-1]-termY[:-1,1:-1])/Grid.dy
+     
+
+      var.rho = var.lastrho +              h/6. * (self.rho_k1 + 4.*self.rho_k2 + self.rho_k3)
+      var.momentumZ = var.lastmomentumZ +  h/6. * (self.momZ_k1 + 4.*self.momZ_k2 + self.momZ_k3)
+      var.momentumY = var.lastmomentumY +  h/6. * (self.momY_k1 + 4.*self.momY_k2 + self.momY_k3)
+      var.energy = var.lastenergy +        h/6. * (self.ene_k1 + 4.*self.ene_k2 + self.ene_k3)
 
 
 

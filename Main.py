@@ -15,8 +15,8 @@ import Parameters as par
 import Grid
 
 # ------------------ MESH CREATION -------------
-#Grid.Uniform2DGrid(par.Nz, par.Ny, par.z0, par.zf, par.y0, par.yf)
-Grid.Uniform1DGrid(par.Nz, par.z0, par.zf)
+Grid.Uniform2DGrid(par.Nz, par.Ny, par.z0, par.zf, par.y0, par.yf)
+#Grid.Uniform1DGrid(par.Nz, par.z0, par.zf)
 #Grid.ReadGridFromFile('Extras/ThermalEq_IC_2.dat') #('hydrostatic_equilibrium_2.dat')
 
 import Settings as sets
@@ -59,25 +59,21 @@ nowTime = 0
 while (par.it<=par.max_it and par.tt<=par.tf):
    lastTime = time.clock()
    TimeStep.ComputeDT()  
-
+   var.updateLastVars()
    par.tt += par.dt  
    par.it += 1
-   var.lastrho[:] = var.rho[:]
-   var.lastmomentumZ[:] = var.momentumZ[:]
-   var.lastenergy[:] = var.energy[:]
    nowTime = time.clock()
    computeDTTime += nowTime-lastTime
-   
    
    # Time step
    lastTime = nowTime
    sets.Scheme.compute()
    nowTime = time.clock()
    SchemeTime += nowTime-lastTime
-   
    ChangeOfVar.ConvertToPrim()
-   #SourceTerm.computeImplicitConduction()   
    
+   
+   #SourceTerm.computeImplicitConduction()   
    #"""
    #Source computation
    lastTime = nowTime
@@ -86,12 +82,9 @@ while (par.it<=par.max_it and par.tt<=par.tf):
    nowTime = time.clock()
    SourceTime += nowTime-lastTime
    #"""
-   ChangeOfVar.ConvertToPrim()
-   
-   
+
    # Boundary conditions     
    lastTime = nowTime
-
    if sets.BoundaryConditionL!=None: sets.BoundaryConditionL.computeBC(var.rho, (var.momentumZ, var.momentumY), var.energy)
    if sets.BoundaryConditionR!=None: sets.BoundaryConditionR.computeBC(var.rho, (var.momentumZ, var.momentumY), var.energy)
    if par.dim==2:
@@ -101,10 +94,10 @@ while (par.it<=par.max_it and par.tt<=par.tf):
    
    nowTime = time.clock()
    BCTime = nowTime-lastTime
-
+   
    # Compute change of variables
-   ChangeOfVar.ConvertToPrim()
-
+   ChangeOfVar.ConvertToPrimBoundaries()
+   
    if sets.Tracers != None:
       for Tracer in sets.Tracers:
          Tracer.TimeStep()

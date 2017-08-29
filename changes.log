@@ -138,3 +138,10 @@ TODOs:
 # ----- 14/07
 		- Implemented a staggered grid (only for 1D cases)
 		- Implemented a RK3 scheme for staggered grids
+		************ COMMITED ********************
+# ----- 24/07
+		- Extended staggered grids and RK3 to 2D
+		- 2D temperature conduction only working for the explicit scheme
+# ----- 29/07
+		- 2D implicit temperature conduction working correctly
+		

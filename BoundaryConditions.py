@@ -77,16 +77,75 @@ class BoundaryCondition(object):
             self.sliceTwo = ( 2, slice(None,None))
 
 
-   def setStaggered(self):
+   def setStaggered(self, momentum):
       """
       If the mesh is staggered, the 'R' and 'T' boundaries are shifted
+      """
+      
+      if momentum=='Z':
+         if self.region=='R':
+            if par.dim==1:
+               self.sliceBC = -2
+               self.sliceOne = -3
+               self.sliceTwo = -4
+            else:
+               self.sliceBC = ( slice(None,None), -2)
+               self.sliceOne = ( slice(None,None), -3)
+               self.sliceTwo = ( slice(None,None), -4)       
+         elif self.region=='L':
+            if par.dim==2:
+               self.sliceBC = ( slice(None,None), 0)
+               self.sliceOne = ( slice(None,None), 1)
+               self.sliceTwo = ( slice(None,None), 2)    
+         elif self.region=='T':
+            self.sliceBC = ( -2, slice(None,None))
+            self.sliceOne = ( -3, slice(None,None))
+            self.sliceTwo = ( -4, slice(None,None))     
+         elif self.region=='B':
+            self.sliceBC = ( 1, slice(None,None))
+            self.sliceOne = ( 2, slice(None,None))
+            self.sliceTwo = ( 3, slice(None,None))    
+      
+      if momentum=='Y':
+         if self.region=='R':
+            self.sliceBC = ( slice(None,None), -1)
+            self.sliceOne = ( slice(None,None), -2)
+            self.sliceTwo = ( slice(None,None), -3)              
+         elif self.region=='L':
+            self.sliceBC = ( slice(None,None), 1)
+            self.sliceOne = ( slice(None,None), 2)
+            self.sliceTwo = ( slice(None,None), 3)
+         elif self.region=='T':
+            self.sliceBC = ( -2, slice(None,None))
+            self.sliceOne = ( -3, slice(None,None))
+            self.sliceTwo = ( -4, slice(None,None))     
+         elif self.region=='B':
+            self.sliceBC = ( 0, slice(None,None))
+            self.sliceOne = ( 1, slice(None,None))
+            self.sliceTwo = ( 2, slice(None,None))                                     
+                                          
       """
       if self.region=='R':
          if par.dim == 1:
             self.sliceBC = -2
             self.sliceOne = -3
             self.sliceTwo = -4
+         else:
+            self.sliceBC = ( slice(None,None), -2)
+            self.sliceOne = ( slice(None,None), -3)
+            self.sliceTwo = ( slice(None,None), -4)           
+      if self.region=='T':
+         if par.dim == 1:
+            self.sliceBC = -2
+            self.sliceOne = -3
+            self.sliceTwo = -4
+         else:
+            self.sliceBC = ( -2, slice(None,None))
+            self.sliceOne = ( -3, slice(None,None))
+            self.sliceTwo = ( -4, slice(None,None))          
 
+      """
+   
    def __str__(self):
       return 'BC: ' + self.name + ' @ ' + self.region
 
@@ -102,6 +161,9 @@ class BoundaryCondition(object):
       Function to be overrided by each BC
       """
       print '##WARNING## \n \n Select a BC' 
+      
+   def computeImplicitBC(self):
+      print '##WARNING## \n \n ' + str(self) + ' does not have implicit BC implemented'
 
 
 
@@ -147,10 +209,15 @@ class BCComposite(BoundaryCondition):
          self.energyBC = energyBC(self.region)
 
          if conf[0] != None: self.rhoBC.setup(conf[0])
-         if conf[1] != None: self.momentumZBC.setup(conf[1][0])
-         if conf[2] != None: self.momentumYBC.setup(conf[1][1])
-         if conf[3] != None: self.energyBC.setup(conf[2])
-       
+         if conf[1] != None: self.momentumZBC.setup(conf[1])
+         if conf[2] != None: self.momentumYBC.setup(conf[2])
+         if conf[3] != None: self.energyBC.setup(conf[3])
+         
+         if par.staggered:
+            self.momentumZBC.setStaggered('Z')
+            self.momentumYBC.setStaggered('Y')
+      
+   
    def computeBC(self, rho, momentum, energy):
       
       self.rhoBC.computeBC(rho)
@@ -168,6 +235,15 @@ class ZeroDer(BoundaryCondition):
    name = 'Zero derivative across the boundary (Symmetry condition)'
    def computeBC(self, variable):
       variable[self.sliceBC] = variable[self.sliceOne]
+      
+   def computeImplicitBC(self):
+      self.computeBC(var.energy)
+      if par.dim==2:
+         rhs = np.zeros_like(var.energy[self.sliceBC])
+         nnzC = 1 #- par.cv*var.rho[self.sliceOne]*var.T[self.sliceOne]
+         nnzBC = -1
+         return rhs, nnzC, nnzBC
+
 
 class AntiSym(BoundaryCondition):
    name = 'Zero at the boundary (Antisymmetry condition)'
@@ -192,21 +268,42 @@ class FixedT(BoundaryCondition):
       self.fixed = fixedVar
 
    def computeBC(self, variable):
-      variable[self.sliceBC] = 2*self.fixed - variable[self.sliceOne]
-      boundaryE = 0.5*(var.rho[self.sliceBC] + var.rho[self.sliceOne])*par.cv*self.fixed 
+      internalE = var.rho[self.sliceBC]*par.cv*var.T[self.sliceBC]
+      boundaryE = 0.5*(var.rho[self.sliceBC] + var.rho[self.sliceOne])*par.cv*self.fixed
+      
+      #Not completely accurate.. should do the means for the momentums if par.staggered
+      if par.staggered:
+         if self.region=='R':
+            Ek = 0.5*(var.momentumZ[:,-2]*var.momentumZ[:,-2] + var.momentumY[self.sliceBC]*var.momentumY[self.sliceBC])/var.rho[self.sliceBC]
+         elif self.region=='T':
+            Ek = 0.5*(var.momentumZ[self.sliceBC]*var.momentumZ[self.sliceBC] + var.momentumY[:,-2]*var.momentumY[:,-2])/var.rho[self.sliceBC]
+         else:   
+            Ek = 0.5*(var.momentumZ[self.sliceBC]*var.momentumZ[self.sliceBC] + var.momentumY[self.sliceBC]*var.momentumY[self.sliceBC])/var.rho[self.sliceBC]
+      else:
+         Ek = 0.5*(var.momentumZ[self.sliceBC]*var.momentumZ[self.sliceBC] + var.momentumY[self.sliceBC]*var.momentumY[self.sliceBC])/var.rho[self.sliceBC]
+         
       if par.dim == 1:
-         var.energy[self.sliceBC] = 2*boundaryE - par.cv*var.rho[self.sliceOne]*var.T[self.sliceOne] + 0.5*var.momentumZ[self.sliceBC]*var.momentumZ[self.sliceBC]/var.rho[self.sliceBC]
+         var.energy[self.sliceBC] = 2*boundaryE - par.cv*var.rho[self.sliceOne]*var.T[self.sliceOne] + Ek
       elif par.dim == 2:
-         var.energy[self.sliceBC] = 2*boundaryE - par.cv*var.rho[self.sliceOne]*var.T[self.sliceOne] + 0.5*(var.momentumZ[self.sliceBC]*var.momentumZ[self.sliceBC]+ var.momentumY[self.sliceBC]*var.momentumY[self.sliceBC])/var.rho[self.sliceBC]
+         var.energy[self.sliceBC] = 2*boundaryE - par.cv*var.rho[self.sliceOne]*var.T[self.sliceOne] + Ek
+
 
    def computeImplicitBC(self):
-      self.computeBC(var.energy)
-      var.diag[self.sliceBC] = 1.    #This only works for one-dimensional cases
-      if self.region=="L":
-         var.upper[1] = 1.
-      if self.region=="R":
-         var.lower[-2] = 1.
-      var.rhs[self.sliceBC] = 2.*var.rho[self.sliceBC]*par.cv*self.fixed
+      if par.dim == 1:
+         self.computeBC(var.energy)
+         var.diag[self.sliceBC] = 1.    #This only works for one-dimensional cases
+         if self.region=="L":
+            var.upper[1] = 1.
+         if self.region=="R":
+            var.lower[-2] = 1.
+         var.rhs[self.sliceBC] = 2.*var.rho[self.sliceBC]*par.cv*self.fixed
+      
+      elif par.dim==2:
+         boundaryE = 0.5*(var.rho[self.sliceBC] + var.rho[self.sliceOne])*par.cv*self.fixed
+         rhs = boundaryE 
+         nnzC = .5 #- par.cv*var.rho[self.sliceOne]*var.T[self.sliceOne]
+         nnzBC = .5
+         return rhs, nnzC, nnzBC
 
 
 class ConstantSecondDer(BoundaryCondition):
@@ -258,6 +355,7 @@ class Periodic(BoundaryCondition):
       self.regionA = regionA
       self.regionB = regionB
 
+
    def __str__(self):
       return 'Periodic BC: ' +  self.regionA.region + ' & ' + self.regionB.region 
 
@@ -265,12 +363,31 @@ class Periodic(BoundaryCondition):
       rho[self.regionA.sliceBC] = rho[self.regionB.sliceOne]
       rho[self.regionB.sliceBC] = rho[self.regionA.sliceOne]
       
-      momentum[0][self.regionA.sliceBC] = momentum[0][self.regionB.sliceOne]
-      momentum[0][self.regionB.sliceBC] = momentum[0][self.regionA.sliceOne]
+      
+      if not par.staggered:
+         momentum[0][self.regionA.sliceBC] = momentum[0][self.regionB.sliceOne]
+         momentum[0][self.regionB.sliceBC] = momentum[0][self.regionA.sliceOne]
 
-      if par.dim == 2:
-         momentum[1][self.regionA.sliceBC] = momentum[1][self.regionB.sliceOne]
-         momentum[1][self.regionB.sliceBC] = momentum[1][self.regionA.sliceOne]
+         if par.dim == 2:
+            momentum[1][self.regionA.sliceBC] = momentum[1][self.regionB.sliceOne]
+            momentum[1][self.regionB.sliceBC] = momentum[1][self.regionA.sliceOne]
+      else: # Assuming that region A is 'R' or 'T'    HARDCODED
+         if self.regionA.region=='R':
+            if par.dim==1:
+               momentum[0][-1] = momentum[0][self.regionB.sliceOne]
+               momentum[0][self.regionB.sliceBC] = momentum[0][-2]
+            else:
+               
+               momentum[0][( slice(None,None), -2)] = momentum[0][self.regionB.sliceOne]
+               momentum[0][self.regionB.sliceBC] = momentum[0][( slice(None,None), -3)]
+               momentum[1][self.regionA.sliceBC] = momentum[1][self.regionB.sliceOne]
+               momentum[1][self.regionB.sliceBC] = momentum[1][self.regionA.sliceOne]
+         if self.regionA.region=='T':
+            momentum[0][self.regionA.sliceBC] = momentum[0][self.regionB.sliceOne]
+            momentum[0][self.regionB.sliceBC] = momentum[0][self.regionA.sliceOne]
+            momentum[1][( -2, slice(None,None))] = momentum[1][self.regionB.sliceOne]
+            momentum[1][self.regionB.sliceBC] = momentum[1][( -3, slice(None,None))]    
+
 
       energy[self.regionA.sliceBC] = energy[self.regionB.sliceOne]
       energy[self.regionB.sliceBC] = energy[self.regionA.sliceOne]

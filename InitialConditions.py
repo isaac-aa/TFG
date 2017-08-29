@@ -346,30 +346,34 @@ def LogTGravityProfile(args):
    par.R = 8.3144598e+07
    par.mu = 1.113202
 
-   logT = logTA + (logTB-logTA)/(Grid.z[-1]-Grid.z[0]) * (Grid.z-Grid.z[0])
+   logT = logTA + (logTB-logTA)/(Grid.z[0,-1]-Grid.z[0,0]) * (Grid.z-Grid.z[0,0])
    var.T = np.exp(logT)
   
-   logp = np.zeros(Grid.z.shape)
+   logp = np.zeros(Grid.z.shape[1])
    logp[0] = np.log(rhoA*par.R*args[0]/par.mu)
 
    B = par.mu*par.g/par.R
    A = par.ct
    Lambda = 0.
 
-   i=1
+   i=0
+      
    # Compute pressure to make it stationary under gravity
-   while i<len(Grid.z):
+   print logp.shape
+   while i<par.Nz+2:
 
-      logp[i] = logp[i-1] + Grid.dz*B/var.T[i]   
+      logp[i] = logp[i-1] + Grid.dz*B/var.T[1,i]   
 
       i+=1  
 
-   print np.exp(logp)
+
    par.Computecv()
+   
    var.rho = np.exp(logp)*par.mu/(par.R * var.T)
    var.momentumZ = var.momentumZ*0.
    var.energy = var.rho*par.cv*var.T
-
+   if par.SpitzerDiffusion:
+      var.kappa = par.ct*(var.T)**(5./2.)
 
 def GaussianTemperature(args):
    T0 = args[0]
@@ -446,6 +450,7 @@ def ReadICFromFilePressure(args):
    
    
 def RestartFromFile(args):
+   """ Deprecated
    files = glob.glob(args[0]+'/*.dat')
    files.sort()
   
@@ -476,3 +481,33 @@ def RestartFromFile(args):
    var.energy = var.rho*T_data*par.cv + 0.5*var.rho*v_data*v_data
    var.momentum = v_data*var.rho
    var.kappa = par.ct*(T_data)**(5./2.)
+   """
+   
+   
+   files = glob.glob(args[0]+'/*.dat')
+   files.sort()
+  
+   if len(args) == 2: #ie. there are two arguments, one of them is the filename 
+      last_it = args[0] + '/' + args[1]
+   else:
+      last_it = files[-1]
+
+   shutil.copy2(last_it, par.FolderName)   
+   
+   print "Restarting simulation from " + last_it 
+      
+   if par.dim==2:
+      #We are assuming that the grid remains constant
+      data = np.load(last_it)
+      
+      par.Computecv()
+      
+      var.rho = data[2]
+      var.momentumZ = data[3]
+      var.momentumY = data[4]
+      var.energy = data[5]
+      
+      
+      
+      
+      
