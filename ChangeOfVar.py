@@ -13,7 +13,6 @@ import Variables as var
 print "Loading ChangeOfpar.."
 
 
-#Add ConvertToPrim for boundaries only
 def ConvertToPrim():
    if not par.staggered:
       var.vZ = var.momentumZ/var.rho
@@ -41,6 +40,10 @@ def ConvertToPrim():
          var.P[1:-1,  -1] = (var.energy[1:-1,-1] - 0.5*(momZ[:,-1]*momZ[:,-1]+var.momentumY[1:-1,-2]*var.momentumY[1:-1,-2])/var.rho[1:-1,-1])*(par.gamma-1.) # R
          var.P[0,   1:-1] = (var.energy[0,1:-1] - 0.5*(var.momentumZ[0,1:-1]*var.momentumZ[0,1:-1]+momY[0,:]*momY[0,:])/var.rho[0,1:-1])*(par.gamma-1.) # B
          var.P[-1,  1:-1] = (var.energy[-1,1:-1] - 0.5*(var.momentumZ[-2,1:-1]*var.momentumZ[-2,1:-1]+momY[-1,:]*momY[-1,:])/var.rho[-1,1:-1])*(par.gamma-1.) # T
+         if par.MHD==True:
+            var.P += (- 0.5*(var.Bx*var.Bx + var.By*var.By + var.Bz*var.Bz) - 0.5*var.momentumX*var.momentumX/var.rho )* (par.gamma-1.)
+            var.vX = var.momentumX/var.rho
+         
          var.T = var.P*par.mu/(var.rho*par.R)        
 
 
@@ -86,10 +89,21 @@ def ConvertToPrimBoundaries():
          momZ1 = 0.5*(var.momentumZ[1:-1, 0]+var.momentumZ[1:-1, 1])
          momY1 = 0.5*(var.momentumY[0 ,1:-1]+var.momentumY[1 ,1:-1])
  
-         var.P[1:-1,   0] = (var.energy[1:-1,0] - 0.5*(momZ1*momZ1+var.momentumY[1:-1, 0]*var.momentumY[1:-1, 0])/var.rho[1:-1,0])*(par.gamma-1.) # L
+         var.P[1:-1,   0] = (var.energy[1:-1,0] - 0.5*(momZ1*momZ1+var.momentumY[1:-1, 0]*var.momentumY[1:-1, 0])/var.rho[1:-1,0])*(par.gamma-1.)# L
          var.P[1:-1,  -1] = (var.energy[1:-1,-1] - 0.5*(momZ0*momZ0+var.momentumY[1:-1,-2]*var.momentumY[1:-1,-2])/var.rho[1:-1,-1])*(par.gamma-1.) # R
          var.P[0,   1:-1] = (var.energy[0,1:-1] - 0.5*(var.momentumZ[0,1:-1]*var.momentumZ[0,1:-1]+momY1*momY1)/var.rho[0,1:-1])*(par.gamma-1.) # B
          var.P[-1,  1:-1] = (var.energy[-1,1:-1] - 0.5*(var.momentumZ[-2,1:-1]*var.momentumZ[-2,1:-1]+momY0*momY0)/var.rho[-1,1:-1])*(par.gamma-1.) # T
+
+         if par.MHD:
+            var.P[1:-1,   0] -= (0.5*(var.Bx[1:-1,   0]*var.Bx[1:-1,   0] + var.By[1:-1,   0]*var.By[1:-1,   0] + var.Bz[1:-1,   0]*var.Bz[1:-1,   0]) + 0.5*(var.momentumX[1:-1,   0]*var.momentumX[1:-1,   0]/var.rho[1:-1,   0]))*(par.gamma-1.)
+            var.P[1:-1,  -1] -= (0.5*(var.Bx[1:-1,  -1]*var.Bx[1:-1,  -1] + var.By[1:-1,  -1]*var.By[1:-1,  -1] + var.Bz[1:-1,  -1]*var.Bz[1:-1,  -1]) + 0.5*(var.momentumX[1:-1,  -1]*var.momentumX[1:-1,  -1]/var.rho[1:-1,  -1]))*(par.gamma-1.)
+            var.P[0,   1:-1] -= (0.5*(var.Bx[0,   1:-1]*var.Bx[0,   1:-1] + var.By[0,   1:-1]*var.By[0,   1:-1] + var.Bz[0,   1:-1]*var.Bz[0,   1:-1]) + 0.5*(var.momentumX[0,   1:-1]*var.momentumX[0,   1:-1]/var.rho[0,   1:-1]))*(par.gamma-1.)
+            var.P[-1,  1:-1] -= (0.5*(var.Bx[-1,  1:-1]*var.Bx[-1,  1:-1] + var.By[-1,  1:-1]*var.By[-1,  1:-1] + var.Bz[-1,  1:-1]*var.Bz[-1,  1:-1]) + 0.5*(var.momentumX[-1,  1:-1]*var.momentumX[-1,  1:-1]/var.rho[-1,  1:-1]))*(par.gamma-1.)
+            
+            var.vX[1:-1,   0] = var.momentumX[1:-1,   0]/var.rho[1:-1,   0]
+            var.vX[1:-1,  -1] = var.momentumX[1:-1,  -1]/var.rho[1:-1,  -1]
+            var.vX[0,   1:-1] = var.momentumX[0,   1:-1]/var.rho[0,   1:-1]
+            var.vX[-1,  1:-1] = var.momentumX[-1,  1:-1]/var.rho[-1,  1:-1]
 
          var.T[1:-1,   0] = var.P[1:-1,   0]*par.mu/(var.rho[1:-1,   0]*par.R)        
          var.T[1:-1,  -1] = var.P[1:-1,  -1]*par.mu/(var.rho[1:-1,  -1]*par.R)        

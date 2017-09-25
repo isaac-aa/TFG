@@ -36,7 +36,8 @@ def Uniform2DGrid(NcellZ, NcellY, z0, zf, y0, yf):
 
    z, y = np.meshgrid(z_ax, y_ax)
 
-
+   #print z[0,:]/(2.*np.pi), zf/(2.*np.pi)
+   #print y[:,0]/(2.*np.pi)
 
 def ReadGridFromFile(FileName):  
    print "Creating mesh from " + FileName

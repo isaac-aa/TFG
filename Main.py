@@ -73,7 +73,6 @@ while (par.it<=par.max_it and par.tt<=par.tf):
    ChangeOfVar.ConvertToPrim()
    
    
-   #SourceTerm.computeImplicitConduction()   
    #"""
    #Source computation
    lastTime = nowTime
@@ -85,11 +84,11 @@ while (par.it<=par.max_it and par.tt<=par.tf):
 
    # Boundary conditions     
    lastTime = nowTime
-   if sets.BoundaryConditionL!=None: sets.BoundaryConditionL.computeBC(var.rho, (var.momentumZ, var.momentumY), var.energy)
-   if sets.BoundaryConditionR!=None: sets.BoundaryConditionR.computeBC(var.rho, (var.momentumZ, var.momentumY), var.energy)
+   if sets.BoundaryConditionL!=None: sets.BoundaryConditionL.computeBC(var.rho, (var.momentumZ, var.momentumY, var.momentumX), var.energy, (var.Bz, var.By, var.Bx))
+   if sets.BoundaryConditionR!=None: sets.BoundaryConditionR.computeBC(var.rho, (var.momentumZ, var.momentumY, var.momentumX), var.energy, (var.Bz, var.By, var.Bx))
    if par.dim==2:
-      if sets.BoundaryConditionT != None: sets.BoundaryConditionT.computeBC(var.rho, (var.momentumZ, var.momentumY), var.energy)
-      if sets.BoundaryConditionB != None: sets.BoundaryConditionB.computeBC(var.rho, (var.momentumZ, var.momentumY), var.energy)
+      if sets.BoundaryConditionT != None: sets.BoundaryConditionT.computeBC(var.rho, (var.momentumZ, var.momentumY, var.momentumX), var.energy, (var.Bz, var.By, var.Bx))
+      if sets.BoundaryConditionB != None: sets.BoundaryConditionB.computeBC(var.rho, (var.momentumZ, var.momentumY, var.momentumX), var.energy, (var.Bz, var.By, var.Bx))
    
    
    nowTime = time.clock()

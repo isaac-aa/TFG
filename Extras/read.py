@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import glob
 
-folder = '../RESULTS/2D_Staggered_STR_Implicit/'
+folder = '../RESULTS/OrszagTangVortex/'
 
 files = glob.glob(folder+'RESULTS_DAT/*.npy')
 
@@ -69,13 +69,37 @@ if dim == 2:
    for i in range(len(files)):
       data = np.load(files[i])
       print i, ' out of ', len(files)
-      
-      #plt.imshow(data[2][:-1,1:-1], aspect='auto')
-      #plt.title(r'$T$')
-      #plt.colorbar()
 
-      plt.plot(data[5][5,:])
-      plt.semilogy()
+
+      gamma = 5./3.
+      R = 1.
+      mu = 1.
+      
+
+      vZ = 2.*data[3][1:-1,:-1]/(data[2][1:-1,:-1] + data[2][1:-1,1:])
+      vY = 2.*data[4][:-1,1:-1]/(data[2][:-1,1:-1] + data[2][1:,1:-1])
+      momZ = 0.5*(data[3][1:-1,:-2]+data[3][1:-1,1:-1])
+      momY = 0.5*(data[4][:-2,1:-1]+data[4][1:-1,1:-1])
+      P = np.zeros(data[0].shape)
+      P[1:-1,1:-1] = (data[5][1:-1,1:-1] - 0.5*(momZ*momZ+momY*momY)/data[2][1:-1,1:-1])*(gamma-1.)
+      P[1:-1,   0] = (data[5][1:-1,0] - 0.5*(momZ[:,0]*momZ[:,0]+data[4][1:-1, 0]*data[4][1:-1, 0])/data[2][1:-1,0])*(gamma-1.) # L
+      P[1:-1,  -1] = (data[5][1:-1,-1] - 0.5*(momZ[:,-1]*momZ[:,-1]+data[4][1:-1,-2]*data[4][1:-1,-2])/data[2][1:-1,-1])*(gamma-1.) # R
+      P[0,   1:-1] = (data[5][0,1:-1] - 0.5*(data[3][0,1:-1]*data[3][0,1:-1]+momY[0,:]*momY[0,:])/data[2][0,1:-1])*(gamma-1.) # B
+      P[-1,  1:-1] = (data[5][-1,1:-1] - 0.5*(data[3][-2,1:-1]*data[3][-2,1:-1]+momY[-1,:]*momY[-1,:])/data[2][-1,1:-1])*(gamma-1.) # T
+   
+      P += (- 0.5*(data[-1]*data[-1] + data[-2]*data[-2] + data[-3]*data[-3]) - 0.5*data[-4]*data[-4]/data[2] )* (par.gamma-1.)
+   
+      T = P*mu/(data[2]*R)
+
+
+      
+      plt.imshow(P, aspect='auto', vmax=2, vmin=0)
+      plt.title(r'$P$')
+      plt.colorbar()
+
+
+      #plt.plot(T[5,:])
+      #plt.semilogy()
       """
       fig, axs = plt.subplots(ncols=3, nrows=2)
 

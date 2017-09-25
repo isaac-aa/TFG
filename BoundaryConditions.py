@@ -179,7 +179,7 @@ class BCComposite(BoundaryCondition):
 
    name = 'BCComposite'
    
-   def setup(self, rhoBC, momentumBC, energyBC, conf):
+   def setup(self, rhoBC, momentumBC, energyBC, magBC, conf):
       """
          Setup for the multiple BC
          To allow for more than one dimension within the same function,
@@ -216,9 +216,15 @@ class BCComposite(BoundaryCondition):
          if par.staggered:
             self.momentumZBC.setStaggered('Z')
             self.momentumYBC.setStaggered('Y')
+            
+         if par.MHD:
+            self.momentumXBC = momentumBC[2](self.region)
+            self.BzBC = magBC[0](self.region)
+            self.ByBC = magBC[1](self.region)
+            self.BxBC = magBC[2](self.region)
       
    
-   def computeBC(self, rho, momentum, energy):
+   def computeBC(self, rho, momentum, energy, B):
       
       self.rhoBC.computeBC(rho)
       self.momentumZBC.computeBC(momentum[0])
@@ -228,6 +234,11 @@ class BCComposite(BoundaryCondition):
       else:
          self.energyBC.computeBC(energy)
    
+      if par.MHD:
+         if self.momentumXBC!=None: self.momentumXBC.computeBC(momentum[2])
+         self.BzBC.computeBC(B[0])
+         self.ByBC.computeBC(B[1])
+         self.BxBC.computeBC(B[2])
 
 
 
@@ -359,7 +370,7 @@ class Periodic(BoundaryCondition):
    def __str__(self):
       return 'Periodic BC: ' +  self.regionA.region + ' & ' + self.regionB.region 
 
-   def computeBC(self, rho, momentum, energy):
+   def computeBC(self, rho, momentum, energy, B):
       rho[self.regionA.sliceBC] = rho[self.regionB.sliceOne]
       rho[self.regionB.sliceBC] = rho[self.regionA.sliceOne]
       
@@ -371,30 +382,63 @@ class Periodic(BoundaryCondition):
          if par.dim == 2:
             momentum[1][self.regionA.sliceBC] = momentum[1][self.regionB.sliceOne]
             momentum[1][self.regionB.sliceBC] = momentum[1][self.regionA.sliceOne]
+            
+      
       else: # Assuming that region A is 'R' or 'T'    HARDCODED
          if self.regionA.region=='R':
             if par.dim==1:
                momentum[0][-1] = momentum[0][self.regionB.sliceOne]
                momentum[0][self.regionB.sliceBC] = momentum[0][-2]
-            else:
                
-               momentum[0][( slice(None,None), -2)] = momentum[0][self.regionB.sliceOne]
-               momentum[0][self.regionB.sliceBC] = momentum[0][( slice(None,None), -3)]
+            else:
+               momZL = momentum[0][ 1:-1, -2]
+               momentum[0][ 1:-1, -2] = momentum[0][1:-1, 0 ]
+               momentum[0][ 1:-1, 0] = momZL
                momentum[1][self.regionA.sliceBC] = momentum[1][self.regionB.sliceOne]
                momentum[1][self.regionB.sliceBC] = momentum[1][self.regionA.sliceOne]
+               
+
          if self.regionA.region=='T':
             momentum[0][self.regionA.sliceBC] = momentum[0][self.regionB.sliceOne]
             momentum[0][self.regionB.sliceBC] = momentum[0][self.regionA.sliceOne]
-            momentum[1][( -2, slice(None,None))] = momentum[1][self.regionB.sliceOne]
-            momentum[1][self.regionB.sliceBC] = momentum[1][( -3, slice(None,None))]    
+            momYT = momentum[1][ -2,1:-1]
+            momentum[1][-2,1:-1] = momentum[1][0,1:-1]
+            momentum[1][0, 1:-1] = momYT   
+            
+            
+      
+      # Temporary placement, should be changed for each case (also Bz for B[0] and so on
+      # For staggered, MHD:
+      if self.regionA.region=='R':
+         energy[1:-1,-1] = var.P[1:-1,1]/(par.gamma-1.) + 0.5*(var.Bz[1:-1,1]*var.Bz[1:-1,1] + var.By[1:-1,1]*var.By[1:-1,1] + var.Bx[1:-1,1]*var.Bx[1:-1,1])   \
+         + 0.5*( momentum[0][1:-1,0]*momentum[0][1:-1,0] + 0.5*(momentum[1][1:-1,1]+momentum[1][:-2,1])*0.5*(momentum[1][1:-1,1]+momentum[1][:-2,1])  + momentum[2][1:-1,1]*momentum[2][1:-1,1] )/rho[1:-1,1]
+         
+         energy[1:-1, 0] = var.P[1:-1,-2]/(par.gamma-1.) + 0.5*(var.Bz[1:-1,-2]*var.Bz[1:-1,-2] + var.By[1:-1,-2]*var.By[1:-1,-2] + var.Bx[1:-1,-2]*var.Bx[1:-1,-2])   \
+         + 0.5*( momentum[0][1:-1,-2]*momentum[0][1:-1,-2] + 0.5*(momentum[1][1:-1,-2]+momentum[1][:-2,-2])*0.5*(momentum[1][1:-1,-2]+momentum[1][:-2,-2])  + momentum[2][1:-1,-2]*momentum[2][1:-1,-2] )/rho[1:-1,-2]
+         
+      if self.regionA.region=='T':
+         energy[-1,1:-1] = var.P[1,1:-1]/(par.gamma-1.) + 0.5*(var.Bz[1,1:-1]*var.Bz[1,1:-1] + var.By[1,1:-1]*var.By[1,1:-1] + var.Bx[1,1:-1]*var.Bx[1,1:-1])   \
+         + 0.5*( 0.5*(momentum[0][1,1:-1]+momentum[0][1,:-2])*0.5*(momentum[0][1,1:-1]+momentum[0][1,:-2]) + momentum[1][0,1:-1]*momentum[1][0,1:-1]  + momentum[2][1,1:-1]*momentum[2][1,1:-1] )/rho[1,1:-1]
+         
+         energy[0,1:-1] = var.P[-2,1:-1]/(par.gamma-1.) + 0.5*(var.Bz[-2,1:-1]*var.Bz[-2,1:-1] + var.By[-2,1:-1]*var.By[-2,1:-1] + var.Bx[-2,1:-1]*var.Bx[-2,1:-1])   \
+         + 0.5*( 0.5*(momentum[0][-2,1:-1]+momentum[0][-2,:-2])*0.5*(momentum[0][-2,1:-1]+momentum[0][-2,:-2]) + momentum[1][-2,1:-1]*momentum[1][-2,1:-1]  + momentum[2][-2,1:-1]*momentum[2][-2,1:-1] )/rho[-2,1:-1]         
+   
+      
+      
+      #energy[self.regionA.sliceBC] = energy[self.regionB.sliceOne]
+      #energy[self.regionB.sliceBC] = energy[self.regionA.sliceOne]
 
+      if par.MHD:
+         momentum[2][self.regionA.sliceBC] = momentum[2][self.regionB.sliceOne]
+         momentum[2][self.regionB.sliceBC] = momentum[2][self.regionA.sliceOne]
 
-      energy[self.regionA.sliceBC] = energy[self.regionB.sliceOne]
-      energy[self.regionB.sliceBC] = energy[self.regionA.sliceOne]
+         B[0][self.regionA.sliceBC] = B[0][self.regionB.sliceOne]
+         B[0][self.regionB.sliceBC] = B[0][self.regionA.sliceOne]
+         
+         B[1][self.regionA.sliceBC] = B[1][self.regionB.sliceOne]
+         B[1][self.regionB.sliceBC] = B[1][self.regionA.sliceOne]
 
-
-
-
-
+         B[2][self.regionA.sliceBC] = B[2][self.regionB.sliceOne]
+         B[2][self.regionB.sliceBC] = B[2][self.regionA.sliceOne]
 
 

@@ -53,7 +53,7 @@ def Plot():
    global plotCounter
 
    
-   np.save(par.FolderName + '/RESULTS_DAT/%.20f.dat'%par.tt, np.array([Grid.z, Grid.y, var.rho, var.momentumZ, var.momentumY, var.energy, var.T]) ) 
+   np.save(par.FolderName + '/RESULTS_DAT/%.20f.dat'%par.tt, np.array([Grid.z, Grid.y, var.rho, var.momentumZ, var.momentumY, var.energy, var.momentumX,var.Bz, var.By, var.Bx]) ) 
       
    fh = open(par.FolderName + '/log.txt','a')
    fh.write(str(par.it) + ' ' + str(par.dt) + ' ' + str(par.tt) + ' ' + str(time.clock() - ZeroTime) + '\n')     
