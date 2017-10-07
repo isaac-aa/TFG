@@ -508,6 +508,48 @@ def RestartFromFile(args):
       var.energy = data[5]
       
       
-      
+def OrszagTangVortex(args):
+   var.rho = np.ones(Grid.z.shape)*par.gamma*par.gamma
+   var.P = np.ones(Grid.z.shape)*par.gamma
+   
+   var.momentumZ = -np.sin(Grid.y)*var.rho
+   var.momentumY = np.sin(Grid.z)*var.rho
+   var.momentumX = var.momentumX*0.
+   
+   var.Bz = -np.sin(Grid.y)
+   var.By = np.sin(2*Grid.z)
+   var.Bx = var.Bx*0.
+   
+   Pstar = var.P + 0.5*(var.Bz*var.Bz + var.By*var.By)
+   var.energy = Pstar/(par.gamma-1.) + 0.5*var.rho*((-np.sin(Grid.y))*(-np.sin(Grid.y)) + np.sin(Grid.z)*np.sin(Grid.z))
+   
+   
+   # Forced periodic conditions  (does not change anything...)
+   """
+   var.momentumZ[0,:] = var.momentumZ[-2,:]
+   var.momentumZ[-1,:] = var.momentumZ[1,:]
+   
+   var.momentumY[:,0] = var.momentumY[:,-2]
+   var.momentumY[:,-1] = var.momentumY[:,1]
+   
+   var.Bz[0,:] = var.Bz[-2,:]
+   var.Bz[-1,:] = var.Bz[1,:]
+   
+   var.By[:,0] = var.By[:,-2]
+   var.By[:,-1] = var.By[:,1]
+   """
+   #print var.momentumZ[1,:]/var.rho[1,:] - var.momentumZ[2,:]/var.rho[2,:]
+   #print Grid.z[:,1]/(2.*np.pi), Grid.z[:,-2]/(2.*np.pi)
+   #print var.momentumZ[1,:] - var.momentumZ[-2,:]
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
       
       

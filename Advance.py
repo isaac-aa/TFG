@@ -468,15 +468,15 @@ class RK3Staggered(AdvanceScheme):
       termZZ = (momZ_int)**2/var.rho[:,1:-1]
       termYY = (momY_int)**2/var.rho[1:-1,:] 
       
-      meanRho = 0.25*( var.rho[1:-2,1:-2] + var.rho[2:-1,1:-2] + var.rho[2:-1,2:-1] + var.rho[1:-2,2:-1] )
+      meanRho = 0.25*( var.rho[:-1,:-1] + var.rho[1:,:-1] + var.rho[1:,1:] + var.rho[:-1,1:] )
       # The thermZY is physically located on the corner of the cells
-      momZ2 = 0.5*( var.momentumZ[1:-2, 1:-2] + var.momentumZ[2:-1, 1:-2] )
-      momY2 = 0.5*( var.momentumY[1:-2, 2:-1] + var.momentumY[1:-2, 1:-2] )
+      momZ2 = 0.5*( var.momentumZ[:-1, :-1] + var.momentumZ[1:, :-1] )
+      momY2 = 0.5*( var.momentumY[:-1, :-1] + var.momentumY[:-1, 1:] )
       termZY = momZ2*momY2/meanRho
       
       #print self.momZ_k1[2:-2,1:-2].shape,termZZ[2:-2,1:].shape, var.P[2:-2,2:-1].shape, termZY[1:,:].shape
-      self.momZ_k1[2:-2,1:-2] = -(termZZ[2:-2,1:]-termZZ[2:-2,:-1])/Grid.dz - (var.P[2:-2,2:-1]-var.P[2:-2,1:-2])/Grid.dz - (termZY[1:,:]-termZY[:-1,:])/Grid.dy
-      self.momY_k1[1:-2,2:-2] = -(termYY[1:,2:-2]-termYY[:-1,2:-2])/Grid.dy - (var.P[2:-1,2:-2]-var.P[1:-2,2:-2])/Grid.dy - (termZY[:,1:]-termZY[:,:-1])/Grid.dz
+      self.momZ_k1[1:-1,1:-2] = -(termZZ[1:-1,1:]-termZZ[2:-2,:-1])/Grid.dz - (var.P[1:-1,2:-1]-var.P[1:-1,1:-2])/Grid.dz - (termZY[1:,:]-termZY[:-1,:])/Grid.dy
+      self.momY_k1[1:-2,1:-1] = -(termYY[1:,1:-1]-termYY[:-1,1:-1])/Grid.dy - (var.P[2:-1,1:-1]-var.P[1:-2,1:-1])/Grid.dy - (termZY[:,1:]-termZY[:,:-1])/Grid.dz
     
       Et_plus_PZ = (0.5*(var.energy+var.P)[:,:-1] + (var.energy+var.P)[:,1:])/(0.5*(var.rho[:,1:] + var.rho[:,:-1])  ) 
       termZ = Et_plus_PZ*var.momentumZ[:,:-1]
@@ -507,14 +507,15 @@ class RK3Staggered(AdvanceScheme):
       termZZ = (momZ_int)**2/var.rho[:,1:-1]
       termYY = (momY_int)**2/var.rho[1:-1,:] 
       
-      meanRho = 0.25*( var.rho[1:-2,1:-2] + var.rho[2:-1,1:-2] + var.rho[2:-1,2:-1] + var.rho[1:-2,2:-1] )
-      momZ2 = 0.5*( var.momentumZ[1:-2, 1:-2] + var.momentumZ[2:-1, 1:-2] )
-      momY2 = 0.5*( var.momentumY[1:-2, 2:-1] + var.momentumY[1:-2, 1:-2] )
+      meanRho = 0.25*( var.rho[:-1,:-1] + var.rho[1:,:-1] + var.rho[1:,1:] + var.rho[:-1,1:] )
+      # The thermZY is physically located on the corner of the cells
+      momZ2 = 0.5*( var.momentumZ[:-1, :-1] + var.momentumZ[1:, :-1] )
+      momY2 = 0.5*( var.momentumY[:-1, :-1] + var.momentumY[:-1, 1:] )
       termZY = momZ2*momY2/meanRho
       
       #print self.momZ_k1[2:-2,1:-2].shape,termZZ[2:-2,1:].shape, var.P[2:-2,2:-1].shape, termZY[1:,:].shape
-      self.momZ_k2[2:-2,1:-2] = -(termZZ[2:-2,1:]-termZZ[2:-2,:-1])/Grid.dz - (var.P[2:-2,2:-1]-var.P[2:-2,1:-2])/Grid.dz - (termZY[1:,:]-termZY[:-1,:])/Grid.dy
-      self.momY_k2[1:-2,2:-2] = -(termYY[1:,2:-2]-termYY[:-1,2:-2])/Grid.dy - (var.P[2:-1,2:-2]-var.P[1:-2,2:-2])/Grid.dy - (termZY[:,1:]-termZY[:,:-1])/Grid.dz
+      self.momZ_k2[1:-1,1:-2] = -(termZZ[1:-1,1:]-termZZ[2:-2,:-1])/Grid.dz - (var.P[1:-1,2:-1]-var.P[1:-1,1:-2])/Grid.dz - (termZY[1:,:]-termZY[:-1,:])/Grid.dy
+      self.momY_k2[1:-2,1:-1] = -(termYY[1:,1:-1]-termYY[:-1,1:-1])/Grid.dy - (var.P[2:-1,1:-1]-var.P[1:-2,1:-1])/Grid.dy - (termZY[:,1:]-termZY[:,:-1])/Grid.dz
 
     
       Et_plus_PZ = (0.5*(var.energy+var.P)[:,:-1] + (var.energy+var.P)[:,1:])/(0.5*(var.rho[:,1:] + var.rho[:,:-1])  ) 
@@ -544,15 +545,15 @@ class RK3Staggered(AdvanceScheme):
       termZZ = (momZ_int)**2/var.rho[:,1:-1]
       termYY = (momY_int)**2/var.rho[1:-1,:] 
       
-      meanRho = 0.25*( var.rho[1:-2,1:-2] + var.rho[2:-1,1:-2] + var.rho[2:-1,2:-1] + var.rho[1:-2,2:-1] )
-      momZ2 = 0.5*( var.momentumZ[1:-2, 1:-2] + var.momentumZ[2:-1, 1:-2] )
-      momY2 = 0.5*( var.momentumY[1:-2, 2:-1] + var.momentumY[1:-2, 1:-2] )
+      meanRho = 0.25*( var.rho[:-1,:-1] + var.rho[1:,:-1] + var.rho[1:,1:] + var.rho[:-1,1:] )
+      # The thermZY is physically located on the corner of the cells
+      momZ2 = 0.5*( var.momentumZ[:-1, :-1] + var.momentumZ[1:, :-1] )
+      momY2 = 0.5*( var.momentumY[:-1, :-1] + var.momentumY[:-1, 1:] )
       termZY = momZ2*momY2/meanRho
       
       #print self.momZ_k1[2:-2,1:-2].shape,termZZ[2:-2,1:].shape, var.P[2:-2,2:-1].shape, termZY[1:,:].shape
-      self.momZ_k3[2:-2,1:-2] = -(termZZ[2:-2,1:]-termZZ[2:-2,:-1])/Grid.dz - (var.P[2:-2,2:-1]-var.P[2:-2,1:-2])/Grid.dz - (termZY[1:,:]-termZY[:-1,:])/Grid.dy
-      self.momY_k3[1:-2,2:-2] = -(termYY[1:,2:-2]-termYY[:-1,2:-2])/Grid.dy - (var.P[2:-1,2:-2]-var.P[1:-2,2:-2])/Grid.dy - (termZY[:,1:]-termZY[:,:-1])/Grid.dz
-
+      self.momZ_k3[1:-1,1:-2] = -(termZZ[1:-1,1:]-termZZ[2:-2,:-1])/Grid.dz - (var.P[1:-1,2:-1]-var.P[1:-1,1:-2])/Grid.dz - (termZY[1:,:]-termZY[:-1,:])/Grid.dy
+      self.momY_k3[1:-2,1:-1] = -(termYY[1:,1:-1]-termYY[:-1,1:-1])/Grid.dy - (var.P[2:-1,1:-1]-var.P[1:-2,1:-1])/Grid.dy - (termZY[:,1:]-termZY[:,:-1])/Grid.dz
     
       Et_plus_PZ = (0.5*(var.energy+var.P)[:,:-1] + (var.energy+var.P)[:,1:])/(0.5*(var.rho[:,1:] + var.rho[:,:-1])  ) 
       termZ = Et_plus_PZ*var.momentumZ[:,:-1]
@@ -566,6 +567,10 @@ class RK3Staggered(AdvanceScheme):
       var.momentumZ = var.lastmomentumZ +  h/6. * (self.momZ_k1 + 4.*self.momZ_k2 + self.momZ_k3)
       var.momentumY = var.lastmomentumY +  h/6. * (self.momY_k1 + 4.*self.momY_k2 + self.momY_k3)
       var.energy = var.lastenergy +        h/6. * (self.ene_k1 + 4.*self.ene_k2 + self.ene_k3)
+
+
+
+
 
    def compute2DMHD(self):    #test function--- need to be properly set
       h = par.dt
@@ -582,11 +587,22 @@ class RK3Staggered(AdvanceScheme):
 
       termZZ = (momZ_int)**2/var.rho[:,1:-1]
       termYY = (momY_int)**2/var.rho[1:-1,:] 
-      
-      meanRho = 0.25*( var.rho[1:-2,1:-2] + var.rho[2:-1,1:-2] + var.rho[2:-1,2:-1] + var.rho[1:-2,2:-1] )
+      """
+      meanRho = 0.25*( var.rho[:-1,:-1] + var.rho[1:,:-1] + var.rho[1:,1:] + var.rho[:-1,1:] )
       # The thermZY is physically located on the corner of the cells
-      momZ2 = 0.5*( var.momentumZ[1:-2, 1:-2] + var.momentumZ[2:-1, 1:-2] )
-      momY2 = 0.5*( var.momentumY[1:-2, 2:-1] + var.momentumY[1:-2, 1:-2] )
+      momZ2 = 0.5*( var.momentumZ[:-1, :-1] + var.momentumZ[1:, :-1] )
+      momY2 = 0.5*( var.momentumY[:-1, :-1] + var.momentumY[:-1, 1:] )
+      termZY = momZ2*momY2/meanRho
+      
+      #print self.momZ_k1[2:-2,1:-2].shape,termZZ[2:-2,1:].shape, var.P[2:-2,2:-1].shape, termZY[1:,:].shape
+      self.momZ_k1[1:-1,1:-2] = -(termZZ[1:-1,1:]-termZZ[2:-2,:-1])/Grid.dz - (var.P[1:-1,2:-1]-var.P[1:-1,1:-2])/Grid.dz - (termZY[1:,:]-termZY[:-1,:])/Grid.dy
+      self.momY_k1[1:-2,1:-1] = -(termYY[1:,1:-1]-termYY[:-1,1:-1])/Grid.dy - (var.P[2:-1,1:-1]-var.P[1:-2,1:-1])/Grid.dy - (termZY[:,1:]-termZY[:,:-1])/Grid.dz
+      """
+      
+      meanRho = 0.25*( var.rho[:-1,:-1] + var.rho[1:,:-1] + var.rho[1:,1:] + var.rho[:-1,1:] )
+      # The thermZY is physically located on the corner of the cells
+      momZ2 = 0.5*( var.momentumZ[:-1, :-1] + var.momentumZ[1:, :-1] )
+      momY2 = 0.5*( var.momentumY[:-1, :-1] + var.momentumY[:-1, 1:] )
       termZY = momZ2*momY2/meanRho
       
       #print self.momZ_k1[2:-2,1:-2].shape,termZZ[2:-2,1:].shape, var.P[2:-2,2:-1].shape, termZY[1:,:].shape
@@ -595,10 +611,10 @@ class RK3Staggered(AdvanceScheme):
       PtermZZ = pStar-var.Bz*var.Bz
       PtermYY = pStar-var.By*var.By
       
-      BtermZY = - 0.25*( var.Bz[1:-2,1:-2] + var.Bz[2:-1,1:-2] + var.Bz[2:-1,2:-1] + var.Bz[1:-2,2:-1] )*0.25*( var.By[1:-2,1:-2] + var.By[2:-1,1:-2] + var.By[2:-1,2:-1] + var.By[1:-2,2:-1] )
-      
-      self.momZ_k1[2:-2,1:-2] = -(termZZ[2:-2,1:]-termZZ[2:-2,:-1])/Grid.dz - (PtermZZ[2:-2,2:-1]-PtermZZ[2:-2,1:-2])/Grid.dz - (termZY[1:,:]-termZY[:-1,:])/Grid.dy - (BtermZY[1:,:]-BtermZY[:-1,:])/Grid.dy
-      self.momY_k1[1:-2,2:-2] = -(termYY[1:,2:-2]-termYY[:-1,2:-2])/Grid.dy - (PtermYY[2:-1,2:-2]-PtermYY[1:-2,2:-2])/Grid.dy - (termZY[:,1:]-termZY[:,:-1])/Grid.dz - (BtermZY[:,1:]-BtermZY[:,:-1])/Grid.dz
+      BtermZY = - 0.25*( var.Bz[:-1,:-1] + var.Bz[1:,:-1] + var.Bz[1:,1:] + var.Bz[:-1,1:] )*0.25*( var.By[:-1,:-1] + var.By[1:,:-1] + var.By[1:,1:] + var.By[:-1,1:] )
+
+      self.momZ_k1[1:-1,1:-2] = -(termZZ[1:-1,1:]-termZZ[1:-1,:-1])/Grid.dz - (PtermZZ[1:-1,2:-1]-PtermZZ[1:-1,1:-2])/Grid.dz - (termZY[1:,1:-1]-termZY[:-1,1:-1])/Grid.dy - (BtermZY[1:,1:-1]-BtermZY[:-1,1:-1])/Grid.dy
+      self.momY_k1[1:-2,1:-1] = -(termYY[1:,1:-1]-termYY[:-1,1:-1])/Grid.dy - (PtermYY[2:-1,1:-1]-PtermYY[1:-2,1:-1])/Grid.dy - (termZY[1:-1,1:]-termZY[1:-1,:-1])/Grid.dz - (BtermZY[1:-1,1:]-BtermZY[1:-1,:-1])/Grid.dz
     
       # momentumX is not staggered (there is no third dimension to do so)
       
@@ -710,10 +726,10 @@ class RK3Staggered(AdvanceScheme):
       termZZ = (momZ_int)**2/var.rho[:,1:-1]
       termYY = (momY_int)**2/var.rho[1:-1,:] 
       
-      meanRho = 0.25*( var.rho[1:-2,1:-2] + var.rho[2:-1,1:-2] + var.rho[2:-1,2:-1] + var.rho[1:-2,2:-1] )
+      meanRho = 0.25*( var.rho[:-1,:-1] + var.rho[1:,:-1] + var.rho[1:,1:] + var.rho[:-1,1:] )
       # The thermZY is physically located on the corner of the cells
-      momZ2 = 0.5*( var.momentumZ[1:-2, 1:-2] + var.momentumZ[2:-1, 1:-2] )
-      momY2 = 0.5*( var.momentumY[1:-2, 2:-1] + var.momentumY[1:-2, 1:-2] )
+      momZ2 = 0.5*( var.momentumZ[:-1, :-1] + var.momentumZ[1:, :-1] )
+      momY2 = 0.5*( var.momentumY[:-1, :-1] + var.momentumY[:-1, 1:] )
       termZY = momZ2*momY2/meanRho
       
       #print self.momZ_k1[2:-2,1:-2].shape,termZZ[2:-2,1:].shape, var.P[2:-2,2:-1].shape, termZY[1:,:].shape
@@ -722,11 +738,11 @@ class RK3Staggered(AdvanceScheme):
       PtermZZ = pStar-var.Bz*var.Bz
       PtermYY = pStar-var.By*var.By
       
-      BtermZY = - 0.25*( var.Bz[1:-2,1:-2] + var.Bz[2:-1,1:-2] + var.Bz[2:-1,2:-1] + var.Bz[1:-2,2:-1] )*0.25*( var.By[1:-2,1:-2] + var.By[2:-1,1:-2] + var.By[2:-1,2:-1] + var.By[1:-2,2:-1] )
-      
-      self.momZ_k2[2:-2,1:-2] = -(termZZ[2:-2,1:]-termZZ[2:-2,:-1])/Grid.dz - (PtermZZ[2:-2,2:-1]-PtermZZ[2:-2,1:-2])/Grid.dz - (termZY[1:,:]-termZY[:-1,:])/Grid.dy - (BtermZY[1:,:]-BtermZY[:-1,:])/Grid.dy
-      self.momY_k2[1:-2,2:-2] = -(termYY[1:,2:-2]-termYY[:-1,2:-2])/Grid.dy - (PtermYY[2:-1,2:-2]-PtermYY[1:-2,2:-2])/Grid.dy - (termZY[:,1:]-termZY[:,:-1])/Grid.dz - (BtermZY[:,1:]-BtermZY[:,:-1])/Grid.dz
-    
+      BtermZY = - 0.25*( var.Bz[:-1,:-1] + var.Bz[1:,:-1] + var.Bz[1:,1:] + var.Bz[:-1,1:] )*0.25*( var.By[:-1,:-1] + var.By[1:,:-1] + var.By[1:,1:] + var.By[:-1,1:] )
+
+      self.momZ_k2[1:-1,1:-2] = -(termZZ[1:-1,1:]-termZZ[1:-1,:-1])/Grid.dz - (PtermZZ[1:-1,2:-1]-PtermZZ[1:-1,1:-2])/Grid.dz - (termZY[1:,1:-1]-termZY[:-1,1:-1])/Grid.dy - (BtermZY[1:,1:-1]-BtermZY[:-1,1:-1])/Grid.dy
+      self.momY_k2[1:-2,1:-1] = -(termYY[1:,1:-1]-termYY[:-1,1:-1])/Grid.dy - (PtermYY[2:-1,1:-1]-PtermYY[1:-2,1:-1])/Grid.dy - (termZY[1:-1,1:]-termZY[1:-1,:-1])/Grid.dz - (BtermZY[1:-1,1:]-BtermZY[1:-1,:-1])/Grid.dz
+        
       # momentumX is not staggered (there is no third dimension to do so)
       
       BtermXZ =  - var.Bx*var.Bz
@@ -811,7 +827,7 @@ class RK3Staggered(AdvanceScheme):
       var.momentumX = var.lastmomentumX - self.momX_k1*h + 2.*self.momX_k2*h
       var.Bz = var.lastBz - self.Bz_k1*h + 2.*self.Bz_k2*h
       var.By = var.lastBy - self.By_k1*h + 2.*self.By_k2*h
-      var.Bx = var.lastBz - self.Bx_k1*h + 2.*self.Bx_k2*h
+      var.Bx = var.lastBx - self.Bx_k1*h + 2.*self.Bx_k2*h
       var.energy = var.lastenergy - self.ene_k1*h + 2.*self.ene_k2*h
       
       
@@ -837,10 +853,10 @@ class RK3Staggered(AdvanceScheme):
       termZZ = (momZ_int)**2/var.rho[:,1:-1]
       termYY = (momY_int)**2/var.rho[1:-1,:] 
       
-      meanRho = 0.25*( var.rho[1:-2,1:-2] + var.rho[2:-1,1:-2] + var.rho[2:-1,2:-1] + var.rho[1:-2,2:-1] )
+      meanRho = 0.25*( var.rho[:-1,:-1] + var.rho[1:,:-1] + var.rho[1:,1:] + var.rho[:-1,1:] )
       # The thermZY is physically located on the corner of the cells
-      momZ2 = 0.5*( var.momentumZ[1:-2, 1:-2] + var.momentumZ[2:-1, 1:-2] )
-      momY2 = 0.5*( var.momentumY[1:-2, 2:-1] + var.momentumY[1:-2, 1:-2] )
+      momZ2 = 0.5*( var.momentumZ[:-1, :-1] + var.momentumZ[1:, :-1] )
+      momY2 = 0.5*( var.momentumY[:-1, :-1] + var.momentumY[:-1, 1:] )
       termZY = momZ2*momY2/meanRho
       
       #print self.momZ_k1[2:-2,1:-2].shape,termZZ[2:-2,1:].shape, var.P[2:-2,2:-1].shape, termZY[1:,:].shape
@@ -849,11 +865,11 @@ class RK3Staggered(AdvanceScheme):
       PtermZZ = pStar-var.Bz*var.Bz
       PtermYY = pStar-var.By*var.By
       
-      BtermZY = - 0.25*( var.Bz[1:-2,1:-2] + var.Bz[2:-1,1:-2] + var.Bz[2:-1,2:-1] + var.Bz[1:-2,2:-1] )*0.25*( var.By[1:-2,1:-2] + var.By[2:-1,1:-2] + var.By[2:-1,2:-1] + var.By[1:-2,2:-1] )
-      
-      self.momZ_k3[2:-2,1:-2] = -(termZZ[2:-2,1:]-termZZ[2:-2,:-1])/Grid.dz - (PtermZZ[2:-2,2:-1]-PtermZZ[2:-2,1:-2])/Grid.dz - (termZY[1:,:]-termZY[:-1,:])/Grid.dy - (BtermZY[1:,:]-BtermZY[:-1,:])/Grid.dy
-      self.momY_k3[1:-2,2:-2] = -(termYY[1:,2:-2]-termYY[:-1,2:-2])/Grid.dy - (PtermYY[2:-1,2:-2]-PtermYY[1:-2,2:-2])/Grid.dy - (termZY[:,1:]-termZY[:,:-1])/Grid.dz - (BtermZY[:,1:]-BtermZY[:,:-1])/Grid.dz
-    
+      BtermZY = - 0.25*( var.Bz[:-1,:-1] + var.Bz[1:,:-1] + var.Bz[1:,1:] + var.Bz[:-1,1:] )*0.25*( var.By[:-1,:-1] + var.By[1:,:-1] + var.By[1:,1:] + var.By[:-1,1:] )
+
+      self.momZ_k3[1:-1,1:-2] = -(termZZ[1:-1,1:]-termZZ[1:-1,:-1])/Grid.dz - (PtermZZ[1:-1,2:-1]-PtermZZ[1:-1,1:-2])/Grid.dz - (termZY[1:,1:-1]-termZY[:-1,1:-1])/Grid.dy - (BtermZY[1:,1:-1]-BtermZY[:-1,1:-1])/Grid.dy
+      self.momY_k3[1:-2,1:-1] = -(termYY[1:,1:-1]-termYY[:-1,1:-1])/Grid.dy - (PtermYY[2:-1,1:-1]-PtermYY[1:-2,1:-1])/Grid.dy - (termZY[1:-1,1:]-termZY[1:-1,:-1])/Grid.dz - (BtermZY[1:-1,1:]-BtermZY[1:-1,:-1])/Grid.dz
+        
       # momentumX is not staggered (there is no third dimension to do so)
       
       BtermXZ =  - var.Bx*var.Bz
