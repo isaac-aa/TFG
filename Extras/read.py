@@ -93,7 +93,8 @@ if dim == 2:
 
 
       
-      plt.imshow(P, aspect='auto', vmax=2, vmin=0)
+      plt.pcolormesh(data[0], data[1], P)
+      #Q = plt.quiver(data[0], data[1], data[-3], data[-2])
       plt.title(r'$P$')
       plt.colorbar()
 

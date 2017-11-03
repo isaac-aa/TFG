@@ -397,6 +397,12 @@ class Periodic(BoundaryCondition):
                momentum[1][self.regionA.sliceBC] = momentum[1][self.regionB.sliceOne]
                momentum[1][self.regionB.sliceBC] = momentum[1][self.regionA.sliceOne]
                
+               # TEMPORARY CHANGE
+               Grid.extraZ = momentum[0][:, -3]
+               momentum[0][1:-1, -1] = momentum[0][1:-1, 1]
+               
+
+               
 
          if self.regionA.region=='T':
             momentum[0][self.regionA.sliceBC] = momentum[0][self.regionB.sliceOne]
@@ -405,21 +411,25 @@ class Periodic(BoundaryCondition):
             momentum[1][-2,1:-1] = momentum[1][0,1:-1]
             momentum[1][0, 1:-1] = momYT   
             
+            # TEMPORARY CHANGE
+            Grid.extraY = momentum[1][-3,:]
+            momentum[1][-1,1:-1] = momentum[1][1, 1:-1]
+            
             
       
       # Temporary placement, should be changed for each case (also Bz for B[0] and so on
       # For staggered, MHD:
       if self.regionA.region=='R':
-         energy[1:-1,-1] = var.P[1:-1,1]/(par.gamma-1.)  + 0.5*(var.Bz[1:-1,1]*var.Bz[1:-1,1] + var.By[1:-1,1]*var.By[1:-1,1] + var.Bx[1:-1,1]*var.Bx[1:-1,1])       + 0.5*( momentum[0][1:-1,0]*momentum[0][1:-1,0] + 0.5*(momentum[1][1:-1,1]+momentum[1][:-2,1])*0.5*(momentum[1][1:-1,1]+momentum[1][:-2,1])  + momentum[2][1:-1,1]*momentum[2][1:-1,1] )/rho[1:-1,1]
-         #energy[1:-1, -1] = energy[1:-1, 1]  #Simpler version, not necessarily correct
-         energy[1:-1, 0] = var.P[1:-1,-2]/(par.gamma-1.) + 0.5*(var.Bz[1:-1,-2]*var.Bz[1:-1,-2] + var.By[1:-1,-2]*var.By[1:-1,-2] + var.Bx[1:-1,-2]*var.Bx[1:-1,-2]) + 0.5*( momentum[0][1:-1,-2]*momentum[0][1:-1,-2] + 0.5*(momentum[1][1:-1,-2]+momentum[1][:-2,-2])*0.5*(momentum[1][1:-1,-2]+momentum[1][:-2,-2])  + momentum[2][1:-1,-2]*momentum[2][1:-1,-2] )/rho[1:-1,-2]
-         #energy[1:-1, 0] = energy[1:-1, -2]
+         #energy[1:-1,-1] = var.P[1:-1,1]/(par.gamma-1.)  + 0.5*(var.Bz[1:-1,1]*var.Bz[1:-1,1] + var.By[1:-1,1]*var.By[1:-1,1] + var.Bx[1:-1,1]*var.Bx[1:-1,1])       + 0.5*( momentum[0][1:-1,0]*momentum[0][1:-1,0] + 0.5*(momentum[1][1:-1,1]+momentum[1][:-2,1])*0.5*(momentum[1][1:-1,1]+momentum[1][:-2,1])  + momentum[2][1:-1,1]*momentum[2][1:-1,1] )/rho[1:-1,1]
+         energy[1:-1, -1] = energy[1:-1, 1]  #Simpler version, not necessarily correct
+         #energy[1:-1, 0] = var.P[1:-1,-2]/(par.gamma-1.) + 0.5*(var.Bz[1:-1,-2]*var.Bz[1:-1,-2] + var.By[1:-1,-2]*var.By[1:-1,-2] + var.Bx[1:-1,-2]*var.Bx[1:-1,-2]) + 0.5*( momentum[0][1:-1,-2]*momentum[0][1:-1,-2] + 0.5*(momentum[1][1:-1,-2]+momentum[1][:-2,-2])*0.5*(momentum[1][1:-1,-2]+momentum[1][:-2,-2])  + momentum[2][1:-1,-2]*momentum[2][1:-1,-2] )/rho[1:-1,-2]
+         energy[1:-1, 0] = energy[1:-1, -2]
          
       if self.regionA.region=='T':
-         energy[-1,1:-1] = var.P[1,1:-1]/(par.gamma-1.) + 0.5*(var.Bz[1,1:-1]*var.Bz[1,1:-1] + var.By[1,1:-1]*var.By[1,1:-1] + var.Bx[1,1:-1]*var.Bx[1,1:-1]) + 0.5*( 0.5*(momentum[0][1,1:-1]+momentum[0][1,:-2])*0.5*(momentum[0][1,1:-1]+momentum[0][1,:-2]) + momentum[1][0,1:-1]*momentum[1][0,1:-1]  + momentum[2][1,1:-1]*momentum[2][1,1:-1] )/rho[1,1:-1]
-         #energy[-1, 1:-1] = energy[1, 1:-1]
-         energy[0,1:-1] = var.P[-2,1:-1]/(par.gamma-1.) + 0.5*(var.Bz[-2,1:-1]*var.Bz[-2,1:-1] + var.By[-2,1:-1]*var.By[-2,1:-1] + var.Bx[-2,1:-1]*var.Bx[-2,1:-1])  + 0.5*( 0.5*(momentum[0][-2,1:-1]+momentum[0][-2,:-2])*0.5*(momentum[0][-2,1:-1]+momentum[0][-2,:-2]) + momentum[1][-2,1:-1]*momentum[1][-2,1:-1]  + momentum[2][-2,1:-1]*momentum[2][-2,1:-1] )/rho[-2,1:-1]         
-         #energy[0, 1:-1] = energy[-2, 1:-1]
+         #energy[-1,1:-1] = var.P[1,1:-1]/(par.gamma-1.) + 0.5*(var.Bz[1,1:-1]*var.Bz[1,1:-1] + var.By[1,1:-1]*var.By[1,1:-1] + var.Bx[1,1:-1]*var.Bx[1,1:-1]) + 0.5*( 0.5*(momentum[0][1,1:-1]+momentum[0][1,:-2])*0.5*(momentum[0][1,1:-1]+momentum[0][1,:-2]) + momentum[1][0,1:-1]*momentum[1][0,1:-1]  + momentum[2][1,1:-1]*momentum[2][1,1:-1] )/rho[1,1:-1]
+         energy[-1, 1:-1] = energy[1, 1:-1]
+         #energy[0,1:-1] = var.P[-2,1:-1]/(par.gamma-1.) + 0.5*(var.Bz[-2,1:-1]*var.Bz[-2,1:-1] + var.By[-2,1:-1]*var.By[-2,1:-1] + var.Bx[-2,1:-1]*var.Bx[-2,1:-1])  + 0.5*( 0.5*(momentum[0][-2,1:-1]+momentum[0][-2,:-2])*0.5*(momentum[0][-2,1:-1]+momentum[0][-2,:-2]) + momentum[1][-2,1:-1]*momentum[1][-2,1:-1]  + momentum[2][-2,1:-1]*momentum[2][-2,1:-1] )/rho[-2,1:-1]         
+         energy[0, 1:-1] = energy[-2, 1:-1]
       
       
       #energy[self.regionA.sliceBC] = energy[self.regionB.sliceOne]
@@ -437,5 +447,7 @@ class Periodic(BoundaryCondition):
 
          B[2][self.regionA.sliceBC] = B[2][self.regionB.sliceOne]
          B[2][self.regionB.sliceBC] = B[2][self.regionA.sliceOne]
+         
+
 
 

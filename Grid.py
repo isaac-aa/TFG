@@ -15,6 +15,10 @@ y = np.array([])  # Same shape, but for Y-axis coordinates
 dz = 0.
 dy = 0.
 
+# TEMPORARY CHANGE
+extraZ = np.array([])
+extraY = np.array([])
+
 def Uniform1DGrid(Ncell, z0, zf):
    global z
    global dz
@@ -38,6 +42,12 @@ def Uniform2DGrid(NcellZ, NcellY, z0, zf, y0, yf):
 
    #print z[0,:]/(2.*np.pi), zf/(2.*np.pi)
    #print y[:,0]/(2.*np.pi)
+
+   # TEMPORARY CHANGE
+   global extraZ
+   global extraY
+   extraZ = np.zeros_like(y_ax)
+   extraY = np.zeros_like(y_ax)
 
 def ReadGridFromFile(FileName):  
    print "Creating mesh from " + FileName

@@ -521,7 +521,7 @@ def OrszagTangVortex(args):
    var.Bx = var.Bx*0.
    
    Pstar = var.P + 0.5*(var.Bz*var.Bz + var.By*var.By)
-   var.energy = Pstar/(par.gamma-1.) + 0.5*var.rho*((-np.sin(Grid.y))*(-np.sin(Grid.y)) + np.sin(Grid.z)*np.sin(Grid.z))
+   var.energy = var.P/(par.gamma-1.) + 0.5*var.rho*((-np.sin(Grid.y))*(-np.sin(Grid.y)) + np.sin(Grid.z)*np.sin(Grid.z)) + 0.5*(var.Bz*var.Bz + var.By*var.By)
    
    
    # Forced periodic conditions  (does not change anything...)

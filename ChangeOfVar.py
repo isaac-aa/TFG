@@ -9,7 +9,7 @@
 
 import Parameters as par
 import Variables as var
-
+import Grid
 print "Loading ChangeOfpar.."
 
 
@@ -100,11 +100,24 @@ def ConvertToPrimBoundaries():
          momYright = 0.5*(var.momentumY[:-2,-1] + var.momentumY[1:-1,-1])
          momZtop = 0.5*(var.momentumZ[-1,:-2] + var.momentumZ[-1,1:-1])
          momZbot = 0.5*(var.momentumZ[0,:-2] + var.momentumZ[0,1:-1])
+         
+         # TEMPORARY CHANGE
+         momZright = 0.5*(Grid.extraZ[1:-1] + var.momentumZ[1:-1, 0])
+         momZleft = 0.5*(var.momentumZ[1:-1,-2] + var.momentumZ[1:-1, -1])
+         momYtop = 0.5*(var.momentumY[-1,1:-1] + var.momentumY[-2, 1:-1])
+         momYbot = 0.5*(Grid.extraY[1:-1] + var.momentumY[0, 1:-1])
 
-         var.P[1:-1,   0] = (var.energy[1:-1,0] - 0.5*(var.momentumZ[1:-1,0]*var.momentumZ[1:-1,0] + momYleft*momYleft)/var.rho[1:-1,0])*(par.gamma-1.)# L
-         var.P[1:-1,  -1] = (var.energy[1:-1,-1] - 0.5*(var.momentumZ[1:-1,-2]*var.momentumZ[1:-1,-2] + momYright*momYright)/var.rho[1:-1,-1])*(par.gamma-1.) # R
-         var.P[0,   1:-1] = (var.energy[0,1:-1] - 0.5*(momZbot*momZbot + var.momentumY[0,1:-1]*var.momentumY[0,1:-1])/var.rho[0,1:-1])*(par.gamma-1.) # B
-         var.P[-1,  1:-1] = (var.energy[-1,1:-1] - 0.5*(momZtop*momZtop + var.momentumY[-2,1:-1]*var.momentumY[-2,1:-1])/var.rho[-1,1:-1])*(par.gamma-1.) # T  
+         var.P[1:-1,   0] = (var.energy[1:-1,0] - 0.5*(momZleft*momZleft + momYleft*momYleft)/var.rho[1:-1,0])*(par.gamma-1.)# L
+         var.P[1:-1,  -1] = (var.energy[1:-1,-1] - 0.5*(momZright*momZright + momYright*momYright)/var.rho[1:-1,-1])*(par.gamma-1.) # R
+         var.P[0,   1:-1] = (var.energy[0,1:-1] - 0.5*(momZbot*momZbot + momYbot*momYbot)/var.rho[0,1:-1])*(par.gamma-1.) # B
+         var.P[-1,  1:-1] = (var.energy[-1,1:-1] - 0.5*(momZtop*momZtop + momYtop*momYtop)/var.rho[-1,1:-1])*(par.gamma-1.) # T  
+
+         
+         
+         #var.P[1:-1,   0] = (var.energy[1:-1,0] - 0.5*(var.momentumZ[1:-1,0]*var.momentumZ[1:-1,0] + momYleft*momYleft)/var.rho[1:-1,0])*(par.gamma-1.)# L
+         #var.P[1:-1,  -1] = (var.energy[1:-1,-1] - 0.5*(var.momentumZ[1:-1,-2]*var.momentumZ[1:-1,-2] + momYright*momYright)/var.rho[1:-1,-1])*(par.gamma-1.) # R
+         #var.P[0,   1:-1] = (var.energy[0,1:-1] - 0.5*(momZbot*momZbot + var.momentumY[0,1:-1]*var.momentumY[0,1:-1])/var.rho[0,1:-1])*(par.gamma-1.) # B
+         #var.P[-1,  1:-1] = (var.energy[-1,1:-1] - 0.5*(momZtop*momZtop + var.momentumY[-2,1:-1]*var.momentumY[-2,1:-1])/var.rho[-1,1:-1])*(par.gamma-1.) # T  
 
          
          if par.MHD:

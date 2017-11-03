@@ -10,12 +10,12 @@ import numpy as np
 print "Loading Variables.."
 
 # ------------------ MESH ---------------------
-Nz = 288
+Nz = 100
 z0 = 0
 zf = 2.*np.pi
 
 
-Ny = 288
+Ny = 100
 y0 = 0
 yf = 2.*np.pi
 
@@ -33,14 +33,14 @@ tt = 0.
 tf = 3. #np.inf
 it = 0
 max_it = np.inf
-cfl_set = .75
+cfl_set = .01
 cfl = cfl_set
 
 # ------------------ PLOT SETUP ---------------
 
 
 FolderName = 'RESULTS/OrszagTangVortex'
-save_rate = 1
+save_rate = 50
 
 
 # ------------------ SOURCE TERMS -------------

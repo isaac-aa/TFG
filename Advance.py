@@ -663,16 +663,16 @@ class RK3Staggered(AdvanceScheme):
     
       
       
-      
+      # TEMPORARY CHANGES
       vTB = var.Bx*var.vX
       
       vTB[:,1:-1] += 0.5*(var.vZ[:,:-2]+var.vZ[:,1:-1])*var.Bz[:,1:-1]
-      vTB[:,0] += var.vZ[:,0]*var.Bz[:,0]
-      vTB[:,-1] += var.vZ[:,-1]*var.Bz[:,-1]
+      vTB[:,0] += 0.5*(var.vZ[:,0] +Grid.extraZ/var.rho[:,0]  )*var.Bz[:,0]
+      vTB[:,-1] += 0.5*(var.vZ[:,-2] + var.momentumZ[:,-1]/var.rho[:,-1]  )*var.Bz[:,-1]
       
       vTB[1:-1,:] += 0.5*(var.vY[:-2,:]+var.vY[1:-1,:])*var.By[1:-1,:]
-      vTB[0,:] += var.vY[0,:]*var.By[0,:]
-      vTB[-1,:] += var.vY[-1,:]*var.By[-1,:]
+      vTB[0,:] += 0.5*(var.vY[0,:] + Grid.extraY/var.rho[0,:] )*var.By[0,:]
+      vTB[-1,:] += 0.5*(var.vY[-2,:] + var.momentumY[-1,:] )*var.By[-1,:]
                           
     
     
@@ -791,15 +791,16 @@ class RK3Staggered(AdvanceScheme):
       
       
       
+      # TEMPORARY CHANGES
       vTB = var.Bx*var.vX
       
       vTB[:,1:-1] += 0.5*(var.vZ[:,:-2]+var.vZ[:,1:-1])*var.Bz[:,1:-1]
-      vTB[:,0] += var.vZ[:,0]*var.Bz[:,0]
-      vTB[:,-1] += var.vZ[:,-1]*var.Bz[:,-1]
+      vTB[:,0] += 0.5*(var.vZ[:,0] +Grid.extraZ/var.rho[:,0]  )*var.Bz[:,0]
+      vTB[:,-1] += 0.5*(var.vZ[:,-2] + var.momentumZ[:,-1]/var.rho[:,-1]  )*var.Bz[:,-1]
       
       vTB[1:-1,:] += 0.5*(var.vY[:-2,:]+var.vY[1:-1,:])*var.By[1:-1,:]
-      vTB[0,:] += var.vY[0,:]*var.By[0,:]
-      vTB[-1,:] += var.vY[-1,:]*var.By[-1,:]
+      vTB[0,:] += 0.5*(var.vY[0,:] + Grid.extraY/var.rho[0,:] )*var.By[0,:]
+      vTB[-1,:] += 0.5*(var.vY[-2,:] + var.momentumY[-1,:] )*var.By[-1,:]
                           
     
     
@@ -918,15 +919,16 @@ class RK3Staggered(AdvanceScheme):
       
       
       
+      # TEMPORARY CHANGES
       vTB = var.Bx*var.vX
       
       vTB[:,1:-1] += 0.5*(var.vZ[:,:-2]+var.vZ[:,1:-1])*var.Bz[:,1:-1]
-      vTB[:,0] += var.vZ[:,0]*var.Bz[:,0]
-      vTB[:,-1] += var.vZ[:,-1]*var.Bz[:,-1]
+      vTB[:,0] += 0.5*(var.vZ[:,0] +Grid.extraZ/var.rho[:,0]  )*var.Bz[:,0]
+      vTB[:,-1] += 0.5*(var.vZ[:,-2] + var.momentumZ[:,-1]/var.rho[:,-1]  )*var.Bz[:,-1]
       
       vTB[1:-1,:] += 0.5*(var.vY[:-2,:]+var.vY[1:-1,:])*var.By[1:-1,:]
-      vTB[0,:] += var.vY[0,:]*var.By[0,:]
-      vTB[-1,:] += var.vY[-1,:]*var.By[-1,:]
+      vTB[0,:] += 0.5*(var.vY[0,:] + Grid.extraY/var.rho[0,:] )*var.By[0,:]
+      vTB[-1,:] += 0.5*(var.vY[-2,:] + var.momentumY[-1,:] )*var.By[-1,:]
                           
     
     
