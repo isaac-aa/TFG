@@ -66,18 +66,67 @@ def SoundWaves2D(args):
    p0 = args[2]
    Nwav = args[3]
 
-   #K = Nwav*2*np.pi/(Grid.zf-Grid.z0)
    phas = Nwav * 2. * np.pi *(Grid.z-par.z0)/(par.zf-par.z0)
   
    var.rho = rho0*(1. + A*np.cos(phas) )
   
    c_s = np.sqrt(par.gamma*p0/rho0)
-   vIn =  c_s*A*np.cos(phas)
-   var.momentumZ = vIn*var.rho
+   v_ms = np.sqrt(c_s**2 + var.Bx*var.Bx/var.rho)
+   if par.staggered:
+      phas2 = phas + np.pi*Grid.dz/(par.zf-par.z0)
+      var.momentumZ = v_ms*A*np.cos(phas2)*np.ones_like(Grid.z)
+   else:
+      var.momentumZ = A*np.cos(phas)*np.ones_like(Grid.z)
+
    var.momentumY = var.momentumY*0.
 
    pIn = p0*(1. + par.gamma*A*np.cos(phas) )
    var.energy = pIn/(par.gamma-1.) + 0.5*var.momentumZ*var.momentumZ/var.rho
+
+
+def PureMagnetosonic2D(args):
+   rho0 = args[0]
+   A = args[1]
+   p0 = args[2]
+   Nwav = args[3]
+   B0 = args[4]
+
+   phas = Nwav * 2. * np.pi *(Grid.y-par.y0)/(par.yf-par.y0)
+  
+   var.Bx = B0+B0*A*np.cos(phas)
+
+   var.rho = rho0*(1. + A*np.cos(phas) )
+  
+   c_s = np.sqrt(par.gamma*p0/rho0)
+   v_ms = np.sqrt(c_s**2 + var.Bx*var.Bx/var.rho)
+   if par.staggered:
+      phas2 = phas + np.pi*Grid.dz/(par.zf-par.z0)
+      var.momentumY = v_ms*A*np.cos(phas2)*np.ones_like(Grid.z)
+   else: 
+      var.momentumY = v_ms*A*np.cos(phas)*np.ones_like(Grid.z)
+   var.momentumZ = var.momentumZ*0.
+
+   pIn = p0*(1. + par.gamma*A*np.cos(phas) )
+   var.energy = pIn/(par.gamma-1.) + 0.5*var.momentumY*var.momentumY/var.rho + 0.5*var.Bx*var.Bx
+
+
+def PureAlfven2D(args):
+   rho0 = args[0]
+   A = args[1]
+   p0 = args[2]
+   B0 = args[3]
+   Nwav = args[4]
+
+   phas = Nwav * 2. * np.pi *(Grid.z-par.z0)/(par.zf-par.z0)
+   phas2 = phas + np.pi*Grid.dz/(par.zf-par.z0)
+
+   var.rho = rho0*np.ones_like(Grid.z)
+   var.Bz  = B0*np.ones_like(Grid.z)
+   var.By  = B0*A*np.cos(phas)
+   v_A = np.sqrt(B0*B0/rho0)
+   var.momentumY = -v_A*A*np.cos(phas)
+
+   var.energy = p0/(par.gamma-1.) + 0.5*var.momentumY*var.momentumY/var.rho + 0.5*(var.Bz*var.Bz+var.Bx*var.Bx)
 
 
 def KelvinHelmholtz2D(args):
@@ -520,7 +569,6 @@ def OrszagTangVortex(args):
    var.By = np.sin(2*Grid.z)
    var.Bx = var.Bx*0.
    
-   Pstar = var.P + 0.5*(var.Bz*var.Bz + var.By*var.By)
    var.energy = var.P/(par.gamma-1.) + 0.5*var.rho*((-np.sin(Grid.y))*(-np.sin(Grid.y)) + np.sin(Grid.z)*np.sin(Grid.z)) + 0.5*(var.Bz*var.Bz + var.By*var.By)
    
    

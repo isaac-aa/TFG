@@ -38,11 +38,11 @@ energySource = np.zeros(Grid.z.shape)
 # Primitive variables
 T = np.ones(Grid.z.shape)
 P = np.ones(Grid.z.shape)
-vZ = np.ones(Grid.z.shape)
-vY = np.ones(Grid.z.shape)
+vZ = np.zeros(Grid.z.shape)
+vY = np.zeros(Grid.z.shape)
 vX = np.ndarray([])
 if par.twoHalfD==True:
-   vX = np.ones(Grid.z.shape)
+   vX = np.zeros(Grid.z.shape)
 
 # Kappa of thermal diffusion
 kappa = np.zeros(Grid.z.shape)

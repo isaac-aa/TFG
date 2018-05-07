@@ -10,12 +10,12 @@ import numpy as np
 print "Loading Variables.."
 
 # ------------------ MESH ---------------------
-Nz = 100
+Nz = 288
 z0 = 0
 zf = 2.*np.pi
 
 
-Ny = 100
+Ny = 288
 y0 = 0
 yf = 2.*np.pi
 
@@ -33,7 +33,7 @@ tt = 0.
 tf = 3. #np.inf
 it = 0
 max_it = np.inf
-cfl_set = .01
+cfl_set = .1
 cfl = cfl_set
 
 # ------------------ PLOT SETUP ---------------

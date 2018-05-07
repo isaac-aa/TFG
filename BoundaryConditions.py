@@ -374,6 +374,8 @@ class Periodic(BoundaryCondition):
       rho[self.regionA.sliceBC] = rho[self.regionB.sliceOne]
       rho[self.regionB.sliceBC] = rho[self.regionA.sliceOne]
       
+      energy[self.regionA.sliceBC] = energy[self.regionB.sliceOne]
+      energy[self.regionB.sliceBC] = energy[self.regionA.sliceOne]
       
       if not par.staggered:
          momentum[0][self.regionA.sliceBC] = momentum[0][self.regionB.sliceOne]
@@ -391,15 +393,14 @@ class Periodic(BoundaryCondition):
                momentum[0][self.regionB.sliceBC] = momentum[0][-2]
                
             else:
-               momZL = momentum[0][ 1:-1, -2]
-               momentum[0][ 1:-1, -2] = momentum[0][1:-1, 0 ]
-               momentum[0][ 1:-1, 0] = momZL
+               momentum[0][ 1:-1, -2] = momentum[0][1:-1, 1 ]
+               momentum[0][ 1:-1, 0]  = momentum[0][1:-1,-3]
                momentum[1][self.regionA.sliceBC] = momentum[1][self.regionB.sliceOne]
                momentum[1][self.regionB.sliceBC] = momentum[1][self.regionA.sliceOne]
                
                # TEMPORARY CHANGE
-               Grid.extraZ = momentum[0][:, -3]
-               momentum[0][1:-1, -1] = momentum[0][1:-1, 1]
+               #Grid.extraZ = momentum[0][:, -3]
+               #momentum[0][1:-1, -1] = momentum[0][1:-1, 1]
                
 
                
@@ -407,16 +408,15 @@ class Periodic(BoundaryCondition):
          if self.regionA.region=='T':
             momentum[0][self.regionA.sliceBC] = momentum[0][self.regionB.sliceOne]
             momentum[0][self.regionB.sliceBC] = momentum[0][self.regionA.sliceOne]
-            momYT = momentum[1][ -2,1:-1]
-            momentum[1][-2,1:-1] = momentum[1][0,1:-1]
-            momentum[1][0, 1:-1] = momYT   
+            momentum[1][-2,1:-1] = momentum[1][1,1:-1]
+            momentum[1][0, 1:-1] = momentum[1][-3,1:-1]
             
             # TEMPORARY CHANGE
-            Grid.extraY = momentum[1][-3,:]
-            momentum[1][-1,1:-1] = momentum[1][1, 1:-1]
+            #Grid.extraY = momentum[1][-3,:]
+            #momentum[1][-1,1:-1] = momentum[1][1, 1:-1]
             
             
-      
+      """      
       # Temporary placement, should be changed for each case (also Bz for B[0] and so on
       # For staggered, MHD:
       if self.regionA.region=='R':
@@ -431,9 +431,7 @@ class Periodic(BoundaryCondition):
          #energy[0,1:-1] = var.P[-2,1:-1]/(par.gamma-1.) + 0.5*(var.Bz[-2,1:-1]*var.Bz[-2,1:-1] + var.By[-2,1:-1]*var.By[-2,1:-1] + var.Bx[-2,1:-1]*var.Bx[-2,1:-1])  + 0.5*( 0.5*(momentum[0][-2,1:-1]+momentum[0][-2,:-2])*0.5*(momentum[0][-2,1:-1]+momentum[0][-2,:-2]) + momentum[1][-2,1:-1]*momentum[1][-2,1:-1]  + momentum[2][-2,1:-1]*momentum[2][-2,1:-1] )/rho[-2,1:-1]         
          energy[0, 1:-1] = energy[-2, 1:-1]
       
-      
-      #energy[self.regionA.sliceBC] = energy[self.regionB.sliceOne]
-      #energy[self.regionB.sliceBC] = energy[self.regionA.sliceOne]
+      """
 
       if par.MHD:
          momentum[2][self.regionA.sliceBC] = momentum[2][self.regionB.sliceOne]

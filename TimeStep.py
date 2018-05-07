@@ -13,13 +13,14 @@ import Variables as var
 print "Loading TimeStep.."
 
 def ComputeDT():
-   c_s = np.sqrt(par.gamma*var.P/var.rho)
-   vcharZ = np.max([np.max(abs(var.vZ + c_s)), np.max(abs(var.vZ - c_s))])
+#   print var.rho
+   c_s = np.sqrt(par.gamma*var.P[1:-1,1:-1]/var.rho[1:-1,1:-1])
+   #vcharZ = np.max([np.max(abs(var.vZ + c_s)), np.max(abs(var.vZ - c_s))])
    
-   if par.dim == 2:
+   if par.dim == 2 and not par.MHD:
       vcharY = np.max([np.max(abs(var.vY + c_s)), np.max(abs(var.vY - c_s))])
       par.dt = par.cfl_set/( vcharZ/Grid.dz + vcharY/Grid.dz  )
-   else:
+   elif par.dim==1 and not par.MHD:
       par.dt = par.cfl_set*Grid.dz/vcharZ
 
    if par.ThermalDiffusion and not par.ImplicitConduction:
@@ -27,14 +28,24 @@ def ComputeDT():
       #print 'Thermal: %.3e \t Sound: %.3e'%(dt_thermal, par.dt)
       par.dt = np.min([par.dt, dt_thermal])
    
-   """
-   if par.MHD:   # Maybe there is a problem with the time stepping.. dont think so
-      c = np.sqrt(4.*np.pi)
-      vA = np.sqrt( np.max( (var.Bx*var.Bx + var.By*var.By + var.Bz*var.Bz)  /   (var.rho*(4.*np.pi/(c*c) ) ) ) )
-      v = vA/(np.sqrt(1+vA*vA/(c*c)))
-      
-      dt_alfven = par.cfl_set*Grid.dz/v   # We are assuming uniform grid
-      #print dt_alfven
-      par.dt = np.min([par.dt, dt_alfven])
-   """
-   par.cfl = par.dt*vcharZ/Grid.dz
+   if par.MHD:
+      vA = np.sqrt(  (var.Bx*var.Bx + var.By*var.By + var.Bz*var.Bz)  /   var.rho )[1:-1,1:-1]   
+      v = np.sqrt(var.vX*var.vX + var.vY*var.vY + var.vZ*var.vZ)[1:-1, 1:-1]
+      v_ms = np.sqrt(vA**2 + c_s**2)
+
+      vcharP = np.max( np.abs(v+v_ms) )
+      vcharM = np.max( np.abs(v-v_ms) )
+
+      vchar = np.max([vcharP,vcharM])
+      if vchar!=0: 
+         par.dt = par.cfl_set*Grid.dz/vchar   # We are assuming uniform grid
+         #par.dt = np.min([par.dt, dt_alfven])
+   
+   #par.cfl = par.dt*vcharZ/Grid.dz
+
+
+
+
+
+
+

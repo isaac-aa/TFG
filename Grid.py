@@ -47,7 +47,7 @@ def Uniform2DGrid(NcellZ, NcellY, z0, zf, y0, yf):
    global extraZ
    global extraY
    extraZ = np.zeros_like(y_ax)
-   extraY = np.zeros_like(y_ax)
+   extraY = np.zeros_like(z_ax)
 
 def ReadGridFromFile(FileName):  
    print "Creating mesh from " + FileName

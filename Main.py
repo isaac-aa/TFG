@@ -30,6 +30,8 @@ import Variables as var
 
 sets.InitialCondition(sets.argsIC)
 ChangeOfVar.ConvertToPrim()
+ChangeOfVar.ConvertToPrimBoundaries()
+
 
 # ------------------ MAIN LOOP -----------------
 
