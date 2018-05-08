@@ -117,16 +117,16 @@ def PureAlfven2D(args):
    B0 = args[3]
    Nwav = args[4]
 
-   phas = Nwav * 2. * np.pi *(Grid.z-par.z0)/(par.zf-par.z0)
-   phas2 = phas + np.pi*Grid.dz/(par.zf-par.z0)
+   phas = Nwav * 2. * np.pi *(Grid.y-par.y0)/(par.yf-par.y0)
+   phas2 = phas + np.pi*Grid.dy/(par.yf-par.y0)
 
    var.rho = rho0*np.ones_like(Grid.z)
-   var.Bz  = B0*np.ones_like(Grid.z)
-   var.By  = B0*A*np.cos(phas)
+   var.By  = B0*np.ones_like(Grid.z)
+   var.Bz  = B0*A*np.cos(phas)
    v_A = np.sqrt(B0*B0/rho0)
-   var.momentumY = -v_A*A*np.cos(phas)
+   var.momentumZ = -v_A*A*np.cos(phas)
 
-   var.energy = p0/(par.gamma-1.) + 0.5*var.momentumY*var.momentumY/var.rho + 0.5*(var.Bz*var.Bz+var.Bx*var.Bx)
+   var.energy = p0/(par.gamma-1.) + 0.5*var.momentumZ*var.momentumZ/var.rho + 0.5*(var.Bz*var.Bz+var.Bx*var.Bx)
 
 
 def KelvinHelmholtz2D(args):

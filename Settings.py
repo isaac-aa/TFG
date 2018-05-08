@@ -92,5 +92,5 @@ Tracers = None #(LagrangeTracer.Tracer(par.z0 + 500*Grid.dz, 0), LagrangeTracer.
 #argsR = ['R', 1e6, 2.52373286e-15]
 
 
-Scheme = Advance.RK3Staggered()
+Scheme = Advance.RK3()
 Scheme.setup()

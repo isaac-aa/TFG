@@ -19,6 +19,10 @@ def ConvertToPrim():
       var.vY = var.momentumY/var.rho
       var.P = (var.energy - 0.5*(var.momentumZ*var.momentumZ + var.momentumY*var.momentumY)/var.rho)*(par.gamma-1.)
       var.T = var.P*par.mu/(var.rho*par.R)
+
+      if par.MHD and par.dim==2:
+         var.vX = var.momentumX/var.rho
+         var.P += -(0.5*var.momentumX*var.momentumX/var.rho + 0.5*(var.Bx*var.Bx + var.By*var.By + var.Bz*var.Bz))*(par.gamma-1.)
       
    else:  
       if par.dim==1:
@@ -51,16 +55,51 @@ def ConvertToPrim():
 
 def ConvertToPrimBoundaries():
    if not par.staggered:
-      var.vZ[0] = var.momentumZ/var.rho
-      var.vY[0] = var.momentumY/var.rho
-      var.P[0] = (var.energy - 0.5*(var.momentumZ*var.momentumZ + var.momentumY*var.momentumY)/var.rho)*(par.gamma-1.)
-      var.T[0] = var.P*par.mu/(var.rho*par.R)
+      if par.dim==1:
+         var.vZ[0] = var.momentumZ/var.rho
+         var.vY[0] = var.momentumY/var.rho
+         var.P[0] = (var.energy - 0.5*(var.momentumZ*var.momentumZ + var.momentumY*var.momentumY)/var.rho)*(par.gamma-1.)
+         var.T[0] = var.P*par.mu/(var.rho*par.R)
       
-      var.vZ[-1] = var.momentumZ/var.rho
-      var.vY[-1] = var.momentumY/var.rho
-      var.P[-1] = (var.energy - 0.5*(var.momentumZ*var.momentumZ + var.momentumY*var.momentumY)/var.rho)*(par.gamma-1.)
-      var.T[-1] = var.P*par.mu/(var.rho*par.R)
+         var.vZ[-1] = var.momentumZ/var.rho
+         var.vY[-1] = var.momentumY/var.rho
+         var.P[-1] = (var.energy - 0.5*(var.momentumZ*var.momentumZ + var.momentumY*var.momentumY)/var.rho)*(par.gamma-1.)
+         var.T[-1] = var.P*par.mu/(var.rho*par.R)
+
+      elif par.dim==2:
+         var.vZ[:,0]  = var.momentumZ[:,0]/var.rho[:,0]	
+         var.vZ[:,-1] = var.momentumZ[:,-1]/var.rho[:,-1]	
+         var.vZ[0,:]  = var.momentumZ[0,:]/var.rho[0,:]	
+         var.vZ[-1,:] = var.momentumZ[-1,:]/var.rho[-1,:]	
+
+         var.vY[:,0]  = var.momentumY[:,0]/var.rho[:,0]	
+         var.vY[:,-1] = var.momentumY[:,-1]/var.rho[:,-1]	
+         var.vY[0,:]  = var.momentumY[0,:]/var.rho[0,:]	
+         var.vY[-1,:] = var.momentumY[-1,:]/var.rho[-1,:]	
       
+
+         var.P[:,0]  = (var.energy[:,0] - 0.5*(var.momentumZ[:,0]**2 + var.momentumY[:,0]**2)/var.rho[:,0])*(par.gamma-1.) 	
+         var.P[:,-1] = (var.energy[:,-1] - 0.5*(var.momentumZ[:,-1]**2 + var.momentumY[:,-1]**2)/var.rho[:,-1])*(par.gamma-1.) 	
+         var.P[0,:]  = (var.energy[0,:] - 0.5*(var.momentumZ[0,:]**2 + var.momentumY[0,:]**2)/var.rho[0,:])*(par.gamma-1.) 	
+         var.P[-1,:] = (var.energy[-1,:] - 0.5*(var.momentumZ[-1,:]**2 + var.momentumY[-1,:]**2)/var.rho[-1,:])*(par.gamma-1.) 	
+
+         if par.MHD:
+            var.P[:,0] += -(0.5*var.momentumX[:,0]**2/var.rho[:,0] + 0.5*(var.Bx[:,0]**2 + var.By[:,0]**2 + var.Bz[:,0]**2) )*(par.gamma-1.)
+            var.P[:,-1] += -(0.5*var.momentumX[:,-1]**2/var.rho[:,-1] + 0.5*(var.Bx[:,-1]**2 + var.By[:,-1]**2 + var.Bz[:,-1]**2) )*(par.gamma-1.)
+            var.P[0,:] += -(0.5*var.momentumX[0,:]**2/var.rho[0,:] + 0.5*(var.Bx[0,:]**2 + var.By[0,:]**2 + var.Bz[0,:]**2) )*(par.gamma-1.)
+            var.P[-1,:] += -(0.5*var.momentumX[-1,:]**2/var.rho[-1,:] + 0.5*(var.Bx[-1,:]**2 + var.By[-1,:]**2 + var.Bz[-1,:]**2) )*(par.gamma-1.)
+
+            var.vX[:,0]  = var.momentumX[:,0]/var.rho[:,0]	
+            var.vX[:,-1] = var.momentumX[:,-1]/var.rho[:,-1]	
+            var.vX[0,:]  = var.momentumX[0,:]/var.rho[0,:]	
+            var.vX[-1,:] = var.momentumX[-1,:]/var.rho[-1,:]	
+
+         var.T[:,0] = var.P[:,0]*par.mu/(var.rho[:,0]*par.R) 
+         var.T[:,-1] = var.P[:,-1]*par.mu/(var.rho[:,-1]*par.R) 
+         var.T[0,:] = var.P[0,:]*par.mu/(var.rho[0,:]*par.R) 
+         var.T[-1,:] = var.P[-1,:]*par.mu/(var.rho[-1,:]*par.R) 
+
+ 
    else:  
       if par.dim==1:
          var.vZ[-2] = 2.*var.momentumZ[:-1]/(var.rho[:-1] + var.rho[1:])
@@ -114,6 +153,8 @@ def ConvertToPrimBoundaries():
          var.P[-1,  1:-1] = (var.energy[-1,1:-1] - 0.5*(momZtop*momZtop \
                                + var.momentumY[-2,1:-1]*var.momentumY[-2,1:-1])/var.rho[-1,1:-1])*(par.gamma-1.) # T  
 
+
+
          if par.MHD:
             var.P[1:-1,   0] += -(0.5*(var.Bx[1:-1,   0]*var.Bx[1:-1,   0] + var.By[1:-1,   0]*var.By[1:-1,   0] \
                               + var.Bz[1:-1,   0]*var.Bz[1:-1,   0]) \
@@ -141,3 +182,29 @@ def ConvertToPrimBoundaries():
          var.T[0,   1:-1] = var.P[0,   1:-1]*par.mu/(var.rho[0,   1:-1]*par.R)        
          var.T[-1,  1:-1] = var.P[-1,  1:-1]*par.mu/(var.rho[-1,  1:-1]*par.R)        
 
+
+         # TEMPORAL CHANGE 08/05
+         var.P[0,0] = 0.5*(var.P[0,1]+var.P[1,0])
+         var.P[0,-1] = 0.5*(var.P[0,-2]+var.P[1,-1])
+         var.P[-1,0] = 0.5*(var.P[-1,1]+var.P[-2,0])
+         var.P[-1,-1] = 0.5*(var.P[-2,-1]+var.P[-1,-2])
+       
+         var.T[0,0] = 0.5*(var.T[0,1]+var.T[1,0])
+         var.T[0,-1] = 0.5*(var.T[0,-2]+var.T[1,-1])
+         var.T[-1,0] = 0.5*(var.T[-1,1]+var.T[-2,0])
+         var.T[-1,-1] = 0.5*(var.T[-2,-1]+var.T[-1,-2])
+       
+         var.vX[0,0] = 0.5*(var.vX[0,1]+var.vX[1,0])
+         var.vX[0,-1] = 0.5*(var.vX[0,-2]+var.vX[1,-1])
+         var.vX[-1,0] = 0.5*(var.vX[-1,1]+var.vX[-2,0])
+         var.vX[-1,-1] = 0.5*(var.vX[-2,-1]+var.vX[-1,-2])
+
+         var.vY[0,0] = 0.5*(var.vY[0,1]+var.vY[1,0])
+         var.vY[0,-1] = 0.5*(var.vY[0,-2]+var.vY[1,-1])
+         var.vY[-2,0] = 0.5*(var.vY[-2,1]+var.vY[-3,0])
+         var.vY[-2,-1] = 0.5*(var.vY[-3,-1]+var.vY[-2,-2])
+
+         var.vX[0,0] = 0.5*(var.vX[0,1]+var.vX[1,0])
+         var.vX[0,-2] = 0.5*(var.vX[0,-3]+var.vX[1,-2])
+         var.vX[-1,0] = 0.5*(var.vX[-1,1]+var.vX[-2,0])
+         var.vX[-1,-2] = 0.5*(var.vX[-2,-2]+var.vX[-1,-3])
