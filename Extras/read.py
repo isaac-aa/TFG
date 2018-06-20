@@ -11,11 +11,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 import glob
 
-folder = '../RESULTS/OrszagTangVortex/'
+case = 'OrszagTangVortex'
 
-files = glob.glob(folder+'RESULTS_DAT/*.npy')
+mainfolder = '../RESULTS/'+case+'/'
+folder_dat = '../RESULTS/'+case+'/RESULTS_DAT/'
+folder_im =  '../RESULTS/'+case+'/RESULTS/'
+
+files = sorted(glob.glob(folder_dat+'*.npy'))
+files = [ifile.split('/')[-1] for ifile in files]
+
+print files
 
 dim = 2
+
+time = np.loadtxt(mainfolder+'log.txt', usecols=(2,))
 
 #import Grid
 #import Parameters as par
@@ -67,9 +76,8 @@ if dim == 1:
 
 if dim == 2:
    for i in range(len(files)):
-      data = np.load(files[i])
+      data = np.load(folder_dat+files[i])
       print i, ' out of ', len(files)
-      t = float(files[i][-30:-8])
 
       gamma = 5./3.
       R = 1.
@@ -113,7 +121,7 @@ if dim == 2:
 #     plt.plot(0.5*(data[1][:-1,100]+data[1][1:,100]), vY[:,100]/v_A, 'r:')
 
       #Q = plt.quiver(data[0], data[1], data[-3], data[-2])
-      #plt.title(r'$P$')
+      plt.title(time[i])
       #plt.colorbar()
 
 
@@ -156,7 +164,7 @@ if dim == 2:
 
 
       plt.tight_layout()
-      plt.savefig(files[i]+'.png')
+      plt.savefig(folder_im+'%d.png'%i)
       plt.clf()
       #plt.close(fig)
       

@@ -104,7 +104,7 @@ while (par.it<=par.max_it and par.tt<=par.tf):
          Tracer.TimeStep()
 
    if par.it%par.save_rate == 0.:
-     
+      Save.plotCounter += 1 
 
       lastTime = time.clock()
       Save.Plot()
