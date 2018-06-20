@@ -14,11 +14,11 @@ print "Loading TimeStep.."
 
 def ComputeDT():
 #   print var.rho
-   c_s = np.sqrt(par.gamma*var.P[1:-1,1:-1]/var.rho[1:-1,1:-1])
+   c_s2 = par.gamma*var.P[1:-1,1:-1]/var.rho[1:-1,1:-1]
    #vcharZ = np.max([np.max(abs(var.vZ + c_s)), np.max(abs(var.vZ - c_s))])
    
    if par.dim == 2 and not par.MHD:
-      vcharY = np.max([np.max(abs(var.vY + c_s)), np.max(abs(var.vY - c_s))])
+      vcharY = np.max([np.max(abs(var.vY + np.sqrt(c_s))), np.max(abs(var.vY - np.sqrt(c_s)))])
       par.dt = par.cfl_set/( vcharZ/Grid.dz + vcharY/Grid.dz  )
    elif par.dim==1 and not par.MHD:
       par.dt = par.cfl_set*Grid.dz/vcharZ
@@ -29,9 +29,9 @@ def ComputeDT():
       par.dt = np.min([par.dt, dt_thermal])
    
    if par.MHD:
-      vA = np.sqrt(  (var.Bx*var.Bx + var.By*var.By + var.Bz*var.Bz)  /   var.rho )[1:-1,1:-1]   
+      vA2 = (  (var.Bx*var.Bx + var.By*var.By + var.Bz*var.Bz)  /   var.rho )[1:-1,1:-1]   
       v = np.sqrt(var.vX*var.vX + var.vY*var.vY + var.vZ*var.vZ)[1:-1, 1:-1]
-      v_ms = np.sqrt(vA**2 + c_s**2)
+      v_ms = np.sqrt(vA2 + c_s2)
 
       vcharP = np.max( np.abs(v+v_ms) )
       vcharM = np.max( np.abs(v-v_ms) )

@@ -270,7 +270,7 @@ class RK4(AdvanceScheme):
 class RK3(AdvanceScheme):
    name = 'Runge-Kutta 3th order'
    
-   def setup(self):
+   def setup(self, DerScheme):
       self.rho_k1 = np.zeros_like(Grid.z)
       self.rho_k2 = np.zeros_like(Grid.z)
       self.rho_k3 = np.zeros_like(Grid.z)
@@ -303,9 +303,11 @@ class RK3(AdvanceScheme):
             self.Bx_k1 = np.zeros_like(Grid.z)
             self.Bx_k2 = np.zeros_like(Grid.z)
             self.Bx_k3 = np.zeros_like(Grid.z)       
-      
+      # Set derivative strategy
+      self.Derivate = DerScheme
       AdvanceScheme.setup(self)
-   
+      self.Derivate.setup()
+    
    def compute(self):
       if par.dim==1:
          self.compute1D()
@@ -367,17 +369,16 @@ class RK3(AdvanceScheme):
       var.energy = var.lastenergy +        h/6. * (self.ene_k1 + 4.*self.ene_k2 + self.ene_k3)
 
 
-
    def computeKvar2DMHD(self, rho_k, momZ_k, momY_k, momX_k, Bz_k, By_k, Bx_k, ene_k):
 
-      rho_k[1:-1, 1:-1] = -0.5*(var.momentumZ[1:-1,2:]-var.momentumZ[1:-1,:-2])/Grid.dz - 0.5*(var.momentumY[2:,1:-1]-var.momentumY[:-2,1:-1])/Grid.dy
+      rho_k[1:-1, 1:-1] = -self.Derivate(var.momentumZ,0) - self.Derivate(var.momentumY,1)
       
    
       
       
       
-      termZZ = (var.momentumZ)**2/var.rho
-      termYY = (var.momentumY)**2/var.rho
+    # termZZ = (var.momentumZ)**2/var.rho
+    # termYY = (var.momentumY)**2/var.rho
       """
       meanRho = 0.25*( var.rho[:-1,:-1] + var.rho[1:,:-1] + var.rho[1:,1:] + var.rho[:-1,1:] )
       # The thermZY is physically located on the corner of the cells
@@ -390,29 +391,31 @@ class RK3(AdvanceScheme):
       self.momY_k1[1:-2,1:-1] = -(termYY[1:,1:-1]-termYY[:-1,1:-1])/Grid.dy - (var.P[2:-1,1:-1]-var.P[1:-2,1:-1])/Grid.dy - (termZY[:,1:]-termZY[:,:-1])/Grid.dz
       """
       
-      termZY = var.momentumZ*var.momentumY/var.rho
+      termZY = var.vZ*var.momentumY - var.Bz*var.By
       
       pStar = var.P + 0.5*(var.Bx*var.Bx + var.By*var.By + var.Bz*var.Bz)
       # see: http://www.csun.edu/~jb715473/examples/mhd2d.htm#magnetic_field
-      PtermZZ = pStar-var.Bz*var.Bz
-      PtermYY = pStar-var.By*var.By
+     #PtermZZ = pStar-var.Bz*var.Bz
+     #PtermYY = pStar-var.By*var.By
       
-      BtermZY = - var.Bz*var.By # 0.25*( var.Bz[:-1,:-1] + var.Bz[1:,:-1] + var.Bz[1:,1:] + var.Bz[:-1,1:] )*0.25*( var.By[:-1,:-1] + var.By[1:,:-1] + var.By[1:,1:] + var.By[:-1,1:] )
+     #BtermZY = - var.Bz*var.By # 0.25*( var.Bz[:-1,:-1] + var.Bz[1:,:-1] + var.Bz[1:,1:] + var.Bz[:-1,1:] )*0.25*( var.By[:-1,:-1] + var.By[1:,:-1] + var.By[1:,1:] + var.By[:-1,1:] )
 
-      momZ_k[1:-1,1:-1] = -0.5*(termZZ[1:-1,2:]-termZZ[1:-1,:-2])/Grid.dz - 0.5*(PtermZZ[1:-1,2:]-PtermZZ[1:-1,:-2])/Grid.dz - 0.5*(termZY[2:,1:-1]-termZY[:-2,1:-1])/Grid.dy - 0.5*(BtermZY[2:,1:-1]-BtermZY[:-2,1:-1])/Grid.dy
-      momY_k[1:-1,1:-1] = -0.5*(termYY[2:,1:-1]-termYY[:-2,1:-1])/Grid.dy - 0.5*(PtermYY[2:,1:-1]-PtermYY[:-2,1:-1])/Grid.dy - 0.5*(termZY[1:-1,2:]-termZY[1:-1,:-2])/Grid.dz - 0.5*(BtermZY[1:-1,2:]-BtermZY[1:-1,:-2])/Grid.dz
+      momZ_k[1:-1,1:-1] = -self.Derivate(var.momentumZ*var.vZ + pStar-var.Bz*var.Bz,0) - self.Derivate(termZY,1)
+      momY_k[1:-1,1:-1] = -self.Derivate(var.momentumY*var.vY + pStar-var.By*var.By,1) - self.Derivate(termZY,0)
     
       # momentumX is not staggered (there is no third dimension to do so)
       
-      BtermXZ =  - var.Bx*var.Bz
-      BtermXY =  - var.By*var.Bx
+     #BtermXZ =  - var.Bx*var.Bz
+     #BtermXY =  - var.By*var.Bx
     
-      vXintZ = var.momentumX*var.momentumZ/var.rho #0.5*(var.vX[:,:-1] + var.vX[:,1:])*var.momentumZ[:,:-1]
-      vXintY = var.momentumX*var.momentumY/var.rho #0.5*(var.vX[:-1,:] + var.vX[1:,:])*var.momentumY[:-1,:]
+     #vXintZ = var.vX*var.momentumZ #0.5*(var.vX[:,:-1] + var.vX[:,1:])*var.momentumZ[:,:-1]
+     #vXintY = var.vX*var.momentumY #0.5*(var.vX[:-1,:] + var.vX[1:,:])*var.momentumY[:-1,:]
       
     
-      momX_k[1:-1, 1:-1] = -.5*(vXintZ[1:-1,2:]-vXintZ[1:-1,:-2])/Grid.dz - 0.5*(vXintY[2:,1:-1]-vXintY[:-2,1:-1])/Grid.dy \
-                         - 0.5*(BtermXZ[1:-1,2:]-BtermXZ[1:-1,:-2])/Grid.dz - 0.5*(BtermXY[2:,1:-1]-BtermXY[:-2,1:-1])/Grid.dy
+      momX_k[1:-1, 1:-1] = -self.Derivate(var.vX*var.momentumZ - var.Bx*var.Bz, 0) \
+                           -self.Derivate(var.vX*var.momentumY - var.By*var.Bx, 1) 
+                         #-.5*(vXintZ[1:-1,2:]-vXintZ[1:-1,:-2])/Grid.dz - 0.5*(vXintY[2:,1:-1]-vXintY[:-2,1:-1])/Grid.dy \
+                         #- 0.5*(BtermXZ[1:-1,2:]-BtermXZ[1:-1,:-2])/Grid.dz - 0.5*(BtermXY[2:,1:-1]-BtermXY[:-2,1:-1])/Grid.dy
     
     
       
@@ -422,44 +425,50 @@ class RK3(AdvanceScheme):
     
     
     
-      termBzVy = var.Bz*var.momentumY/var.rho # 0.5*(var.Bz[1:,:] + var.Bz[:-1,:])*var.vY[:-1,:]
-      termByVz = var.momentumZ*var.By/var.rho #-0.5*(var.vZ[:,:-2] + var.vZ[:,1:-1])*var.By[:,1:-1]
+     #termBzVy = var.Bz*var.vY # 0.5*(var.Bz[1:,:] + var.Bz[:-1,:])*var.vY[:-1,:]
+     #termByVz = var.vZ*var.By #-0.5*(var.vZ[:,:-2] + var.vZ[:,1:-1])*var.By[:,1:-1]
       
-      Bz_k[1:-1,1:-1] = -0.5*(termBzVy[2:,1:-1]-termBzVy[:-2,1:-1])/Grid.dy + 0.5*(termByVz[2:,1:-1]-termByVz[:-2,1:-1])/Grid.dy
+      Bz_k[1:-1,1:-1] = -self.Derivate(var.Bz*var.vY - var.vZ*var.By, 1)
+                        #-0.5*(termBzVy[2:,1:-1]-termBzVy[:-2,1:-1])/Grid.dy + 0.5*(termByVz[2:,1:-1]-termByVz[:-2,1:-1])/Grid.dy
 
-      By_k[1:-1,1:-1] = +0.5*(termBzVy[1:-1,2:]-termBzVy[1:-1,:-2])/Grid.dz - 0.5*(termByVz[1:-1,2:]-termByVz[1:-1,:-2])/Grid.dz
+      By_k[1:-1,1:-1] = -self.Derivate(-var.Bz*var.vY + var.By*var.vZ, 0)
+                        #+0.5*(termBzVy[1:-1,2:]-termBzVy[1:-1,:-2])/Grid.dz - 0.5*(termByVz[1:-1,2:]-termByVz[1:-1,:-2])/Grid.dz
 
       #print var.vY[0,:]#-termBzVy[0,:-2]
     
-      termBxVz = var.Bx*var.momentumZ/var.rho #0.5*(var.Bx[:,1:] + var.Bx[:,:-1])*var.vZ[:,:-1]
-      termBzVx = -var.Bz*var.momentumX/var.rho #-var.Bz*var.vX
+     #termBxVz = var.Bx*var.vZ  #0.5*(var.Bx[:,1:] + var.Bx[:,:-1])*var.vZ[:,:-1]
+     #termBzVx = -var.Bz*var.vX #-var.Bz*var.vX
+     #
+     #termBxVy = var.Bx*var.vY #0.5*(var.Bx[1:,:] + var.Bx[:-1,:])*var.vY[:-1,:]
+     #termByVx = -var.By*var.vX
       
-      termBxVy = var.Bx*var.momentumY/var.rho #0.5*(var.Bx[1:,:] + var.Bx[:-1,:])*var.vY[:-1,:]
-      termByVx = -var.By*var.momentumX/var.rho
-      
-      Bx_k[1:-1,1:-1] =       -0.5*(termBxVz[1:-1,2:]-termBxVz[1:-1,:-2])/Grid.dz     \
-                              -0.5*(termBzVx[1:-1,2:]-termBzVx[1:-1,:-2])/Grid.dz  \
-                              -0.5*(termBxVy[2:,1:-1]-termBxVy[:-2,1:-1])/Grid.dy     \
-                              -0.5*(termByVx[2:,1:-1]-termByVx[:-2,1:-1])/Grid.dy
+      Bx_k[1:-1,1:-1] = -self.Derivate(var.Bx*var.vZ - var.Bz*var.vX, 0) \
+                        -self.Derivate(var.Bx*var.vY - var.By*var.vX, 1)
+                             #-0.5*(termBxVz[1:-1,2:]-termBxVz[1:-1,:-2])/Grid.dz     \
+                             #-0.5*(termBzVx[1:-1,2:]-termBzVx[1:-1,:-2])/Grid.dz  \
+                             #-0.5*(termBxVy[2:,1:-1]-termBxVy[:-2,1:-1])/Grid.dy     \
+                             #-0.5*(termByVx[2:,1:-1]-termByVx[:-2,1:-1])/Grid.dy
     
         
     
     
       
       
-      # TEMPORARY CHANGES
-      vTB = (var.Bx*var.momentumX + var.By*var.momentumY + var.Bz*var.momentumZ)/var.rho
-    
-      termZ = (var.energy+pStar)*var.momentumZ/var.rho  #( (var.energy+pStar)[:,:-1] + (var.energy+pStar)[:,1:])/( (var.rho[:,1:] + var.rho[:,:-1])  ) 
+      vTB = (var.Bx*var.vX + var.By*var.vY + var.Bz*var.vZ)
+      enePlusP = var.energy+pStar    
+
+     #termZ = (var.energy+pStar)*var.vZ #( (var.energy+pStar)[:,:-1] + (var.energy+pStar)[:,1:])/( (var.rho[:,1:] + var.rho[:,:-1])  ) 
+     #
+     #termY = (var.energy+pStar)*var.vY
+     #
+     #termBz = - var.Bz*vTB
+     #termBy = - var.By*vTB
       
-      termY = (var.energy+pStar)*var.momentumY/var.rho
-      
-      termBz = - var.Bz*vTB
-      termBy = - var.By*vTB
-      
-      ene_k[1:-1,1:-1] = -0.5*(termZ[1:-1,2:]-termZ[1:-1,:-2])/Grid.dz - 0.5*(termY[2:,1:-1]-termY[:-2,1:-1])/Grid.dy \
-                               -(termBz[1:-1,2:]-termBz[1:-1,:-2])/(2.*Grid.dz)  \
-                               -(termBy[2:,1:-1]-termBy[:-2,1:-1])/(2.*Grid.dy)
+      ene_k[1:-1,1:-1] = -self.Derivate(enePlusP*var.vZ - var.Bz*vTB, 0) \
+                         -self.Derivate(enePlusP*var.vY - var.By*vTB, 1) 
+                             # -0.5*(termZ[1:-1,2:]-termZ[1:-1,:-2])/Grid.dz - 0.5*(termY[2:,1:-1]-termY[:-2,1:-1])/Grid.dy \
+                             # -(termBz[1:-1,2:]-termBz[1:-1,:-2])/(2.*Grid.dz)  \
+                             # -(termBy[2:,1:-1]-termBy[:-2,1:-1])/(2.*Grid.dy)
       
       
 

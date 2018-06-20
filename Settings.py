@@ -11,6 +11,7 @@ import InitialConditions
 import ChangeOfVar
 import LagrangeTracer
 import Parameters as par
+import Derivative
 import Grid
 
 print 'Loading Settings..'
@@ -91,6 +92,7 @@ Tracers = None #(LagrangeTracer.Tracer(par.z0 + 500*Grid.dz, 0), LagrangeTracer.
 #BoundaryConditionR = BoundaryConditions.FixedT
 #argsR = ['R', 1e6, 2.52373286e-15]
 
+Derivate = Derivative.CentralDer2D()
 
 Scheme = Advance.RK3()
-Scheme.setup()
+Scheme.setup(Derivate)
